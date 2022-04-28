@@ -1,5 +1,13 @@
+from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk, filedialog
+
+from PIL import Image, ImageTk
+
+from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper
+from gamedata import COURSE_NUMBERS, COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
+from parser import MK8GhostFilenameParser, MK8GhostData
+
 
 class PoltergustUI:
     window_width = 500
@@ -10,6 +18,7 @@ class PoltergustUI:
 
     def __init__(self, root: Tk):
         self.ghostfile: str | None = None
+        self.data: MK8GhostData | None = None
 
         self.root = root
         root.option_add('*tearOff', FALSE)
@@ -47,9 +56,9 @@ class PoltergustUI:
         summaryframe.grid(column=0, row=0, sticky=(N, W, E, S))
 
         # Character
-        self.character = StringVar()
-        character_entry = ttk.Entry(summaryframe, width=7, textvariable=self.character)
-        character_entry.grid(column=0, row=0, rowspan=2, sticky=(N,W,E,S))
+        self.character_canvas = Canvas(summaryframe, width=128, height=128)
+        self.character_canvas.grid(column=0, row=0, rowspan=2, sticky=(N,W,E,S))
+        self.character_tip = Hovertip(self.character_canvas, 'PLACEHOLDER', hover_delay=1000)
 
         # Name
         self.playername = StringVar()
@@ -57,9 +66,9 @@ class PoltergustUI:
         playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E))
 
         # Flag
-        self.flag = StringVar()
-        flag_entry = ttk.Entry(summaryframe, width=7, textvariable=self.flag)
-        flag_entry.grid(column=1, row=1, sticky=(W,E))
+        self.flag_canvas = Canvas(summaryframe, width=70, height=48)
+        self.flag_canvas.grid(column=1, row=1, sticky=(N,W,E,S))
+        self.flag_tip = Hovertip(self.flag_canvas, 'PLACEHOLDER', hover_delay=1000)
 
         # Total Time
         self.total_min = IntVar()
@@ -90,12 +99,8 @@ class PoltergustUI:
         self.wheels = self.generate_vehicle_entry(detailframe, StringVar(), 2)
         self.glider = self.generate_vehicle_entry(detailframe, StringVar(), 3)
 
-
-
-        for child in summaryframe.winfo_children():
-            child.grid_configure(padx=5, pady=5)
-
-
+        # for child in summaryframe.winfo_children():
+        #     child.grid_configure(padx=5, pady=5)
 
         playername_entry.focus()
         # root.bind("<Return>", self.calculate)
@@ -161,9 +166,20 @@ class PoltergustUI:
 
             self.lb_ghostfile.config(text=file_str)
 
+            # Parse file
+            self.parse_file(self.ghostfile)
+
+            # Update Images
+            self.update_flag()
+
+            self.update_character()
+
             # Show Preview
             self.dataframe.grid()
         else:
+            # Discard data
+            self.data = None
+
             # Disable buttons if no file is open
             self.menu_file.entryconfig(self.BTN_CLOSE, state=DISABLED)
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=DISABLED)
@@ -171,6 +187,33 @@ class PoltergustUI:
 
             # Remove Preview
             # self.dataframe.grid_remove()
+
+    def parse_file(self, filepath: str):
+        filename = filepath.rpartition("/")[2].rpartition(".")[0]
+        self.data = MK8GhostFilenameParser(filename).parse()
+
+    def update_flag(self):
+        assert self.data is not None
+
+        flag = ("Unknown Flag", None)
+        if 0 <= self.data.flag_id < len(FLAGS):
+            flag = FLAGS[self.data.flag_id]
+
+        self.set_mapped_image(self.flag_canvas, MK8FlagImageMapper, flag[1])
+        self.flag_tip.text = flag[0]
+
+    def update_character(self) -> None:
+        assert self.data is not None
+
+        char = CHARACTERS.get(self.data.character_id, ("Unknown Character", None))
+        self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper, char[1])
+        self.character_tip.text = char[0]
+
+    def set_mapped_image(self, canvas: Canvas, mapper: MK8ImageAtlasMapper, index: int | None, resize_to: tuple[int, int] | None = None) -> None:
+        img = mapper.index_to_image(index, resize_to=resize_to)
+        self_img_name = "icon_" + mapper.image_name
+        setattr(self, self_img_name, ImageTk.PhotoImage(img))
+        canvas.create_image(0, 0, image=getattr(self, self_img_name), anchor=NW)
 
     def open_ghost_file(self):
         filename = filedialog.askopenfilename(

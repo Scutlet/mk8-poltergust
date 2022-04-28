@@ -1,0 +1,25 @@
+
+===============================
+Character Icons
+-------------------------------
+Original Artwork: Nintendo
+Rippers: Random Talking Bush
+Source: https://www.spriters-resource.com/nintendo_switch/mariokart8deluxe/sheet/94161/
+
+
+===============================
+Vehicle Parts
+-------------------------------
+Original Artwork: Nintendo
+Rippers: Random Talking Bush
+Source: https://www.spriters-resource.com/nintendo_switch/mariokart8deluxe/sheet/94162/
+
+
+===============================
+Flags
+-------------------------------
+Original Artwork: Nintendo
+Rippers: Ink_Larry
+Source: https://www.spriters-resource.com/wii_u/mariokart8/sheet/85662/
+
+Modified by Scutlet to add a ?-flag
