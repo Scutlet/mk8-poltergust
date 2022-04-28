@@ -27,8 +27,6 @@ class MK8ImageAtlasMapper(ABC):
 
     @classmethod
     def get_coordinates(cls, index: int | None) -> tuple[int, int, int, int]:
-        # Flag rectangles are 60x40; x-gap is 5px; y-gap is 4px
-        # 10 flags per row; 71 total
         if index is None or index < 0 or index >= cls.num_icons:
             return (*cls.invalid_coordinates, cls.invalid_coordinates[0] + cls.icon_size[0], cls.invalid_coordinates[1] + cls.icon_size[1])
 
