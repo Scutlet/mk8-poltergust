@@ -66,14 +66,17 @@ CHARACTERS = {
 
 KARTS = {
     0: ("Standard Kart", 0),
+    9: ("Buggybud", 132),
 }
 
 WHEELS = {
     0: ("Normal", 348),
+    6: ("Button", 354),
 }
 
 GLIDERS = {
     0: ("Super Glider", 372),
+    1: ("Cloud Glider", 432),
 }
 
 FLAGS = [

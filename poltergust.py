@@ -2,33 +2,41 @@ from tkinter.font import NORMAL, BOLD
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk, filedialog
+import webbrowser
 
 from PIL import Image, ImageTk
 
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper
 from gamedata import COURSE_NUMBERS, COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
-from parser import MK8GhostFilenameParser, MK8GhostData
+from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
+from staff_ghost_converter import MK8StaffGhostConverter
 
 
 
 class PoltergustUI:
-    window_width = 500
+    """
+        Defines and builds the Poltergust UI using Tkinter.
+    """
+    window_width = 550
     window_height = 400
 
     BTN_RELOAD_FROM_DISK = "Reload from disk"
     BTN_CLOSE = "Close"
+    BTN_EXPORT_AS_STAFF_GHOST = "Convert to Staff Ghost"
+    BTN_EXTRACT_MII = "Extract Mii"
 
     # FONT = ("Agency FB", 14, NORMAL)
     FONT = ("Courier", 14, NORMAL)
 
     FLAG_SIZE = (33, 22)
     CHARACTER_SIZE = (64, 64)
-    VEHICLE_PART_SIZE = (100, 64)
+    VEHICLE_PART_SIZE = (75, 48)
 
     # Editing is not yet supported
     EDIT_STATE = "readonly"
 
     def __init__(self, root: Tk):
+        """ Initializes the UI """
         self.ghostfile: str | None = None
         self.data: MK8GhostData | None = None
 
@@ -47,13 +55,26 @@ class PoltergustUI:
         root['menu'] = self.menubar
 
         self.menu_file = Menu(self.menubar)
-        self.menu_edit = Menu(self.menubar)
+        self.menu_export = Menu(self.menubar)
+        self.menu_help = Menu(self.menubar)
         self.menubar.add_cascade(menu=self.menu_file, label='File')
-        self.menubar.add_cascade(menu=self.menu_edit, label='Edit')
+        self.menubar.add_cascade(menu=self.menu_export, label='Export')
+        self.menubar.add_cascade(menu=self.menu_help, label='Help')
 
+        # File options
         self.menu_file.add_command(label='Open...', command=self.open_ghost_file)
         self.menu_file.add_command(label=self.BTN_RELOAD_FROM_DISK, command=self.update)
         self.menu_file.add_command(label=self.BTN_CLOSE, command=self.close_current_file)
+
+        # Export options
+        self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
+        self.menu_export.add_command(label=self.BTN_EXTRACT_MII)
+
+        # About options
+        self.menu_help.add_command(label="About", command=self.popup_about)
+        self.menu_help.add_command(label="Report a Bug",
+            command=lambda: webbrowser.open("https://github.com/Scutlet/mk8-poltergust/issues")
+        )
 
         # Loaded file
         self.lb_ghostfile = ttk.Label(mainframe, text="")
@@ -75,7 +96,7 @@ class PoltergustUI:
         # Name
         self.playername = StringVar()
         playername_entry = ttk.Entry(summaryframe, width=16, textvariable=self.playername, font=self.FONT, state=self.EDIT_STATE)
-        playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E))
+        playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E), padx=(0, 3))
 
         # Flag
         self.flag_canvas = Canvas(summaryframe, width=self.FLAG_SIZE[0], height=self.FLAG_SIZE[1])
@@ -93,23 +114,33 @@ class PoltergustUI:
 
         self.total_ms = StringVar()
         total_ms_entry = ttk.Entry(summaryframe, width=3, textvariable=self.total_ms, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
-        total_ms_entry.grid(column=4, row=1, sticky=(W,E))
+        total_ms_entry.grid(column=4, row=1, sticky=(W,E), padx=(0, 3))
 
-        # Detailframe (contains vehicle selections and lap times)
-        detailframe = ttk.LabelFrame(self.dataframe)
-        detailframe.grid(column=0, row=1, sticky=(N, W, E, S))
+        # Ghostinfo frame (contains character, name, flag, total time)
+        ghostinfosframe = ttk.LabelFrame(self.dataframe)
+        ghostinfosframe.grid(column=1, row=0, sticky=(N, W, E, S))
+
+        # Game Version
+        self.game_version = ttk.Label(ghostinfosframe, text="GAME VERSION PLACEHOLDER", font=self.FONT)
+        self.game_version.grid(column=0, row=0, padx=3, sticky=(N, W, E, S))
+        self.ghost_type = ttk.Label(ghostinfosframe, text="GHOST TYPE PLACEHOLDER", font=self.FONT)
+        self.ghost_type.grid(column=0, row=1, padx=3, sticky=(W, E))
 
         # Lap Times frame (contains all lap times)
-        laptimesframe = ttk.LabelFrame(detailframe)
-        laptimesframe.grid(column=0, row=0, sticky=(N, W, E, S))
+        laptimesframe = ttk.LabelFrame(self.dataframe)
+        laptimesframe.grid(column=0, row=2, sticky=(N, W, E, S), padx=(0, 3))
 
         # Lap Times
         self.lap_times = self.generate_laptimes_entries(laptimesframe, 7)
 
+        # Vehicle frame
+        vehicleframe = ttk.LabelFrame(self.dataframe)
+        vehicleframe.grid(column=1, row=2, sticky=(N, W, E, S))
+
         # Vehicle Combination
-        self.kart, self.kart_canvas = self.generate_vehicle_entry(detailframe, StringVar(), 1)
-        self.wheels, self.wheels_canvas = self.generate_vehicle_entry(detailframe, StringVar(), 2)
-        self.glider, self.glider_canvas = self.generate_vehicle_entry(detailframe, StringVar(), 3)
+        self.kart, self.kart_canvas, self.kart_tip = self.generate_vehicle_entry(vehicleframe, StringVar(), 1)
+        self.wheels, self.wheels_canvas, self.wheels_tip = self.generate_vehicle_entry(vehicleframe, StringVar(), 2)
+        self.glider, self.glider_canvas, self.glider_tip = self.generate_vehicle_entry(vehicleframe, StringVar(), 3)
 
         # for child in summaryframe.winfo_children():
         #     child.grid_configure(padx=5, pady=5)
@@ -119,22 +150,75 @@ class PoltergustUI:
         self.resize_window()
         self.update()
 
+    def popup_about(self):
+        """ Displays 'about' information """
+        win = Toplevel(self.root)
+        win.wm_title("Poltergust - About")
+
+        with Image.open("resources/scutlet.png") as img:
+            scutlet_canvas = Canvas(win, width=128, height=128)
+            scutlet_canvas.grid(column=0, row=0, sticky=(N,W,E,S))
+            self.scutlet_img = ImageTk.PhotoImage(img.resize((128, 128)))
+            scutlet_canvas.create_image(0, 0, image=self.scutlet_img, anchor=NW)
+
+        ttk.Label(win, text="Developed by Scutlet").grid(column=1, row=0)
+        ttk.Label(win, text="This software is available under GPL v3").grid(column=0, row=1, columnspan=2)
+
+        ws = self.root.winfo_screenwidth() # width of the screen
+        hs = self.root.winfo_screenheight() # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = int((ws/2) - (275/2))
+        y = int(hs/7)
+
+        win.geometry(f"275x150+{x}+{y}")
+
+    def popup_success(self, title: str, message: str) -> None:
+        """ Displays 'export success' message """
+        win = Toplevel(self.root)
+        win.wm_title(title)
+
+        ttk.Label(win, text=message, wraplength=275).grid(row=0, column=0)
+
+        ttk.Button(win, text="Ok", command=win.destroy).grid(row=1, column=0, pady=(20, 0))
+
+        ws = self.root.winfo_screenwidth() # width of the screen
+        hs = self.root.winfo_screenheight() # height of the screen
+
+        # calculate x and y coordinates for the Tk root window
+        x = int((ws/2) - (275/2))
+        y = int(hs/7)
+
+        win.geometry(f"275x150+{x}+{y}")
+
+    def export_as_staff(self):
+        """ Exports the currently loaded ghostfile as a staff ghost """
+        assert self.ghostfile is not None
+        converter = MK8StaffGhostConverter(self.data, self.ghostfile)
+        foldername = filedialog.askdirectory(
+            title="Output directory for MK8 Staff Ghost",
+        )
+        res = converter.convert(foldername)
+        if res:
+            self.popup_success("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {foldername}")
+
     def generate_laptimes_entries(self, frame, amount):
+        """ Builds the UI for individual lap times """
         laptime_entries = []
         for i in range(amount):
-            ttk.Label(frame, text=f"{i+1}").grid(column=0, row=i, sticky=(N, W, E, S))
+            ttk.Label(frame, text=f"{i+1}").grid(column=0, row=i, padx=(70, 5))
 
             lap_min = StringVar()
             min_entry = ttk.Entry(frame, width=1, textvariable=lap_min, font=self.FONT, state=self.EDIT_STATE)
-            min_entry.grid(column=1, row=i, sticky=(W,E))
+            min_entry.grid(column=1, row=i, pady=2)
 
             lap_sec = StringVar()
             sec_entry = ttk.Entry(frame, width=2, textvariable=lap_sec, font=self.FONT, state=self.EDIT_STATE)
-            sec_entry.grid(column=2, row=i, sticky=(W,E))
+            sec_entry.grid(column=2, row=i)
 
             lap_ms = StringVar()
             ms_entry = ttk.Entry(frame, width=3, textvariable=lap_ms, font=self.FONT, state=self.EDIT_STATE)
-            ms_entry.grid(column=3, row=i, sticky=(W,E))
+            ms_entry.grid(column=3, row=i)
 
             laptime_entries.append({
                 'min': (lap_min, min_entry),
@@ -144,16 +228,19 @@ class PoltergustUI:
         return laptime_entries
 
     def generate_vehicle_entry(self, frame, var, i):
+        """ Generates the UI for the three vehicle parts """
         vehicleframe = ttk.LabelFrame(frame)
-        vehicleframe.grid(column=0, row=i, sticky=(N, W, E, S))
+        vehicleframe.grid(column=5, row=i, sticky=(N, W, E, S), padx=10, pady=1)
 
         canvas = Canvas(vehicleframe, width=self.VEHICLE_PART_SIZE[0], height=self.VEHICLE_PART_SIZE[1])
         canvas.grid(column=0, row=0, sticky=(N,W,E,S))
 
-        vehicle_entry = ttk.Entry(vehicleframe, width=7, textvariable=var, font=self.FONT, state=self.EDIT_STATE)
-        vehicle_entry.grid(column=1, row=0, sticky=(W,E))
+        tip = Hovertip(canvas, 'PLACEHOLDER', hover_delay=1000)
 
-        return var, canvas
+        vehicle_entry = ttk.Entry(vehicleframe, width=15, textvariable=var, font=self.FONT, state=self.EDIT_STATE)
+        vehicle_entry.grid(column=1, row=0, sticky=(W,E), padx=(0, 3))
+
+        return var, canvas, tip
 
     def resize_window(self):
         """ Resizes the window and moves it to the middle of the screen """
@@ -167,10 +254,13 @@ class PoltergustUI:
         self.root.geometry(f"{self.window_width}x{self.window_height}+{x}+{y}")
 
     def update(self):
+        """ Updates the UI contents based on the loaded ghostfile """
         if self.ghostfile:
             # Enable buttons if a file is open
             self.menu_file.entryconfig(self.BTN_CLOSE, state=NORMAL)
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=NORMAL)
+            self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
+            self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=NORMAL)
 
             # Name of opened file
             file_str = "Loaded File: " + self.ghostfile.rpartition("/")[2][:40]
@@ -181,6 +271,19 @@ class PoltergustUI:
 
             # Parse file
             self.parse_file(self.ghostfile)
+
+            # Update ghostinfos
+            self.game_version.config(text=f"Game version {self.data.game_version}")
+            if self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST:
+                self.ghost_type.config(text="Staff Ghost")
+                # No need to export a staff ghost
+                # self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
+            elif self.data.ghost_type == MK8_GHOST_TYPES.PLAYER_GHOST:
+                self.ghost_type.config(text="Player Ghost")
+            elif self.data.ghost_type == MK8_GHOST_TYPES.DOWNLOADED_GHOST:
+                self.ghost_type.config(text="Downloaded Ghost")
+            else:
+                self.ghost_type.config(text="MKTV Replay")
 
             # Update Images
             self.update_flag()
@@ -213,16 +316,20 @@ class PoltergustUI:
             # Disable buttons if no file is open
             self.menu_file.entryconfig(self.BTN_CLOSE, state=DISABLED)
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=DISABLED)
+            self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
+            self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=DISABLED)
             self.lb_ghostfile.config(text="No ghost data loaded")
 
             # Remove Preview
             self.dataframe.grid_remove()
 
     def parse_file(self, filepath: str):
+        """ Invokes a parser to read ghost data from a ghost's filename """
         filename = filepath.rpartition("/")[2].rpartition(".")[0]
         self.data = MK8GhostFilenameParser(filename).parse()
 
     def update_flag(self):
+        """ Updates the player flag in the UI based on the loaded ghostfile """
         assert self.data is not None
 
         flag = ("Unknown Flag", None)
@@ -230,40 +337,47 @@ class PoltergustUI:
             flag = FLAGS[self.data.flag_id]
 
         self.set_mapped_image(self.flag_canvas, MK8FlagImageMapper, flag[1], resize_to=self.FLAG_SIZE)
-        self.flag_tip.text = flag[0]
+        self.flag_tip.text = flag[0] + f" ({self.data.flag_id})"
 
     def update_character(self) -> None:
+        """ Updates the character in the UI based on the loaded ghostfile """
         assert self.data is not None
 
-        char = CHARACTERS.get(self.data.character_id, ("Unknown Character", None))
+        char = CHARACTERS.get(self.data.character_id, (f"Unknown Character", None))
         self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper, char[1], resize_to=self.CHARACTER_SIZE)
-        self.character_tip.text = char[0]
+        self.character_tip.text = char[0] + f" ({self.data.character_id})"
 
     def update_vehicle_parts(self) -> None:
+        """ Updates the vehicle parts in the UI based on the loaded ghostfile """
         assert self.data is not None
 
         # Kart
         kart = KARTS.get(self.data.kart_id, ("Unknown Kart", None))
         self.set_mapped_image(self.kart_canvas, MK8VehiclePartImageMapper, kart[1], resize_to=self.VEHICLE_PART_SIZE)
         self.kart.set(kart[0])
+        self.kart_tip.text = str(self.data.kart_id)
 
         # Wheels
         wheels = WHEELS.get(self.data.wheels_id, ("Unknown Wheels", None))
         self.set_mapped_image(self.wheels_canvas, MK8VehiclePartImageMapper, wheels[1], resize_to=self.VEHICLE_PART_SIZE)
         self.wheels.set(wheels[0])
+        self.wheels_tip.text = str(self.data.wheels_id)
 
         # Glider
         glider = GLIDERS.get(self.data.glider_id, ("Unknown Glider", None))
         self.set_mapped_image(self.glider_canvas, MK8VehiclePartImageMapper, glider[1], resize_to=self.VEHICLE_PART_SIZE)
         self.glider.set(glider[0])
+        self.glider_tip.text = str(self.data.glider_id)
 
     def set_mapped_image(self, canvas: Canvas, mapper: MK8ImageAtlasMapper, index: int | None, resize_to: tuple[int, int] | None = None) -> None:
+        """ Extracts the icon at a specific index in an icon atlas, resizes it, and places it in a canvas element """
         img = mapper.index_to_image(index, resize_to=resize_to)
         self_img_name = str(canvas)
         setattr(self, self_img_name, ImageTk.PhotoImage(img))
         canvas.create_image(0, 0, image=getattr(self, self_img_name), anchor=NW)
 
     def open_ghost_file(self):
+        """ UI Popup for opening a ghost file """
         filename = filedialog.askopenfilename(
             title="Open MK8 Ghost Data",
             filetypes=(("MK8 Ghost Data (*.dat)", ".dat"), ('All files', '*.*'))
@@ -276,8 +390,11 @@ class PoltergustUI:
         self.update()
 
     def close_current_file(self):
+        """ Closes the currently opened ghostfile and cleans up left-behind data """
         self.ghostfile = None
+        self.data = None
         self.update()
+
 
 if __name__ == '__main__':
     # Create and display the UI

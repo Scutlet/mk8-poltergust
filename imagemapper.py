@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from PIL import Image
 
 class MK8ImageAtlasMapper(ABC):
+    """ Class that can extract a single icon at a specific index from an icon atlas """
     image_name: str = None
     image_xgap: int
     image_ygap: int
@@ -11,6 +12,7 @@ class MK8ImageAtlasMapper(ABC):
     num_icons: int
     icons_per_row: int
 
+    # Image to show if passed an invalid index
     invalid_coordinates: tuple[int, int]
 
     x_offset: int = 0
@@ -18,6 +20,7 @@ class MK8ImageAtlasMapper(ABC):
 
     @classmethod
     def index_to_image(cls, index: int | None, resize_to: tuple[int, int] | None = None) -> Image.Image:
+        """ Given some index, extracts the icon at that index from the atlas and optionally resizes it """
         with Image.open(cls.image_name) as img:
             x, y, x_offset, y_offset = cls.get_coordinates(index)
             img = img.crop((x, y, x_offset, y_offset))
@@ -27,6 +30,7 @@ class MK8ImageAtlasMapper(ABC):
 
     @classmethod
     def get_coordinates(cls, index: int | None) -> tuple[int, int, int, int]:
+        """ Obtains coordinates of the icon at a specific index in the atlas  """
         if index is None or index < 0 or index >= cls.num_icons:
             return (*cls.invalid_coordinates, cls.invalid_coordinates[0] + cls.icon_size[0], cls.invalid_coordinates[1] + cls.icon_size[1])
 
@@ -43,6 +47,7 @@ class MK8ImageAtlasMapper(ABC):
         )
 
 class MK8FlagImageMapper(MK8ImageAtlasMapper):
+    """ Maps indices to MK8 Country Flags """
     image_name = "resources/mk8-flags.png"
     image_xgap = 5
     image_ygap = 4
@@ -54,6 +59,7 @@ class MK8FlagImageMapper(MK8ImageAtlasMapper):
     invalid_coordinates = (590, 312)
 
 class MK8CharacterImageMapper(MK8ImageAtlasMapper):
+    """ Maps indices to MK8 Character icons """
     image_name = "resources/mk8d-characters.png"
     image_xgap = 1
     image_ygap = 1
@@ -65,6 +71,7 @@ class MK8CharacterImageMapper(MK8ImageAtlasMapper):
     invalid_coordinates = (646, 646)
 
 class MK8VehiclePartImageMapper(MK8ImageAtlasMapper):
+    """ Maps indices to MK8 Vehicle Part icons """
     image_name = "resources/mk8d-vehicle-parts.png"
     image_xgap = 1
     image_ygap = 14
