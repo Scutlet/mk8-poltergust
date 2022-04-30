@@ -6,7 +6,7 @@ import webbrowser
 
 from PIL import Image, ImageTk
 
-from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper
+from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
 from gamedata import COURSE_NUMBERS, COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
 from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
@@ -31,6 +31,7 @@ class PoltergustUI:
     FLAG_SIZE = (33, 22)
     CHARACTER_SIZE = (64, 64)
     VEHICLE_PART_SIZE = (75, 48)
+    TRACK_SIZE = (80, 45)
 
     # Editing is not yet supported
     EDIT_STATE = "readonly"
@@ -84,9 +85,19 @@ class PoltergustUI:
         self.dataframe = ttk.Frame(mainframe)
         self.dataframe.grid(column=0, row=1, sticky=(N, W, E, S))
 
+        # Ghostinfo frame (contains character, name, flag, total time)
+        ghostinfosframe = ttk.Frame(self.dataframe)
+        ghostinfosframe.grid(column=0, row=0, columnspan=2, sticky=(N, W, E, S))
+
+        # Game Version
+        self.game_version = ttk.Label(ghostinfosframe, text="GAME VERSION PLACEHOLDER")
+        self.game_version.grid(column=0, row=0, padx=3, sticky=(N, W, E, S))
+        self.ghost_type = ttk.Label(ghostinfosframe, text="GHOST TYPE PLACEHOLDER")
+        self.ghost_type.grid(column=0, row=1, padx=3, sticky=(W, E))
+
         # Summary frame (contains character, name, flag, total time)
         summaryframe = ttk.LabelFrame(self.dataframe)
-        summaryframe.grid(column=0, row=0, sticky=(N, W, E, S))
+        summaryframe.grid(column=0, row=1, sticky=(N, W, E, S), padx=(0, 3))
 
         # Character
         self.character_canvas = Canvas(summaryframe, width=self.CHARACTER_SIZE[0], height=self.CHARACTER_SIZE[1])
@@ -116,15 +127,16 @@ class PoltergustUI:
         total_ms_entry = ttk.Entry(summaryframe, width=3, textvariable=self.total_ms, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
         total_ms_entry.grid(column=4, row=1, sticky=(W,E), padx=(0, 3))
 
-        # Ghostinfo frame (contains character, name, flag, total time)
-        ghostinfosframe = ttk.LabelFrame(self.dataframe)
-        ghostinfosframe.grid(column=1, row=0, sticky=(N, W, E, S))
+        # Trackinfo frame
+        trackframe = ttk.LabelFrame(self.dataframe)
+        trackframe.grid(column=1, row=1, sticky=(N, W, E, S))
+        self.track_canvas = Canvas(trackframe, width=self.TRACK_SIZE[0], height=self.TRACK_SIZE[1])
+        self.track_canvas.grid(column=0, row=0, sticky=(N,W,E,S), pady=(7, 10))
+        self.track_tip = Hovertip(self.track_canvas, 'PLACEHOLDER', hover_delay=1000)
 
-        # Game Version
-        self.game_version = ttk.Label(ghostinfosframe, text="GAME VERSION PLACEHOLDER", font=self.FONT)
-        self.game_version.grid(column=0, row=0, padx=3, sticky=(N, W, E, S))
-        self.ghost_type = ttk.Label(ghostinfosframe, text="GHOST TYPE PLACEHOLDER", font=self.FONT)
-        self.ghost_type.grid(column=0, row=1, padx=3, sticky=(W, E))
+        self.track = StringVar()
+        track_entry = ttk.Entry(trackframe, width=25, textvariable=self.track, font=(self.FONT[0], 9, self.FONT[2]), state=self.EDIT_STATE)
+        track_entry.grid(column=1, row=0, sticky=(W,E), padx=(0, 3))
 
         # Lap Times frame (contains all lap times)
         laptimesframe = ttk.LabelFrame(self.dataframe)
@@ -289,6 +301,7 @@ class PoltergustUI:
             self.update_flag()
             self.update_character()
             self.update_vehicle_parts()
+            self.update_track()
 
             # Update text
             self.playername.set(self.data.playername)
@@ -303,7 +316,7 @@ class PoltergustUI:
                     lap['sec'][0].set(f"{getattr(self.data, f'lap{i+1}_seconds'):02d}")
                     lap['ms'][0].set(f"{getattr(self.data, f'lap{i+1}_ms'):03d}")
                 else:
-                    lap['min'][0].set("1")
+                    lap['min'][0].set("9")
                     lap['sec'][0].set("59")
                     lap['ms'][0].set("999")
 
@@ -346,6 +359,15 @@ class PoltergustUI:
         char = CHARACTERS.get(self.data.character_id, (f"Unknown Character", None))
         self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper, char[1], resize_to=self.CHARACTER_SIZE)
         self.character_tip.text = char[0] + f" ({self.data.character_id})"
+
+    def update_track(self) -> None:
+        """ Updates the track in the UI based on the loaded ghostfile """
+        assert self.data is not None
+
+        track = COURSE_IDS.get(self.data.track_id, ("Unknown Track", None))
+        self.set_mapped_image(self.track_canvas, MK8TrackImageMapper, track[1], resize_to=self.TRACK_SIZE)
+        self.track.set(track[0])
+        self.track_tip.text = f"{self.data.track_number} - {self.data.track_id}"
 
     def update_vehicle_parts(self) -> None:
         """ Updates the vehicle parts in the UI based on the loaded ghostfile """

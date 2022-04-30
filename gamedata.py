@@ -1,61 +1,78 @@
 
 
 COURSE_NUMBERS = {
-    17: "Wii Moo Moo Meadows",
+    17: 33, # Wii Moo Moo Meadows
+    10: 26, # Sunshine Airport
 }
 
 COURSE_IDS = {
-    27: "Mario Kart Stadium",
-    28: "Water Park",
-    19: "Sweet Sweet Canyon",
-    17: "Thwomp Ruins",
-    16: "Mario Circuit",
-    18: "Toad Harbor",
-    20: "Twisted Mansion",
-    21: "Shy Guy Falls",
-    26: "Sunshine Airport",
-    29: "Dolphin Shoals",
-    25: "Electrodrome",
-    24: "Mount Wario",
-    23: "Cloudtop Cruise",
-    22: "Bone-Dry Dunes",
-    30: "Bowser's Castle",
-    31: "Rainbow Road",
-    33: "Wii Moo Moo Meadows",
-    38: "GBA Mario Circuit",
-    36: "DS Cheep Cheep Beach",
-    35: "N64 Toad's Turnpike",
-    42: "GCN Dry Dry Desert",
-    41: "SNES Donut Plains 3",
-    34: "N64 Royal Raceway",
-    32: "3DS DK Jungle",
-    46: "DS Wario Stadium",
-    37: "GCN Sherbet Land",
-    39: "3DS Music Park",
-    45: "N64 Yoshi Valley",
-    44: "DS Tick-Tock Clock",
-    43: "3DS Piranha Plant Slide",
-    40: "Wii Grumble Volcano",
-    47: "N64 Rainbow Road",
-    56: "GCN Yoshi Circuit",
-    53: "Excitebike Arena",
-    50: "Dragon Driftway",
-    49: "Mute City",
-    57: "Wii Wario's Gold Mine",
-    58: "SNES Rainbow Road",
-    55: "Ice Ice Outpost",
-    51: "Hyrule Circuit",
-    61: "GCN Baby Park",
-    62: "GBA Cheese Land",
-    54: "Wild Woods",
-    64: "Animal Crossing (Spring)",
-    52: "Animal Crossing (Summer)",
-    65: "Animal Crossing (Autumn)",
-    66: "Animal Crossing (Winter)",
-    60: "3DS Neo Bowser City",
-    59: "GBA Ribbon Road",
-    48: "Super Bell Subway",
-    63: "Big Blue",
+    27: ("Mario Kart Stadium", 0),
+    28: ("Water Park", 8),
+    19: ("Sweet Sweet Canyon", 16),
+    17: ("Thwomp Ruins", 24),
+    16: ("Mario Circuit", 1),
+    18: ("Toad Harbor", 9),
+    20: ("Twisted Mansion", 17),
+    21: ("Shy Guy Falls", 25),
+    26: ("Sunshine Airport", 2),
+    29: ("Dolphin Shoals", 10),
+    25: ("Electrodrome", 18),
+    24: ("Mount Wario", 26),
+    23: ("Cloudtop Cruise", 3),
+    22: ("Bone-Dry Dunes", 11),
+    30: ("Bowser's Castle", 19),
+    31: ("Rainbow Road", 27),
+    33: ("Wii Moo Moo Meadows", 4),
+    38: ("GBA Mario Circuit", 12),
+    36: ("DS Cheep Cheep Beach", 20),
+    35: ("N64 Toad's Turnpike", 28),
+    42: ("GCN Dry Dry Desert", 5),
+    41: ("SNES Donut Plains 3", 13),
+    34: ("N64 Royal Raceway", 21),
+    32: ("3DS DK Jungle", 29),
+    46: ("DS Wario Stadium", 6),
+    37: ("GCN Sherbet Land", 14),
+    39: ("3DS Music Park", 22),
+    45: ("N64 Yoshi Valley", 30),
+    44: ("DS Tick-Tock Clock", 7),
+    43: ("3DS Piranha Plant Slide", 15),
+    40: ("Wii Grumble Volcano", 23),
+    47: ("N64 Rainbow Road", 31),
+    56: ("GCN Yoshi Circuit", 32),
+    53: ("Excitebike Arena", 36),
+    50: ("Dragon Driftway", 40),
+    49: ("Mute City", 44),
+    57: ("Wii Wario's Gold Mine", 33),
+    58: ("SNES Rainbow Road", 37),
+    55: ("Ice Ice Outpost", 41),
+    51: ("Hyrule Circuit", 45),
+    61: ("GCN Baby Park", 34),
+    62: ("GBA Cheese Land", 38),
+    54: ("Wild Woods", 42),
+    64: ("Animal Crossing (Spring)", 46),
+    52: ("Animal Crossing (Summer)", 46),
+    65: ("Animal Crossing (Autumn)", 46),
+    66: ("Animal Crossing (Winter)", 46),
+    60: ("3DS Neo Bowser City", 35),
+    59: ("GBA Ribbon Road", 39),
+    48: ("Super Bell Subway", 53),
+    63: ("Big Blue", 47),
+    -1: ("Battle Stadium", 48), # MK8D
+    -1: ("Sweet Sweet Kingdom", 49), # MK8D
+    -1: ("Dragon Palace", 50), # MK8D
+    -1: ("Lunar Colony", 51), # MK8D
+    -1: ("3DS Wuhu Town", 52), # MK8D
+    -1: ("GCN Luigi's Mansion", 53), # MK8D
+    -1: ("SNES Battle Course 1", 54), # MK8D
+    -1: ("Urchin Underpass", 55), # MK8D
+    -1: ("Tour Paris Promenade", None), # MK8D
+    -1: ("3DS Toad Circuit", None), # MK8D
+    -1: ("N64 Choco Mountain", None), # MK8D
+    -1: ("Wii Coconut Mall", None), # MK8D
+    -1: ("Tour Tokyo Blur", None), # MK8D
+    -1: ("DS Shroom Ridge", None), # MK8D
+    -1: ("GBA Sky Garden", None), # MK8D
+    -1: ("Tour Ninja Hideaway", None), # MK8D
 }
 
 CHARACTERS = {
@@ -66,7 +83,7 @@ CHARACTERS = {
     999: ("Mario", 0),
     999: ("Luigi", 1),
     999: ("Peach", 2),
-    999: ("Rosalina", 4),
+    12: ("Rosalina", 4),
     999: ("Tanooki Mario", 5),
     999: ("Cat Peach", 6),
     999: ("Yoshi (Red)", 8),
@@ -135,7 +152,7 @@ KARTS = {
     999: ("Mach 8", 120),
     999: ("Steel Driver", 121),
     999: ("Cat Cruiser", 122),
-    999: ("Circuit Special", 123),
+    5: ("Circuit Special", 123),
     999: ("Tri-Speeder", 127),
     999: ("Badwagon", 128),
     999: ("Prancer", 129),

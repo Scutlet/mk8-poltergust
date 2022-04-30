@@ -70,6 +70,18 @@ class MK8CharacterImageMapper(MK8ImageAtlasMapper):
 
     invalid_coordinates = (646, 646)
 
+class MK8TrackImageMapper(MK8ImageAtlasMapper):
+    """ Maps indices to MK8 Track icons """
+    image_name = "resources/mk8d-course-previews.png"
+    image_xgap = 17
+    image_ygap = 95
+    icon_size = (288, 162)
+
+    num_icons = 56
+    icons_per_row = 8
+
+    invalid_coordinates = (17, 1894)
+
 class MK8VehiclePartImageMapper(MK8ImageAtlasMapper):
     """ Maps indices to MK8 Vehicle Part icons """
     image_name = "resources/mk8d-vehicle-parts.png"

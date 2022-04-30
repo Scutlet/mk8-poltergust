@@ -23,3 +23,13 @@ Rippers: Ink_Larry
 Source: https://www.spriters-resource.com/wii_u/mariokart8/sheet/85662/
 
 Modified by Scutlet to add a ?-flag
+
+
+===============================
+Tracks
+-------------------------------
+Original Artwork: Nintendo
+Rippers: Random Talking Bush
+Source: https://www.spriters-resource.com/nintendo_switch/mariokart8deluxe/sheet/94777/
+
+Modified by Scutlet to add padding
