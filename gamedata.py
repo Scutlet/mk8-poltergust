@@ -62,21 +62,159 @@ CHARACTERS = {
     3: ("Daisy", 3),
     4: ("Yoshi (Green)", 7),
     5: ("Toad", 16),
+
+    999: ("Mario", 0),
+    999: ("Luigi", 1),
+    999: ("Peach", 2),
+    999: ("Rosalina", 4),
+    999: ("Tanooki Mario", 5),
+    999: ("Cat Peach", 6),
+    999: ("Yoshi (Red)", 8),
+    999: ("Yoshi (Dark Blue)", 9),
+    999: ("Yoshi (Light Blue)", 10),
+    999: ("Yoshi (Yellow)", 11),
+    999: ("Yoshi (Pink)", 12),
+    999: ("Yoshi (Black)", 13),
+    999: ("Yoshi (White)", 14),
+    999: ("Yoshi (Orange)", 15),
+    999: ("Koopa Troopa", 17),
+    999: ("Shy Guy (Red)", 18),
+    999: ("Shy Guy (Green)", 19),
+    999: ("Shy Guy (Dark Blue)", 20),
+    999: ("Shy Guy (Light Blue)", 21),
+    999: ("Shy Guy (Yellow)", 22),
+    999: ("Shy Guy (Pink)", 23),
+    999: ("Shy Guy (Black)", 24),
+    999: ("Shy Guy (White)", 25),
+    999: ("Shy Guy (Orange)", 26),
+    999: ("Lakitu", 27),
+    999: ("Toadette", 28),
+    -1: ("King Boo", 29), # MK8D
+    999: ("Baby Mario", 30),
+    999: ("Baby Luigi", 31),
+    999: ("Baby Peach", 32),
+    999: ("Baby Daisy", 33),
+    999: ("Baby Rosalina", 34),
+    999: ("Metal Mario", 35),
+    -1: ("Golden Mario", 36), # MK8D
+    999: ("Pink Gold Peach", 37),
+    999: ("Wario", 38),
+    999: ("Waluigi", 39),
+    999: ("Donkey Kong", 40),
+    999: ("Bowser", 41),
+    -1: ("Dry Bones", 42), # MK8D
+    -1: ("Bowser Jr.", 43), # MK8D
+    999: ("Dry Bowser", 44),
+    999: ("Lemmy", 45),
+    999: ("Larry", 46),
+    999: ("Wendy", 47),
+    999: ("Ludwig von Koopa", 48),
+    999: ("Iggy", 49),
+    999: ("Roy", 50),
+    999: ("Morton", 51),
+    -1: ("Inkling Girl (Orange)", 52), # MK8D
+    -1: ("Inkling Girl (Green)", 53), # MK8D
+    -1: ("Inkling Girl (Pink)", 54), # MK8D
+    -1: ("Inkling Boy (Dark Blue)", 55), # MK8D
+    -1: ("Inkling Boy (Purple)", 56), # MK8D
+    -1: ("Inkling Boy (Light Blue)", 57), # MK8D
+    999: ("Link (Standard)", 58),
+    -1: ("Link (Breath of the Wild)", 59), # MK8D
+    999: ("Villgar (Boy)", 60),
+    999: ("Villgar (Girl)", 61),
+    999: ("Isabelle", 62),
+    999: ("Mii (Standard)", 63),
+    999: ("Mii (Amiibo Suit)", 64),
 }
 
 KARTS = {
     0: ("Standard Kart", 0),
     9: ("Buggybud", 132),
+
+    999: ("Pipe Frame", 60),
+    999: ("Mach 8", 120),
+    999: ("Steel Driver", 121),
+    999: ("Cat Cruiser", 122),
+    999: ("Circuit Special", 123),
+    999: ("Tri-Speeder", 127),
+    999: ("Badwagon", 128),
+    999: ("Prancer", 129),
+    999: ("Sports Coupé", 130),
+    999: ("Gold Kart", 131),
+    999: ("Blue Falcon", 137),
+    999: ("Tanooki Kart", 138),
+    999: ("B Dasher", 139),
+    999: ("Streetle", 140),
+    999: ("P-Wing", 141),
+    999: ("Landship", 144),
+    999: ("Bounder", 152),
+    999: ("GLA", 156),
+    999: ("W 25 Silver Arrow", 165),
+    999: ("300 SL Roadster", 166),
+    -1: ("Koopa Clown", 168), # MK8D
+    999: ("Standard Bike", 180),
+    999: ("Comet", 240),
+    999: ("Sport Bike", 241),
+    999: ("The Duke", 244),
+    999: ("Flame Rider", 245),
+    999: ("Varmint", 246),
+    999: ("Mr Scooty", 247),
+    999: ("Jet Bike", 248),
+    999: ("Yoshi Bike", 249),
+    999: ("Master Cycle", 250),
+    -1: ("Master Cycle Zero", 251), # MK8D
+    999: ("City Tripper", 252),
+    999: ("Standard ATV", 264),
+    999: ("Wild Wiggler", 324),
+    999: ("Teddy Buggy", 325),
+    999: ("Bone Rattler", 326),
+    -1: ("Splat Buggy", 327), # MK8D
+    -1: ("Inkstriker", 336), # MK8D
 }
 
 WHEELS = {
     0: ("Normal", 348),
     6: ("Button", 354),
+
+    999: ("Monster", 349),
+    999: ("Roller", 350),
+    999: ("Slim", 351),
+    999: ("Slick", 352),
+    999: ("Metal", 353),
+    999: ("Off-Road", 355),
+    999: ("Sponge", 356),
+    999: ("Wooden", 357),
+    999: ("Cushion", 358),
+    999: ("Normal Blue", 359),
+    999: ("Funky Monster", 360),
+    999: ("Azure Roller", 361),
+    999: ("Crimson Slim", 362),
+    999: ("Cyber Slick", 363),
+    999: ("Retro Off-Road", 364),
+    999: ("Gold Wheels", 365),
+    999: ("GLA Wheels", 366),
+    999: ("Triforce Tyres", 367),
+    999: ("Leaf Tyres", 368),
+    -1: ("Ancient Tyres", 369), # MK8D
 }
 
 GLIDERS = {
     0: ("Super Glider", 372),
     1: ("Cloud Glider", 432),
+
+    999: ("Wario Wing", 433),
+    999: ("Waddle Wing", 434),
+    999: ("Parasol", 435),
+    999: ("Parachute", 438),
+    999: ("Parafoil", 439),
+    999: ("Flower Glider", 440),
+    999: ("Bowser Kite", 441),
+    999: ("Plane Glider", 442),
+    999: ("MKTV Parafoil", 443),
+    999: ("Gold Glider", 444),
+    999: ("Hylian Kite", 445),
+    999: ("Paper Glider", 446),
+    -1: ("Paraglider", 447), # MK8D
 }
 
 FLAGS = [
