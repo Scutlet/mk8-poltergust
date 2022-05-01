@@ -122,7 +122,7 @@ class PoltergustUI:
 
         # Name
         self.playername = StringVar()
-        playername_entry = ttk.Entry(summaryframe, width=16, textvariable=self.playername, font=self.FONT)
+        playername_entry = ttk.Entry(summaryframe, width=16, textvariable=self.playername, font=self.FONT, state=self.EDIT_STATE)
         playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E), padx=(0, 3))
 
         # Flag

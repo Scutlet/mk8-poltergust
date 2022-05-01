@@ -45,13 +45,11 @@ class MK8GhostDataMiiHandler:
             if strict:
                 # Check for the zero-byte padding. It's not actually used for Mii data though
                 if zeroes != b'\x00\x00':
-                    print('zero')
                     raise ValueError("MK8 Ghost Data Mii is missing a zero byte")
 
                 # Verify the checksum of the Mii data is correct
                 calculated_checksum = self.calculate_ghost_mii_checksum(ghost_data + zeroes)
                 if checksum != calculated_checksum:
-                    print('check')
                     raise ValueError("MK8 Ghost Data Mii checksum is incorrect")
 
             return ghost_data

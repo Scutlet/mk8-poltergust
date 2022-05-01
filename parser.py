@@ -193,8 +193,6 @@ class MK8GhostFilenameParser:
 
         filename_len = len(self.filename)
 
-        print(self.filename)
-
         # Santity check filename length
         if filename_len != self.filename_length_v4 and filename_len != self.filename_length_v3:
             raise ValueError(f"Filename was of incorrect length. Expected {self.filename_length_v3} (v1-v3) or {self.filename_length_v4} (v4+), but got {filename_len}")
