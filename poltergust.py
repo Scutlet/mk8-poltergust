@@ -1,3 +1,4 @@
+import os
 from tkinter import messagebox
 from tkinter.font import NORMAL, BOLD
 from idlelib.tooltip import Hovertip
@@ -238,14 +239,15 @@ class PoltergustUI:
     def export_as_staff(self):
         """ Exports the currently loaded ghostfile as a staff ghost """
         assert self.ghostfile is not None
-        converter = MK8StaffGhostConverter(self.data, self.ghostfile)
+        converter = MK8StaffGhostConverter(self.ghostfile)
         foldername = filedialog.askdirectory(
             parent=self.root,
             title="Output directory for MK8 Staff Ghost",
         )
-        res = converter.convert(foldername)
+        output_file = os.path.join(foldername, MK8_GHOST_TYPES.STAFF_GHOST.value + self.ghostfile.rpartition("/")[2][2:])
+        res = converter.convert(output_file)
         if res:
-            messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {foldername}")
+            messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
 
     def generate_laptimes_entries(self, frame, amount):
         """ Builds the UI for individual lap times """

@@ -7,12 +7,10 @@ class MK8StaffGhostConverter:
     """ Class that can convert a normal ghost to a staff ghost """
     GHOST_DATA_OFFSET = 0x48
 
-    def __init__(self, ghost_data: MK8GhostData, ghost_file: str):
+    def __init__(self, ghost_file: str):
         """
-            :param ghost_data: Ghost data to convert to a staff ghost.
-            :param ghost_file: Ghost replay file to use as a base.
+            :param ghost_file: Ghost replay file to convert to a staff ghost.
         """
-        self.ghost_data = ghost_data
         self.ghost_file = ghost_file
 
     def convert(self, output_folder):
@@ -21,7 +19,6 @@ class MK8StaffGhostConverter:
             and converts it to a staff ghost
         """
         print(f"converting {output_folder}")
-        assert self.ghost_data.ghost_type != MK8_GHOST_TYPES.STAFF_GHOST
 
         # Read current ghost data
         with open(self.ghost_file, 'rb') as file:
@@ -29,7 +26,7 @@ class MK8StaffGhostConverter:
             ghost_data = file.read()
 
         # Write new file
-        with open(os.path.join(output_folder, "teststaffghost.dat"), 'wb') as file:
+        with open(output_folder, 'wb') as file:
             file.write(ghost_data)
 
         return True
