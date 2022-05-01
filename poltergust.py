@@ -76,6 +76,9 @@ class PoltergustUI:
         self.menu_help.add_command(label="Report a Bug",
             command=lambda: webbrowser.open("https://github.com/Scutlet/mk8-poltergust/issues")
         )
+        self.menu_help.add_command(label='Mii Viewer',
+            command=lambda: webbrowser.open('https://kazuki-4ys.github.io/web_apps/MiiInfoEditorCTR/')
+        )
 
         # Loaded file
         self.lb_ghostfile = ttk.Label(mainframe, text="")
@@ -348,6 +351,8 @@ class PoltergustUI:
         flag = ("Unknown Flag", None)
         if 0 <= self.data.flag_id < len(FLAGS):
             flag = FLAGS[self.data.flag_id]
+            if flag[0] is None:
+                flag = ("No Flag", None)
 
         self.set_mapped_image(self.flag_canvas, MK8FlagImageMapper, flag[1], resize_to=self.FLAG_SIZE)
         self.flag_tip.text = flag[0] + f" ({self.data.flag_id})"
