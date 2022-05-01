@@ -64,8 +64,38 @@ class MK8_UNICODE_HELPER:
         return cls.master_dict.get(val, "�")
 
     @classmethod
-    def encode(cls, val):
-        return cls.rev_master_dict.get(val, 0x0)
+    def encode(cls, val, default):
+        return cls.rev_master_dict.get(val, default)
+
+    @classmethod
+    def parse(cls, hex: str, left=False) -> str:
+        """ Parses a string as a hexadecimal number and converts those in their corresponding unicode characters """
+        name = ""
+        for i in range(0, len(hex), 4):
+            hex_val = hex[i:i+2] if left else hex[i+2:i+4]
+            val = int(hex_val, 16)
+            if val == 0:
+                # End of playername reached
+                return name
+            elif val < 32 or 127 <= val < 160:
+                # Unicode control characters; Some have a Nintendo-specific font
+                name += cls.translate(val)
+            else:
+                # Standard character found
+                name += chr(val)
+        return name
+
+    @classmethod
+    def serialize(cls, name: str) -> str:
+        """ Serializes a string into hexadecimal ASCII format """
+        assert 0 < len(name) <= 10
+        ascii_name = ""
+        for char in name:
+            char = ord(char)
+            char = cls.encode(char, f"{char:0x}")
+            ascii_name += str(char).zfill(4)
+        ascii_name = ascii_name.ljust(10*4, "0")
+        return ascii_name
 
 class MK8GhostFilenameParser:
     """ Class that is able to extract information from Mario Kart 8 ghost files """
@@ -80,6 +110,10 @@ class MK8GhostFilenameParser:
             return MK8_GHOST_TYPES.DOWNLOADED_GHOST
         return MK8_GHOST_TYPES.MKTV_REPLAY
 
+    def serialize_ghosttype(val: MK8_GHOST_TYPES) -> str:
+        """ Seralizes a ghost type into a string """
+        return val.value
+
     def parse_plain(val: str) -> str:
         """ identify function """
         return val
@@ -88,73 +122,63 @@ class MK8GhostFilenameParser:
         """ Interprets a string as a hexadecimal number """
         return int(hex, 16)
 
-    def parse_playername(hex: str) -> str:
-        """ Parses a string as a hexadecimal number and converts those in their corresponding unicode characters """
-        name = ""
-        for i in range(0, len(hex), 4):
-            val = int(hex[i:i+4], 16)
-            if val == 0:
-                # End of playername reached
-                return name
-            elif val < 32 or 127 <= val < 160:
-                # Unicode control characters; Some have a Nintendo-specific font
-                name += MK8_UNICODE_HELPER.translate(val)
-            else:
-                # Standard character found
-                name += chr(val)
-        return name
+    def serialize_hex(hex: int) -> str:
+        """ Serializes an integer into a hexadecimal number in string form """
+        return f"{hex:0x}"
+
+
 
     # Data present in ghost files of all game versions
     base_data = [
-        (2, "ghost_type", parse_ghosttype),
-        (2, "track_number", parse_hex),
-        (2, "track_id", parse_hex),
-        (2, "character_id", parse_hex),
-        (4, None, None), # 0000 Padding
-        (2, "kart_id", parse_hex),
-        (2, "wheels_id", parse_hex),
-        (2, "glider_id", parse_hex),
-        (1, "total_minutes", parse_hex),
-        (2, "total_seconds", parse_hex),
-        (3, "total_ms", parse_hex),
-        (1, "lap1_minutes", parse_hex),
-        (2, "lap1_seconds", parse_hex),
-        (3, "lap1_ms", parse_hex),
-        (1, "lap2_minutes", parse_hex),
-        (2, "lap2_seconds", parse_hex),
-        (3, "lap2_ms", parse_hex),
-        (1, "lap3_minutes", parse_hex),
-        (2, "lap3_seconds", parse_hex),
-        (3, "lap3_ms", parse_hex),
+        (2, "ghost_type", parse_ghosttype, serialize_ghosttype),
+        (2, "track_number", parse_hex, serialize_hex),
+        (2, "track_id", parse_hex, serialize_hex),
+        (2, "character_id", parse_hex, serialize_hex),
+        (4, None, None, None), # 0000 Padding
+        (2, "kart_id", parse_hex, serialize_hex),
+        (2, "wheels_id", parse_hex, serialize_hex),
+        (2, "glider_id", parse_hex, serialize_hex),
+        (1, "total_minutes", parse_hex, serialize_hex),
+        (2, "total_seconds", parse_hex, serialize_hex),
+        (3, "total_ms", parse_hex, serialize_hex),
+        (1, "lap1_minutes", parse_hex, serialize_hex),
+        (2, "lap1_seconds", parse_hex, serialize_hex),
+        (3, "lap1_ms", parse_hex, serialize_hex),
+        (1, "lap2_minutes", parse_hex, serialize_hex),
+        (2, "lap2_seconds", parse_hex, serialize_hex),
+        (3, "lap2_ms", parse_hex, serialize_hex),
+        (1, "lap3_minutes", parse_hex, serialize_hex),
+        (2, "lap3_seconds", parse_hex, serialize_hex),
+        (3, "lap3_ms", parse_hex, serialize_hex),
     ]
 
     # Data for a player present in ghost data for all game versions
     playerdata = [
-        (40, "playername", parse_playername),
-        (2, "flag_id", parse_hex),
-        (6, None, None), # 000000 Padding.
+        (40, "playername", MK8_UNICODE_HELPER.parse, MK8_UNICODE_HELPER.serialize),
+        (2, "flag_id", parse_hex, serialize_hex),
+        (6, None, None, None), # 000000 Padding.
     ]
 
     # Filename pattern for ghost files as of v3 of the game
     filename_length_v3 = 102
-    filename_pattern_v3 = base_data + [(12, None, None)] + playerdata # 93b3e793b3e7 Padding
+    filename_pattern_v3 = base_data + [(12, "_padding", None, lambda v: "93b3e793b3e7")] + playerdata # 93b3e793b3e7 Padding
 
     # Filename pattern for ghost files as of v4 of the game
     filename_length_v4 = filename_length_v3 + 12
     filename_pattern_v4 = base_data + [
-            (1, "lap4_minutes", parse_hex), # Just for GCN Baby Park; 9:99.999 if laps don't exist
-            (2, "lap4_seconds", parse_hex),
-            (3, "lap4_ms", parse_hex),
-            (1, "lap5_minutes", parse_hex),
-            (2, "lap5_seconds", parse_hex),
-            (3, "lap5_ms", parse_hex)
+            (1, "lap4_minutes", parse_hex, serialize_hex), # Just for GCN Baby Park; 9:99.999 if laps don't exist
+            (2, "lap4_seconds", parse_hex, serialize_hex),
+            (3, "lap4_ms", parse_hex, serialize_hex),
+            (1, "lap5_minutes", parse_hex, serialize_hex),
+            (2, "lap5_seconds", parse_hex, serialize_hex),
+            (3, "lap5_ms", parse_hex, serialize_hex)
         ] + playerdata + [
-            (1, "lap6_minutes", parse_hex), # Just for GCN Baby Park
-            (2, "lap6_seconds", parse_hex),
-            (3, "lap6_ms", parse_hex),
-            (1, "lap7_minutes", parse_hex),
-            (2, "lap7_seconds", parse_hex),
-            (3, "lap7_ms", parse_hex)
+            (1, "lap6_minutes", parse_hex, serialize_hex), # Just for GCN Baby Park
+            (2, "lap6_seconds", parse_hex, serialize_hex),
+            (3, "lap6_ms", parse_hex, serialize_hex),
+            (1, "lap7_minutes", parse_hex, serialize_hex),
+            (2, "lap7_seconds", parse_hex, serialize_hex),
+            (3, "lap7_ms", parse_hex, serialize_hex)
         ]
 
     def __init__(self, filename) -> None:
@@ -163,11 +187,13 @@ class MK8GhostFilenameParser:
 
     def parse(self) -> MK8GhostData:
         """ Parses the filename of the attached file"""
-        if self.filename.startswith("rp"):
+        if self.filename.startswith(MK8_GHOST_TYPES.MKTV_REPLAY.value):
             # MKTV ghosts have a different file format
             raise NotImplementedError("MKTV Replay files are not supported.")
 
         filename_len = len(self.filename)
+
+        print(self.filename)
 
         # Santity check filename length
         if filename_len != self.filename_length_v4 and filename_len != self.filename_length_v3:
@@ -183,13 +209,31 @@ class MK8GhostFilenameParser:
         # Parse contents
         i = 0
         results = {}
-        for num_chars, identifier, parse_method in pattern:
-            if identifier is not None:
+        for num_chars, identifier, parse_fn, _ in pattern:
+            if parse_fn is not None:
                 val = self.filename[i:i+num_chars]
-                results[identifier] = parse_method(val)
+                results[identifier] = parse_fn(val)
             i += num_chars
 
         return MK8GhostData(game_version, **results)
+
+    @classmethod
+    def serialize_filename(cls, data: MK8GhostData) -> str:
+        """ Serializes ghost data into a filename as expected by the game """
+        # Obtain filename pattern based on game version
+
+        pattern = cls.filename_pattern_v3 if data.game_version == "3" else cls.filename_pattern_v4
+
+        output = ""
+        for num_chars, identifier, _, serialize_fn in pattern:
+            if serialize_fn is not None:
+                hex_str: str = serialize_fn(getattr(data, identifier, None))
+                output += hex_str.zfill(num_chars)
+            else:
+                output += "0" * num_chars
+        return output + ".dat"
+
+
 
 if __name__ == '__main__':
     filename = "sg1121030000130c0012e0630230fd0231950231b993b3e793b3e7004e0069006e26050043006800720069007300006e000000"

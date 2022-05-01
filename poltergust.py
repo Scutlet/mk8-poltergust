@@ -27,6 +27,7 @@ class PoltergustUI:
     BTN_CLOSE = "Close"
     BTN_EXPORT_AS_STAFF_GHOST = "Convert to Staff Ghost"
     BTN_EXTRACT_MII = "Extract Mii"
+    BTN_REPLACE_MII = "Replace Mii"
 
     # FONT = ("Agency FB", 14, NORMAL)
     FONT = ("Courier", 14, NORMAL)
@@ -64,8 +65,10 @@ class PoltergustUI:
 
         self.menu_file = Menu(self.menubar)
         self.menu_export = Menu(self.menubar)
+        self.menu_edit = Menu(self.menubar)
         self.menu_help = Menu(self.menubar)
         self.menubar.add_cascade(menu=self.menu_file, label='File')
+        self.menubar.add_cascade(menu=self.menu_edit, label='Edit')
         self.menubar.add_cascade(menu=self.menu_export, label='Export')
         self.menubar.add_cascade(menu=self.menu_help, label='Help')
 
@@ -77,6 +80,9 @@ class PoltergustUI:
         # Export options
         self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
         self.menu_export.add_command(label=self.BTN_EXTRACT_MII, command=self.extract_mii)
+
+        # Edit options
+        self.menu_edit.add_command(label=self.BTN_REPLACE_MII, command=self.replace_mii)
 
         # About options
         self.menu_help.add_command(label="About", command=self.popup_about)
@@ -116,7 +122,7 @@ class PoltergustUI:
 
         # Name
         self.playername = StringVar()
-        playername_entry = ttk.Entry(summaryframe, width=16, textvariable=self.playername, font=self.FONT, state=self.EDIT_STATE)
+        playername_entry = ttk.Entry(summaryframe, width=16, textvariable=self.playername, font=self.FONT)
         playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E), padx=(0, 3))
 
         # Flag
@@ -230,11 +236,47 @@ class PoltergustUI:
 
         try:
             handler.extract(filename)
-        except:
+        except Exception as e:
+            print(e)
             messagebox.showerror("Invalid Mii Data", "This ghost file contained invalid Mii data; it could not be extracted.")
             return
 
         messagebox.showinfo("Mii extracted!", f"The Mii for this ghost file was extracted successfully to {filename}")
+
+    def replace_mii(self):
+        """ Invokes the Mii handler and replaces the Mii from the currently loaded ghost file """
+        assert self.ghostfile is not None
+
+        new_mii = filedialog.askopenfilename(
+            parent=self.root,
+            title="Select new Mii",
+            defaultextension=".3dsmii",
+            filetypes=(("Wii U/3DS Mii (.3dsmii)", ".3dsmii"), ('All files', '*.*')),
+        )
+
+        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST)
+
+        try:
+            handler.replace(new_mii)
+        except Exception as e:
+            print(e)
+            messagebox.showerror("Invalid Mii Data", "This Mii file contained invalid Mii data; it could not be injected.")
+            return
+
+        # Generate new filename
+        mii_name = handler.extract_mii_name()
+        self.data.playername = mii_name
+        new_name = MK8GhostFilenameParser.serialize_filename(self.data)
+
+        # Rename file
+        current_folder = self.ghostfile.rpartition("/")[0]
+        new_file = current_folder + "/" + new_name
+        os.rename(self.ghostfile, new_file)
+
+        self.ghostfile = new_file
+        self.playername.set(self.data.playername)
+
+        messagebox.showinfo("Mii replaced!", f"The Mii for this ghost file was successfully replaced!")
 
     def export_as_staff(self):
         """ Exports the currently loaded ghostfile as a staff ghost """
@@ -308,6 +350,7 @@ class PoltergustUI:
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=NORMAL)
             self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
             self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=NORMAL)
+            self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=NORMAL)
 
             # Name of opened file
             file_str = "Loaded File: " + self.ghostfile.rpartition("/")[2][:40]
@@ -366,6 +409,7 @@ class PoltergustUI:
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=DISABLED)
             self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
             self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=DISABLED)
+            self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=DISABLED)
             self.lb_ghostfile.config(text="No ghost data loaded")
 
             # Remove Preview
