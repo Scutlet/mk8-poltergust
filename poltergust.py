@@ -1,3 +1,4 @@
+from tkinter import messagebox
 from tkinter.font import NORMAL, BOLD
 from idlelib.tooltip import Hovertip
 from tkinter import *
@@ -8,6 +9,7 @@ from PIL import Image, ImageTk
 
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
 from gamedata import COURSE_NUMBERS, COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
+from mii_handler import MK8GhostDataMiiHandler
 from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
 
@@ -17,8 +19,8 @@ class PoltergustUI:
     """
         Defines and builds the Poltergust UI using Tkinter.
     """
-    window_width = 550
-    window_height = 400
+    WINDOW_WIDTH = 550
+    WINDOW_HEIGHT = 400
 
     BTN_RELOAD_FROM_DISK = "Reload from disk"
     BTN_CLOSE = "Close"
@@ -36,6 +38,9 @@ class PoltergustUI:
     # Editing is not yet supported
     EDIT_STATE = "readonly"
 
+    # Window Icon
+    WINDOW_ICON = "resources/scutlet_static_cropped.png"
+
     def __init__(self, root: Tk):
         """ Initializes the UI """
         self.ghostfile: str | None = None
@@ -44,6 +49,7 @@ class PoltergustUI:
         self.root = root
         root.option_add('*tearOff', FALSE)
         root.title("Poltergust - Mario Kart 8 Ghost Data Tool")
+        root.iconphoto(True, PhotoImage(file=self.WINDOW_ICON))
         root.columnconfigure(0, weight=1)
         root.rowconfigure(0, weight=1)
 
@@ -69,7 +75,7 @@ class PoltergustUI:
 
         # Export options
         self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
-        self.menu_export.add_command(label=self.BTN_EXTRACT_MII)
+        self.menu_export.add_command(label=self.BTN_EXTRACT_MII, command=self.extract_mii)
 
         # About options
         self.menu_help.add_command(label="About", command=self.popup_about)
@@ -188,6 +194,9 @@ class PoltergustUI:
 
         win.geometry(f"275x150+{x}+{y}")
 
+        win.wait_visibility()
+        win.grab_set()
+
     def popup_success(self, title: str, message: str) -> None:
         """ Displays 'export success' message """
         win = Toplevel(self.root)
@@ -206,16 +215,37 @@ class PoltergustUI:
 
         win.geometry(f"275x150+{x}+{y}")
 
+    def extract_mii(self):
+        """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
+        filename = filedialog.asksaveasfilename(
+            parent=self.root,
+            title=self.BTN_EXTRACT_MII,
+            defaultextension=".3dsmii",
+            filetypes=(("Wii U/3DS Mii (.3dsmii)", ".3dsmii"), ('All files', '*.*')),
+            initialfile=f"mii-{self.data.playername}",
+        )
+
+        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST)
+
+        try:
+            handler.extract(filename)
+        except:
+            messagebox.showerror("Invalid Mii Data", "This ghost file contained invalid Mii data; it could not be extracted.")
+            return
+
+        messagebox.showinfo("Mii extracted!", f"The Mii for this ghost file was extracted successfully to {filename}")
+
     def export_as_staff(self):
         """ Exports the currently loaded ghostfile as a staff ghost """
         assert self.ghostfile is not None
         converter = MK8StaffGhostConverter(self.data, self.ghostfile)
         foldername = filedialog.askdirectory(
+            parent=self.root,
             title="Output directory for MK8 Staff Ghost",
         )
         res = converter.convert(foldername)
         if res:
-            self.popup_success("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {foldername}")
+            messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {foldername}")
 
     def generate_laptimes_entries(self, frame, amount):
         """ Builds the UI for individual lap times """
@@ -263,10 +293,10 @@ class PoltergustUI:
         hs = self.root.winfo_screenheight() # height of the screen
 
         # calculate x and y coordinates for the Tk root window
-        x = int((ws/2) - (self.window_width/2))
+        x = int((ws/2) - (self.WINDOW_WIDTH/2))
         y = int(hs/8)
 
-        self.root.geometry(f"{self.window_width}x{self.window_height}+{x}+{y}")
+        self.root.geometry(f"{self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}+{x}+{y}")
 
     def update(self):
         """ Updates the UI contents based on the loaded ghostfile """
@@ -292,7 +322,7 @@ class PoltergustUI:
             if self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST:
                 self.ghost_type.config(text="Staff Ghost")
                 # No need to export a staff ghost
-                # self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
+                self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
             elif self.data.ghost_type == MK8_GHOST_TYPES.PLAYER_GHOST:
                 self.ghost_type.config(text="Player Ghost")
             elif self.data.ghost_type == MK8_GHOST_TYPES.DOWNLOADED_GHOST:
@@ -406,6 +436,7 @@ class PoltergustUI:
     def open_ghost_file(self):
         """ UI Popup for opening a ghost file """
         filename = filedialog.askopenfilename(
+            parent=self.root,
             title="Open MK8 Ghost Data",
             filetypes=(("MK8 Ghost Data (*.dat)", ".dat"), ('All files', '*.*'))
         )
