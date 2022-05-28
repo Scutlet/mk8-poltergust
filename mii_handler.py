@@ -20,9 +20,16 @@ class MK8GhostDataMiiHandler:
     MII_NAME_OFFSET = 0x1a
     MII_NAME_LENGTH = 0x14
 
-    def __init__(self, ghost_filename: str, is_staff_ghost=False) -> None:
+    def __init__(self, ghost_filename: str, has_header=False) -> None:
         self.filename = ghost_filename
-        self.is_staff_ghost = is_staff_ghost
+        self.has_header = has_header
+
+    def get_mii_offset(self):
+        """ Returns the offset of the Mii in the ghost file """
+        if self.has_header:
+            # We have an additional 0x48 offset at the start of the file
+            return self.PLAYERGHOST_MII_OFFSET
+        return self.STAFF_MII_OFFSET
 
     def calculate_ghost_mii_checksum(self, mii_data: bytes) -> bytes:
         """ Calculates the CRC-16 XMODEM checksum of some Mii data (containing two trailing nul-bytes) """
@@ -33,8 +40,8 @@ class MK8GhostDataMiiHandler:
             Reads Mii data from the ghostfile. If invalid data is found
             and `strict=True`, an error will be thrown and no data will be exported.
         """
-        # Offset depends on whether this is a staff ghost
-        offset = self.STAFF_MII_OFFSET if self.is_staff_ghost else self.PLAYERGHOST_MII_OFFSET
+        # Offset depends on whether data was created in-game.
+        offset = self.get_mii_offset()
         with open(self.filename, 'rb') as file:
             file.seek(offset, os.SEEK_SET)
             ghost_data = file.read(self.MII_GHOST_LENGTH)
@@ -56,7 +63,7 @@ class MK8GhostDataMiiHandler:
 
     def extract_mii_name(self) -> str:
         """ Extracts the mii name from the the attached ghost file """
-        offset = self.STAFF_MII_OFFSET if self.is_staff_ghost else self.PLAYERGHOST_MII_OFFSET
+        offset = self.get_mii_offset()
         with open(self.filename, 'rb') as file:
             file.seek(offset + self.MII_NAME_OFFSET, os.SEEK_SET)
             mii_name = file.read(self.MII_NAME_LENGTH)
@@ -79,7 +86,7 @@ class MK8GhostDataMiiHandler:
             new_mii_data += b'\x00\x00'
 
         # Offset depends on whether this is a staff ghost
-        offset = self.STAFF_MII_OFFSET if self.is_staff_ghost else self.PLAYERGHOST_MII_OFFSET
+        offset = get_mii_offset()
 
         with open(self.filename, 'rb+') as file:
             file.seek(offset, os.SEEK_SET)

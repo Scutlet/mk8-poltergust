@@ -4,7 +4,13 @@ from parser import MK8_GHOST_TYPES, MK8GhostData
 
 
 class MK8StaffGhostConverter:
-    """ Class that can convert a normal ghost to a staff ghost """
+    """
+        Class that can convert a player ghost or downloaded ghost to a staff ghost
+        by removing their header. Staff Ghosts do not have this header.
+
+        NOTE: Ghosts downloaded through the Nintendo Clients package do NOT
+        have this header. Simply renaming the file already works directly!
+    """
     GHOST_DATA_OFFSET = 0x48
 
     def __init__(self, ghost_file: str):
@@ -13,7 +19,7 @@ class MK8StaffGhostConverter:
         """
         self.ghost_file = ghost_file
 
-    def convert(self, output_folder):
+    def convert(self, output_folder, remove_header=True):
         """
             Copies `self.ghost_data` into a new file in `output_folder`
             and converts it to a staff ghost

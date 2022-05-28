@@ -68,7 +68,7 @@ class PoltergustUI:
         self.menu_edit = Menu(self.menubar)
         self.menu_help = Menu(self.menubar)
         self.menubar.add_cascade(menu=self.menu_file, label='File')
-        self.menubar.add_cascade(menu=self.menu_edit, label='Edit')
+        # self.menubar.add_cascade(menu=self.menu_edit, label='Edit') # Disabled for now
         self.menubar.add_cascade(menu=self.menu_export, label='Export')
         self.menubar.add_cascade(menu=self.menu_help, label='Help')
 
@@ -184,13 +184,14 @@ class PoltergustUI:
         win.wm_title("Poltergust - About")
 
         with Image.open("resources/scutlet.png") as img:
-            scutlet_canvas = Canvas(win, width=128, height=128)
-            scutlet_canvas.grid(column=0, row=0, sticky=(N,W,E,S))
-            self.scutlet_img = ImageTk.PhotoImage(img.resize((128, 128)))
+            scutlet_canvas = Canvas(win, width=64, height=64)
+            scutlet_canvas.grid(column=1, row=1, sticky=(N,W,E,S))
+            self.scutlet_img = ImageTk.PhotoImage(img.resize((64, 64)))
             scutlet_canvas.create_image(0, 0, image=self.scutlet_img, anchor=NW)
 
-        ttk.Label(win, text="Developed by Scutlet").grid(column=1, row=0)
-        ttk.Label(win, text="This software is available under GPL v3").grid(column=0, row=1, columnspan=2)
+        ttk.Label(win, wraplength=275, text="Poltergust visualises Mario Kart 8 ghost data based on their filenames. It's possible to manually tinker with those, but doing so may break assumptions made by this tool. Do so at your own risk.").grid(column=0, row=0, columnspan=2, padx=2, pady=2)
+        ttk.Label(win, wraplength=135, text="Developed by Scutlet").grid(column=0, row=1)
+        ttk.Label(win, text="This software is available under GPL v3").grid(column=0, row=2, columnspan=2)
 
         ws = self.root.winfo_screenwidth() # width of the screen
         hs = self.root.winfo_screenheight() # height of the screen
@@ -199,7 +200,7 @@ class PoltergustUI:
         x = int((ws/2) - (275/2))
         y = int(hs/7)
 
-        win.geometry(f"275x150+{x}+{y}")
+        win.geometry(f"275x160+{x}+{y}")
 
         win.wait_visibility()
         win.grab_set()
@@ -232,7 +233,7 @@ class PoltergustUI:
             initialfile=f"mii-{self.data.playername}",
         )
 
-        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST)
+        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.created_in_game)
 
         try:
             handler.extract(filename)
@@ -287,7 +288,7 @@ class PoltergustUI:
             title="Output directory for MK8 Staff Ghost",
         )
         output_file = os.path.join(foldername, MK8_GHOST_TYPES.STAFF_GHOST.value + self.ghostfile.rpartition("/")[2][2:])
-        res = converter.convert(output_file)
+        res = converter.convert(output_file, remove_header=self.data.created_in_game)
         if res:
             messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
 
@@ -366,12 +367,17 @@ class PoltergustUI:
             self.game_version.config(text=f"Game version {self.data.game_version}")
             if self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST:
                 self.ghost_type.config(text="Staff Ghost")
-                # No need to export a staff ghost
+                # No need to export a staff ghost as itself
                 self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
             elif self.data.ghost_type == MK8_GHOST_TYPES.PLAYER_GHOST:
                 self.ghost_type.config(text="Player Ghost")
             elif self.data.ghost_type == MK8_GHOST_TYPES.DOWNLOADED_GHOST:
-                self.ghost_type.config(text=f"Downloaded Ghost (Slot {self.data.ghost_number})")
+                text = f"Downloaded Ghost - Slot {self.data.ghost_number}"
+                if not self.data.created_in_game:
+                    text += " (Nintendo Clients Package Download)"
+                else:
+                    text += " (In-Game Download)"
+                self.ghost_type.config(text=text)
             else:
                 self.ghost_type.config(text="MKTV Replay")
 
@@ -419,6 +425,11 @@ class PoltergustUI:
         """ Invokes a parser to read ghost data from a ghost's filename """
         filename = filepath.rpartition("/")[2].rpartition(".")[0]
         self.data = MK8GhostFilenameParser(filename).parse()
+
+        # TODO: Move this to a file parser instead
+        with open(filepath, 'rb') as f:
+            prefix = f.read(4)
+            self.data.created_in_game = prefix == "CTG0".encode()
 
     def update_flag(self):
         """ Updates the player flag in the UI based on the loaded ghostfile """

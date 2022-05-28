@@ -11,8 +11,13 @@ class MK8_GHOST_TYPES(Enum):
 
 @dataclass
 class MK8GhostData:
-    """ Dataclass containing all information present in the filename of a Mario Kart 8 ghost file """
+    """
+        Dataclass containing all information present in the filename of a Mario Kart 8 ghost file.
+        Includes additional information on game version, and whether the data
+        was created in-game (player ghost, or downloaded in-game).
+    """
     game_version: str
+    created_in_game: bool # False for Staff Ghosts and ghosts downloaded through the Nintendo Clients package
 
     ghost_type: MK8_GHOST_TYPES
     playername: str
@@ -216,7 +221,7 @@ class MK8GhostFilenameParser:
                 results[identifier] = parse_fn(val)
             i += num_chars
 
-        return MK8GhostData(game_version, **results)
+        return MK8GhostData(game_version, created_in_game=False, **results)
 
     @classmethod
     def serialize_filename(cls, data: MK8GhostData) -> str:
