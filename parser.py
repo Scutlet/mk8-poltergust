@@ -17,7 +17,7 @@ class MK8GhostData:
     ghost_type: MK8_GHOST_TYPES
     playername: str
     flag_id: int
-    track_number: int
+    ghost_number: int
     track_id: int
     character_id: int
     character_variant_id: int
@@ -133,7 +133,7 @@ class MK8GhostFilenameParser:
     # Data present in ghost files of all game versions
     base_data = [
         (2, "ghost_type", parse_ghosttype, serialize_ghosttype),
-        (2, "track_number", parse_hex, serialize_hex),
+        (2, "ghost_number", parse_hex, serialize_hex),
         (2, "track_id", parse_hex, serialize_hex),
         (2, "character_id", parse_hex, serialize_hex),
         (2, "character_variant_id", parse_hex, serialize_hex),

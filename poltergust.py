@@ -371,7 +371,7 @@ class PoltergustUI:
             elif self.data.ghost_type == MK8_GHOST_TYPES.PLAYER_GHOST:
                 self.ghost_type.config(text="Player Ghost")
             elif self.data.ghost_type == MK8_GHOST_TYPES.DOWNLOADED_GHOST:
-                self.ghost_type.config(text="Downloaded Ghost")
+                self.ghost_type.config(text=f"Downloaded Ghost (Slot {self.data.ghost_number})")
             else:
                 self.ghost_type.config(text="MKTV Replay")
 
@@ -457,12 +457,13 @@ class PoltergustUI:
 
         track = COURSE_IDS.get(self.data.track_id, ("Unknown Track", None))
 
-        if self.data.track_id - 16 != self.data.track_number:
-            # Track number matches track ID - 16
+        if self.data.ghost_type != MK8_GHOST_TYPES.DOWNLOADED_GHOST and self.data.track_id - 16 != self.data.ghost_number:
+            # Track ID - 16 matches ghost number, but only for non-download ghosts
             track = ("Unknown Track", None)
+
         self.set_mapped_image(self.track_canvas, MK8TrackImageMapper, track[1], resize_to=self.TRACK_SIZE)
         self.track.set(track[0])
-        self.track_tip.text = f"{self.data.track_number} - {self.data.track_id}"
+        self.track_tip.text = f"{self.data.ghost_number} - {self.data.track_id}"
 
     def update_vehicle_parts(self) -> None:
         """ Updates the vehicle parts in the UI based on the loaded ghostfile """
