@@ -26,6 +26,8 @@ class PoltergustUI:
     BTN_RELOAD_FROM_DISK = "Reload from disk"
     BTN_CLOSE = "Close"
     BTN_EXPORT_AS_STAFF_GHOST = "Convert to Staff Ghost"
+    BTN_EXPORT_AS_DOWNLOADED_GHOST = "Convert to Downloaded Ghost"
+    BTN_DOWNLOADED_GHOST_SLOT_PREFIX = "Slot "
     BTN_EXTRACT_MII = "Extract Mii"
     BTN_REPLACE_MII = "Replace Mii"
 
@@ -79,6 +81,10 @@ class PoltergustUI:
 
         # Export options
         self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
+        self.menu_export_download = Menu(self.menu_export)
+        for slot in range(4):
+            self.menu_export_download.add_command(label=self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
+        self.menu_export.add_cascade(menu=self.menu_export_download, label=self.BTN_EXPORT_AS_DOWNLOADED_GHOST)
         self.menu_export.add_command(label=self.BTN_EXTRACT_MII, command=self.extract_mii)
 
         # Edit options
@@ -190,7 +196,7 @@ class PoltergustUI:
             scutlet_canvas.create_image(0, 0, image=self.scutlet_img, anchor=NW)
 
         ttk.Label(win, wraplength=275, text="Poltergust visualises Mario Kart 8 ghost data based on their filenames. It's possible to manually tinker with those, but doing so may break assumptions made by this tool. Do so at your own risk.").grid(column=0, row=0, columnspan=2, padx=2, pady=2)
-        ttk.Label(win, wraplength=135, text="Developed by Scutlet").grid(column=0, row=1)
+        ttk.Label(win, wraplength=135, text="Created by Scutlet").grid(column=0, row=1)
         ttk.Label(win, text="This software is available under GPL v3").grid(column=0, row=2, columnspan=2)
 
         ws = self.root.winfo_screenwidth() # width of the screen
@@ -233,6 +239,10 @@ class PoltergustUI:
             initialfile=f"mii-{self.data.playername}",
         )
 
+        if not filename:
+            # Operation cancelled
+            return
+
         handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.created_in_game)
 
         try:
@@ -254,6 +264,10 @@ class PoltergustUI:
             defaultextension=".3dsmii",
             filetypes=(("Wii U/3DS Mii (.3dsmii)", ".3dsmii"), ('All files', '*.*')),
         )
+
+        if not new_mii:
+            # Operation cancelled
+            return
 
         handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST)
 
@@ -287,10 +301,38 @@ class PoltergustUI:
             parent=self.root,
             title="Output directory for MK8 Staff Ghost",
         )
+        if not foldername:
+            # Operation cancelled
+            return
+
         output_file = os.path.join(foldername, MK8_GHOST_TYPES.STAFF_GHOST.value + self.ghostfile.rpartition("/")[2][2:])
         res = converter.convert(output_file, remove_header=self.data.created_in_game)
         if res:
             messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
+
+    def export_as_downloaded(self, ghost_slot: int = 0):
+        """ Exports the currently loaded ghostfile as a downloaded ghost """
+        assert self.ghostfile is not None
+        # TODO: Move this to a converter class
+        foldername = filedialog.askdirectory(
+            parent=self.root,
+            title="Output directory for MK8 Downloaded Ghost",
+        )
+        if not foldername:
+            # Operation cancelled
+            return
+
+        # TODO: Use filename serializer for this
+        output_file = os.path.join(foldername, MK8_GHOST_TYPES.DOWNLOADED_GHOST.value + "0" + str(ghost_slot) + self.ghostfile.rpartition("/")[2][4:])
+        # Read current ghost data
+        with open(self.ghostfile, 'rb') as file:
+            ghost_data = file.read()
+
+        # Write new file
+        with open(output_file, 'wb') as file:
+            file.write(ghost_data)
+
+        messagebox.showinfo("Downloaded Ghost Exported", f"Downloaded Ghost data was exported successfully! It can be found under {output_file}")
 
     def generate_laptimes_entries(self, frame, amount):
         """ Builds the UI for individual lap times """
@@ -350,6 +392,7 @@ class PoltergustUI:
             self.menu_file.entryconfig(self.BTN_CLOSE, state=NORMAL)
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=NORMAL)
             self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
+            self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=NORMAL)
             self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=NORMAL)
             self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=NORMAL)
 
@@ -378,6 +421,8 @@ class PoltergustUI:
                 else:
                     text += " (In-Game Download)"
                 self.ghost_type.config(text=text)
+                # No need to export a downloaded ghost as itself
+                self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
             else:
                 self.ghost_type.config(text="MKTV Replay")
 
@@ -414,6 +459,7 @@ class PoltergustUI:
             self.menu_file.entryconfig(self.BTN_CLOSE, state=DISABLED)
             self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=DISABLED)
             self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
+            self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
             self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=DISABLED)
             self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=DISABLED)
             self.lb_ghostfile.config(text="No ghost data loaded")
