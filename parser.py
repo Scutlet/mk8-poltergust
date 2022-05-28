@@ -20,6 +20,8 @@ class MK8GhostData:
     track_number: int
     track_id: int
     character_id: int
+    character_variant_id: int
+    mii_weight_class_id: int
     kart_id: int
     wheels_id: int
     glider_id: int
@@ -134,7 +136,8 @@ class MK8GhostFilenameParser:
         (2, "track_number", parse_hex, serialize_hex),
         (2, "track_id", parse_hex, serialize_hex),
         (2, "character_id", parse_hex, serialize_hex),
-        (4, None, None, None), # 0000 Padding
+        (2, "character_variant_id", parse_hex, serialize_hex),
+        (2, "mii_weight_class_id", parse_hex, serialize_hex),
         (2, "kart_id", parse_hex, serialize_hex),
         (2, "wheels_id", parse_hex, serialize_hex),
         (2, "glider_id", parse_hex, serialize_hex),

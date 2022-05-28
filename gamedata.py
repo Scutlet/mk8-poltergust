@@ -1,75 +1,4 @@
 
-
-COURSE_NUMBERS = {
-    0: 16, # Mario Circuit
-    1: 17, # Thwomp Ruins
-    2: 18, # Toad Harbour
-    3: 19, # Sweet Sweet Canyon
-    4: 20, # Twisted Mansion
-    5: 21, # Shy Guy Falls
-    6: 22, # Bone Dry Dunes
-    7: 23, # Cloudtop Cruise
-    8: 24, # Mount Wario
-    9: 25, # Electrodrome
-    10: 26, # Sunshine Airport
-    11: 27, # Mario Kart Stadium
-    12: 28, # Water Park
-    13: 29, # Dolphin Shoals
-    14: 30, # Bowser's Castle
-    15: 31, # Rainbow Road
-    16: 32, # 3DS DK Jungle
-    17: 33, # Wii Moo Moo Meadows
-    18: 34, # N64 Royal Raceway
-    19: 35, # N64 Toad's Turnpike
-    20: 36, # DS Cheep Cheep Beach
-    21: 37, # GCN Sherbet Land
-    22: 38, # GBA Mario Circuit
-    23: 39, # 3DS Melody Motorway
-    24: 40, # Wii Grumble Volcano
-    25: 41, # SNES Donut Plains 3
-    26: 42, # GCN Dry Dry Desert
-    27: 43, # 3DS Piranha Plant Pipeway
-    28: 44, # DS Tick-Tock Clock
-    29: 45, # N64 Yoshi Valley
-    30: 46, # DS Wario Stadium
-    31: 47, # N64 Rainbow Road
-    40: 56, # GCN Yoshi Circuit
-    37: 53, # Excitebike Arena
-    34: 50, # Dragon Driftway
-    33: 49, # Mute City
-    41: 57, # Wii Wario's Gold Mine
-    42: 58, # SNES Rainbow Road
-    39: 55, # Ice Ice Outpost
-    35: 51, # Hyrule Circuit
-    45: 61, # GCN Baby Park
-    46: 62, # GBA Cheese Land
-    38: 54, # Wild Woods
-    48: 64, # Animal Crossing (Spring)
-    36: 52, # Animal Crossing (Summer)
-    49: 65, # Animal Crossing (Autumn)
-    50: 66, # Animal Crossing (Winter)
-    44: 60, # 3DS Neo Bowser City
-    43: 59, # GBA Ribbon Road
-    32: 48, # Super Bell Subway
-    47: 63, # Big Blue
-    -1: -1, # Battle Stadium (MK8D)
-    -1: -1, # Sweet Sweet Kingdom (MK8D)
-    -1: -1, # Dragon Palace (MK8D)
-    -1: -1, # Lunar Colony (MK8D)
-    -1: -1, # 3DS Wuhu Town (MK8D)
-    -1: -1, # GCN Luigi's Mansion (MK8D)
-    -1: -1, # SNES Battle Course 1 (MK8D)
-    -1: -1, # Urchin Underpass (MK8D)
-    -1: -1, # Tour Paris Promenade (MK8D DLC)
-    -1: -1, # 3DS Toad Circuit (MK8D DLC)
-    -1: -1, # N64 Choco Mountain (MK8D DLC)
-    -1: -1, # Wii Coconut Mall (MK8D DLC)
-    -1: -1, # Tour Tokyo Blur (MK8D DLC)
-    -1: -1, # DS Shroom Ridge (MK8D DLC)
-    -1: -1, # GBA Sky Garden (MK8D DLC)
-    -1: -1, # Tour Ninja Hideaway (MK8D DLC)
-}
-
 COURSE_IDS = {
     27: ("Mario Kart Stadium", 0),
     28: ("Water Park", 8),
@@ -120,32 +49,119 @@ COURSE_IDS = {
     66: ("Animal Crossing (Winter)", 46),
     60: ("3DS Neo Bowser City", 35),
     59: ("GBA Ribbon Road", 39),
-    48: ("Super Bell Subway", 53),
+    48: ("Super Bell Subway", 43),
     63: ("Big Blue", 47),
-    -1: ("Battle Stadium", 48), # MK8D
-    -1: ("Sweet Sweet Kingdom", 49), # MK8D
-    -1: ("Dragon Palace", 50), # MK8D
-    -1: ("Lunar Colony", 51), # MK8D
-    -1: ("3DS Wuhu Town", 52), # MK8D
-    -1: ("GCN Luigi's Mansion", 53), # MK8D
-    -1: ("SNES Battle Course 1", 54), # MK8D
-    -1: ("Urchin Underpass", 55), # MK8D
-    -1: ("Tour Paris Promenade", None), # MK8D DLC
-    -1: ("3DS Toad Circuit", None), # MK8D DLC
-    -1: ("N64 Choco Mountain", None), # MK8D DLC
-    -1: ("Wii Coconut Mall", None), # MK8D DLC
-    -1: ("Tour Tokyo Blur", None), # MK8D DLC
-    -1: ("DS Shroom Ridge", None), # MK8D DLC
-    -1: ("GBA Sky Garden", None), # MK8D DLC
-    -1: ("Tour Ninja Hideaway", None), # MK8D DLC
+    67: ("Battle Stadium", 48), # MK8D (unverified)
+    68: ("Sweet Sweet Kingdom", 49), # MK8D (unverified)
+    69: ("Dragon Palace", 50), # MK8D (unverified)
+    70: ("Lunar Colony", 51), # MK8D (unverified)
+    71: ("3DS Wuhu Town", 52), # MK8D (unverified)
+    72: ("GCN Luigi's Mansion", 53), # MK8D (unverified)
+    73: ("SNES Battle Course 1", 54), # MK8D (unverified)
+    74: ("Urchin Underpass", 55), # MK8D (unverified)
+    75: ("Tour Paris Promenade", None), # MK8D DLC
+    76: ("3DS Toad Circuit", None), # MK8D DLC
+    77: ("N64 Choco Mountain", None), # MK8D DLC
+    78: ("Wii Coconut Mall", None), # MK8D DLC
+    79: ("Tour Tokyo Blur", None), # MK8D DLC
+    80: ("DS Shroom Ridge", None), # MK8D DLC
+    81: ("GBA Sky Garden", None), # MK8D DLC
+    82: ("Tour Ninja Hideaway", None), # MK8D DLC
 }
+
+AMIIBO_SUITS = [
+    ("Mario Suit Male 1", 64), ("Mario Suit Female 1", 64),
+    ("Mario Suit Male 2", 64), ("Mario Suit Female 2", 64),
+    ("Mario Suit Male 3", 64), ("Mario Suit Female 3", 64),
+    ("Mario Suit Male 4", 64), ("Mario Suit Female 4", 64),
+    ("Luigi Suit Male 1", 64), ("Luigi Suit Female 1", 64),
+    ("Luigi Suit Male 2", 64), ("Luigi Suit Female 2", 64),
+    ("Luigi Suit Male 3", 64), ("Luigi Suit Female 3", 64),
+    ("Luigi Suit Male 4", 64), ("Luigi Suit Female 4", 64),
+    ("Yoshi Suit Male 1", 64), ("Yoshi Suit Female 1", 64),
+    ("Yoshi Suit Male 2", 64), ("Yoshi Suit Female 2", 64),
+    ("Yoshi Suit Male 3", 64), ("Yoshi Suit Female 3", 64),
+    ("Yoshi Suit Male 4", 64), ("Yoshi Suit Female 4", 64),
+    ("Peach Suit Male 1", 64), ("Peach Suit Female 1", 64),
+    ("Peach Suit Male 2", 64), ("Peach Suit Female 2", 64),
+    ("Peach Suit Male 3", 64), ("Peach Suit Female 3", 64),
+    ("Peach Suit Male 4", 64), ("Peach Suit Female 4", 64),
+    ("Toad Suit Male 1", 64), ("Toad Suit Female 1", 64),
+    ("Toad Suit Male 2", 64), ("Toad Suit Female 2", 64),
+    ("Toad Suit Male 3", 64), ("Toad Suit Female 3", 64),
+    ("Toad Suit Male 4", 64), ("Toad Suit Female 4", 64),
+    ("Donkey Kong Suit Male 1", 64), ("Donkey Kong Suit Female 1", 64),
+    ("Donkey Kong Suit Male 2", 64), ("Donkey Kong Suit Female 2", 64),
+    ("Donkey Kong Suit Male 3", 64), ("Donkey Kong Suit Female 3", 64),
+    ("Donkey Kong Suit Male 4", 64), ("Donkey Kong Suit Female 4", 64),
+    ("Bowser Suit Male 1", 64), ("Bowser Suit Female 1", 64),
+    ("Bowser Suit Male 2", 64), ("Bowser Suit Female 2", 64),
+    ("Bowser Suit Male 3", 64), ("Bowser Suit Female 3", 64),
+    ("Bowser Suit Male 4", 64), ("Bowser Suit Female 4", 64),
+    ("Wario Suit Male 1", 64), ("Wario Suit Female 1", 64),
+    ("Wario Suit Male 2", 64), ("Wario Suit Female 2", 64),
+    ("Wario Suit Male 3", 64), ("Wario Suit Female 3", 64),
+    ("Wario Suit Male 4", 64), ("Wario Suit Female 4", 64),
+    ("Captain Falcon Suit Male 1", 64), ("Captain Falcon Suit Female 1", 64),
+    ("Captain Falcon Suit Male 2", 64), ("Captain Falcon Suit Female 2", 64),
+    ("Captain Falcon Suit Male 3", 64), ("Captain Falcon Suit Female 3", 64),
+    ("Captain Falcon Suit Male 4", 64), ("Captain Falcon Suit Female 4", 64),
+    ("Fox Suit Male 1", 64), ("Fox Suit Female 1", 64),
+    ("Fox Suit Male 2", 64), ("Fox Suit Female 2", 64),
+    ("Fox Suit Male 3", 64), ("Fox Suit Female 3", 64),
+    ("Fox Suit Male 4", 64), ("Fox Suit Female 4", 64),
+    ("Varia Suit Male 1", 64), ("Varia Suit Female 1", 64),
+    ("Varia Suit Male 2", 64), ("Varia Suit Female 2", 64),
+    ("Varia Suit Male 3", 64), ("Varia Suit Female 3", 64),
+    ("Varia Suit Male 4", 64), ("Varia Suit Female 4", 64),
+    ("Hylian Suit Male 1", 64), ("Hylian Suit Female 1", 64),
+    ("Hylian Suit Male 2", 64), ("Hylian Suit Female 2", 64),
+    ("Hylian Suit Male 3", 64), ("Hylian Suit Female 3", 64),
+    ("Hylian Suit Male 4", 64), ("Hylian Suit Female 4", 64),
+    ("Kirby Suit Male 1", 64), ("Kirby Suit Female 1", 64),
+    ("Kirby Suit Male 2", 64), ("Kirby Suit Female 2", 64),
+    ("Kirby Suit Male 3", 64), ("Kirby Suit Female 3", 64),
+    ("Kirby Suit Male 4", 64), ("Kirby Suit Female 4", 64),
+    ("Rosalina Suit Male 1", 64), ("Rosalina Suit Female 1", 64),
+    ("Rosalina Suit Male 2", 64), ("Rosalina Suit Female 2", 64),
+    ("Rosalina Suit Male 3", 64), ("Rosalina Suit Female 3", 64),
+    ("Rosalina Suit Male 4", 64), ("Rosalina Suit Female 4", 64),
+    ("Pikmin Suit Male 1", 64), ("Pikmin Suit Female 1", 64),
+    ("Pikmin Suit Male 2", 64), ("Pikmin Suit Female 2", 64),
+    ("Pikmin Suit Male 3", 64), ("Pikmin Suit Female 3", 64),
+    ("Pikmin Suit Male 4", 64), ("Pikmin Suit Female 4", 64),
+    ("Animal Crossing Suit Male 1", 64), ("Animal Crossing Suit Female 1", 64),
+    ("Animal Crossing Suit Male 2", 64), ("Animal Crossing Suit Female 2", 64),
+    ("Animal Crossing Suit Male 3", 64), ("Animal Crossing Suit Female 3", 64),
+    ("Animal Crossing Suit Male 4", 64), ("Animal Crossing Suit Female 4", 64),
+    ("PAC-MAN Suit Male 1", 64), ("PAC-MAN Suit Female 1", 64),
+    ("PAC-MAN Suit Male 2", 64), ("PAC-MAN Suit Female 2", 64),
+    ("PAC-MAN Suit Male 3", 64), ("PAC-MAN Suit Female 3", 64),
+    ("PAC-MAN Suit Male 4", 64), ("PAC-MAN Suit Female 4", 64),
+    ("Mega Man Suit Male 1", 64), ("Mega Man Suit Female 1", 64),
+    ("Mega Man Suit Male 2", 64), ("Mega Man Suit Female 2", 64),
+    ("Mega Man Suit Male 3", 64), ("Mega Man Suit Female 3", 64),
+    ("Mega Man Suit Male 4", 64), ("Mega Man Suit Female 4", 64),
+    ("Sonic Suit Male 1", 64), ("Sonic Suit Female 1", 64),
+    ("Sonic Suit Male 2", 64), ("Sonic Suit Female 2", 64),
+    ("Sonic Suit Male 3", 64), ("Sonic Suit Female 3", 64),
+    ("Sonic Suit Male 4", 64), ("Sonic Suit Female 4", 64),
+    ("Inkling Suit Male 1", 64), ("Inkling Suit Female 1", 64), # MK8D (unverified)
+    ("Inkling Suit Male 2", 64), ("Inkling Suit Female 2", 64), # MK8D (unverified)
+    ("Inkling Suit Male 3", 64), ("Inkling Suit Female 3", 64), # MK8D (unverified)
+    ("Inkling Suit Male 4", 64), ("Inkling Suit Female 4", 64), # MK8D (unverified)
+]
 
 CHARACTERS = {
     0: ("Mario", 0),
     1: ("Luigi", 1),
     2: ("Peach", 2),
     3: ("Daisy", 3),
-    4: ("Yoshi (Green)", 7),
+    4: ("Yoshi", [
+        ("Green", 7), ("Red", 8), ("Blue", 9),
+        ("Light Blue", 10), ("Yellow", 11), ("Pink", 12),
+        ("Black", 13), ("White", 14), ("Orange", 15),
+    ]),
     5: ("Toad", 16),
     6: ("Toadette", 28),
     7: ("Koopa Troopa", 17),
@@ -157,7 +173,11 @@ CHARACTERS = {
     13: ("Metal Mario", 35),
     14: ("Pink Gold Peach", 37),
     15: ("Lakitu", 27),
-    16: ("Shy Guy (Red)", 18),
+    16: ("Shy Guy", [
+        ("Red", 18), ("Green", 19), ("Blue", 20),
+        ("Light Blue", 21), ("Yellow", 22), ("Pink", 23),
+        ("Black", 24), ("White", 25), ("Orange", 26),
+    ]),
     17: ("Baby Mario", 30),
     18: ("Baby Luigi", 31),
     19: ("Baby Peach", 32),
@@ -166,47 +186,35 @@ CHARACTERS = {
     23: ("Lemmy", 45),
     22: ("Larry", 46),
     24: ("Wendy", 47),
-    25: ("Ludwig von Koopa", 48),
+    25: ("Ludwig", 48),
     26: ("Iggy", 49),
     27: ("Roy", 50),
     28: ("Morton", 51),
-    29: ("Mii (Standard)", 63),
-    999: ("Mii (Amiibo Suit)", 64), # Update
-    999: ("Yoshi (Red)", 8), # DLC
-    999: ("Yoshi (Blue)", 9), # DLC
-    999: ("Yoshi (Light Blue)", 10), # DLC
-    999: ("Yoshi (Yellow)", 11), # DLC
-    999: ("Yoshi (Pink)", 12), # DLC
-    999: ("Yoshi (Black)", 13), # DLC
-    999: ("Yoshi (White)", 14), # DLC
-    999: ("Yoshi (Orange)", 15), # DLC
-    999: ("Shy Guy (Green)", 19), # DLC
-    999: ("Shy Guy (Blue)", 20), # DLC
-    999: ("Shy Guy (Light Blue)", 21), # DLC
-    999: ("Shy Guy (Yellow)", 22), # DLC
-    999: ("Shy Guy (Pink)", 23), # DLC
-    999: ("Shy Guy (Black)", 24), # DLC
-    999: ("Shy Guy (White)", 25), # DLC
-    999: ("Shy Guy (Orange)", 26), # DLC
+    29: ("Mii", [
+        ("Red Male", 63), ("Red Female", 63), ("Orange Male", 63), ("Orange Female", 63),
+        ("Yellow Male", 63), ("Yellow Female", 63), ("Light Green Male", 63), ("Light Green Female", 63),
+        ("Green Male", 63), ("Green Female", 63), ("Blue Male", 63), ("Blue Female", 63),
+        ("Light Blue Male", 63), ("Light Blue Female", 63), ("Pink Male", 63), ("Pink Female", 63),
+        ("Purple Male", 63), ("Purple Female", 63), ("Brown Male", 63), ("Brown Female", 63),
+        ("White Male", 63), ("White Female", 63), ("Black Male", 63), ("Black Female", 63),
+        *AMIIBO_SUITS,
+    ]),
     30: ("Tanooki Mario", 5), # DLC
     34: ("Cat Peach", 6), # DLC
     35: ("Dry Bowser", 44), # DLC
-    32: ("Villager (Boy)", 60), # DLC
-    36: ("Villager (Girl)", 61), # DLC
+    32: ("Villager (Male)", 60), # DLC
+    36: ("Villager (Female)", 61), # DLC
     33: ("Isabelle", 62), # DLC
-    31: ("Link (Standard)", 58), # DLC
-    -1: ("Link (Breath of the Wild)", 59), # MK8D
+    31: ("Link", [("Standard", 58), ("Breath of the Wild", 59), ]), # DLC/MK8D
     40: ("King Boo", 29), # MK8D
     38: ("Dry Bones", 42), # MK8D
     39: ("Bowser Jr.", 43), # MK8D
-    37: ("Golden Mario", 36), # MK8D
-    41: ("Inkling Girl (Orange)", 52), # MK8D
-    -1: ("Inkling Girl (Lime Green)", 53), # MK8D
-    -1: ("Inkling Girl (Magenta)", 54), # MK8D
-    42: ("Inkling Boy (Blue)", 55), # MK8D
-    -1: ("Inkling Boy (Purple)", 56), # MK8D
-    -1: ("Inkling Boy (Teal)", 57), # MK8D
+    37: ("Gold Mario", 36), # MK8D
+    41: ("Inkling Girl (Orange)", [("Orange", 52), ("Lime", 53), ("Magenta", 54), ]), # MK8D
+    42: ("Inkling Boy (Blue)", [("Blue", 55), ("Purple", 56), ("Teal", 57), ]), # MK8D
 }
+
+MII_WEIGHT_CLASSES = ("Light", "Medium", "Heavy")
 
 KARTS = {
     0: ("Standard Kart", 0),

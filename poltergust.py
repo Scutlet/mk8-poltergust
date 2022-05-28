@@ -9,7 +9,7 @@ import webbrowser
 from PIL import Image, ImageTk
 
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
-from gamedata import COURSE_NUMBERS, COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
+from gamedata import COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
 from mii_handler import MK8GhostDataMiiHandler
 from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
@@ -438,14 +438,28 @@ class PoltergustUI:
         assert self.data is not None
 
         char = CHARACTERS.get(self.data.character_id, (f"Unknown Character", None))
+        if type(char[1]) != int and char[1] is not None:
+            # We have subcharacters (E.g. Blue Yoshi, BoTW Link, Mii)
+            indx = self.data.character_variant_id
+            variant = char[1][indx] if 0 <= indx and indx < len(char[1]) else ("Unknown Variant", None)
+            if char[0] == "Mii":
+                # We also have a weight class
+                indx = self.data.mii_weight_class_id
+                variant[0] += F" - {MII_WEIGHT_CLASSES[indx] if 0 <= indx and indx < len(MII_WEIGHT_CLASSES) else 'Unknown Weight Class'}"
+            char = (f"{char[0]} ({variant[0]})", variant[1])
+
         self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper, char[1], resize_to=self.CHARACTER_SIZE)
-        self.character_tip.text = char[0] + f" ({self.data.character_id})"
+        self.character_tip.text = f"{char[0]} ({self.data.character_id})"
 
     def update_track(self) -> None:
         """ Updates the track in the UI based on the loaded ghostfile """
         assert self.data is not None
 
         track = COURSE_IDS.get(self.data.track_id, ("Unknown Track", None))
+
+        if self.data.track_id - 16 != self.data.track_number:
+            # Track number matches track ID - 16
+            track = ("Unknown Track", None)
         self.set_mapped_image(self.track_canvas, MK8TrackImageMapper, track[1], resize_to=self.TRACK_SIZE)
         self.track.set(track[0])
         self.track_tip.text = f"{self.data.track_number} - {self.data.track_id}"
