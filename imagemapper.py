@@ -81,10 +81,10 @@ class MK8TrackImageMapper(MK8ImageAtlasMapper):
     image_ygap = 95
     icon_size = (288, 162)
 
-    num_icons = 56
+    num_icons = 64
     icons_per_row = 8
 
-    invalid_coordinates = (17, 1894)
+    invalid_coordinates = (17, 2151)
 
 class MK8VehiclePartImageMapper(MK8ImageAtlasMapper):
     """ Maps indices to MK8 Vehicle Part icons """

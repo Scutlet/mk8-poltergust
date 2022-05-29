@@ -1,55 +1,55 @@
 
 COURSE_IDS = {
     27: ("Mario Kart Stadium", 0),
-    28: ("Water Park", 8),
-    19: ("Sweet Sweet Canyon", 16),
-    17: ("Thwomp Ruins", 24),
-    16: ("Mario Circuit", 1),
-    18: ("Toad Harbour", 9),
-    20: ("Twisted Mansion", 17),
-    21: ("Shy Guy Falls", 25),
-    26: ("Sunshine Airport", 2),
-    29: ("Dolphin Shoals", 10),
-    25: ("Electrodrome", 18),
-    24: ("Mount Wario", 26),
-    23: ("Cloudtop Cruise", 3),
-    22: ("Bone Dry Dunes", 11),
-    30: ("Bowser's Castle", 19),
-    31: ("Rainbow Road", 27),
-    33: ("Wii Moo Moo Meadows", 4),
-    38: ("GBA Mario Circuit", 12),
-    36: ("DS Cheep Cheep Beach", 20),
-    35: ("N64 Toad's Turnpike", 28),
-    42: ("GCN Dry Dry Desert", 5),
-    41: ("SNES Donut Plains 3", 13),
-    34: ("N64 Royal Raceway", 21),
-    32: ("3DS DK Jungle", 29),
-    46: ("DS Wario Stadium", 6),
-    37: ("GCN Sherbet Land", 14),
-    39: ("3DS Melody Motorway", 22),
-    45: ("N64 Yoshi Valley", 30),
-    44: ("DS Tick-Tock Clock", 7),
-    43: ("3DS Piranha Plant Pipeway", 15),
-    40: ("Wii Grumble Volcano", 23),
+    28: ("Water Park", 1),
+    19: ("Sweet Sweet Canyon", 2),
+    17: ("Thwomp Ruins", 3),
+    16: ("Mario Circuit", 4),
+    18: ("Toad Harbour", 5),
+    20: ("Twisted Mansion", 6),
+    21: ("Shy Guy Falls", 7),
+    26: ("Sunshine Airport", 8),
+    29: ("Dolphin Shoals", 9),
+    25: ("Electrodrome", 10),
+    24: ("Mount Wario", 11),
+    23: ("Cloudtop Cruise", 12),
+    22: ("Bone Dry Dunes", 13),
+    30: ("Bowser's Castle", 14),
+    31: ("Rainbow Road", 15),
+    33: ("Wii Moo Moo Meadows", 16),
+    38: ("GBA Mario Circuit", 17),
+    36: ("DS Cheep Cheep Beach", 18),
+    35: ("N64 Toad's Turnpike", 19),
+    42: ("GCN Dry Dry Desert", 20),
+    41: ("SNES Donut Plains 3", 21),
+    34: ("N64 Royal Raceway", 22),
+    32: ("3DS DK Jungle", 23),
+    46: ("DS Wario Stadium", 24),
+    37: ("GCN Sherbet Land", 25),
+    39: ("3DS Melody Motorway", 26),
+    45: ("N64 Yoshi Valley", 27),
+    44: ("DS Tick-Tock Clock", 28),
+    43: ("3DS Piranha Plant Pipeway", 29),
+    40: ("Wii Grumble Volcano", 30),
     47: ("N64 Rainbow Road", 31),
     56: ("GCN Yoshi Circuit", 32),
-    53: ("Excitebike Arena", 36),
-    50: ("Dragon Driftway", 40),
-    49: ("Mute City", 44),
-    57: ("Wii Wario's Gold Mine", 33),
+    53: ("Excitebike Arena", 33),
+    50: ("Dragon Driftway", 34),
+    49: ("Mute City", 35),
+    57: ("Wii Wario's Gold Mine", 36),
     58: ("SNES Rainbow Road", 37),
-    55: ("Ice Ice Outpost", 41),
-    51: ("Hyrule Circuit", 45),
-    61: ("GCN Baby Park", 34),
-    62: ("GBA Cheese Land", 38),
+    55: ("Ice Ice Outpost", 38),
+    51: ("Hyrule Circuit", 39),
+    61: ("GCN Baby Park", 40),
+    62: ("GBA Cheese Land", 41),
     54: ("Wild Woods", 42),
-    64: ("Animal Crossing (Spring)", 46),
-    52: ("Animal Crossing (Summer)", 46),
-    65: ("Animal Crossing (Autumn)", 46),
-    66: ("Animal Crossing (Winter)", 46),
-    60: ("3DS Neo Bowser City", 35),
-    59: ("GBA Ribbon Road", 39),
-    48: ("Super Bell Subway", 43),
+    64: ("Animal Crossing (Spring)", 43),
+    52: ("Animal Crossing (Summer)", 43),
+    65: ("Animal Crossing (Autumn)", 43),
+    66: ("Animal Crossing (Winter)", 43),
+    60: ("3DS Neo Bowser City", 44),
+    59: ("GBA Ribbon Road", 45),
+    48: ("Super Bell Subway", 46),
     63: ("Big Blue", 47),
     67: ("Battle Stadium", 48), # MK8D (unverified)
     68: ("Sweet Sweet Kingdom", 49), # MK8D (unverified)
@@ -59,14 +59,14 @@ COURSE_IDS = {
     72: ("GCN Luigi's Mansion", 53), # MK8D (unverified)
     73: ("SNES Battle Course 1", 54), # MK8D (unverified)
     74: ("Urchin Underpass", 55), # MK8D (unverified)
-    75: ("Tour Paris Promenade", None), # MK8D DLC
-    76: ("3DS Toad Circuit", None), # MK8D DLC
-    77: ("N64 Choco Mountain", None), # MK8D DLC
-    78: ("Wii Coconut Mall", None), # MK8D DLC
-    79: ("Tour Tokyo Blur", None), # MK8D DLC
-    80: ("DS Shroom Ridge", None), # MK8D DLC
-    81: ("GBA Sky Garden", None), # MK8D DLC
-    82: ("Tour Ninja Hideaway", None), # MK8D DLC
+    75: ("Tour Paris Promenade", 56), # MK8D DLC
+    76: ("3DS Toad Circuit", 57), # MK8D DLC
+    77: ("N64 Choco Mountain", 58), # MK8D DLC
+    78: ("Wii Coconut Mall", 59), # MK8D DLC
+    79: ("Tour Tokyo Blur", 60), # MK8D DLC
+    80: ("DS Shroom Ridge", 61), # MK8D DLC
+    81: ("GBA Sky Garden", 62), # MK8D DLC
+    82: ("Tour Ninja Hideaway", 63), # MK8D DLC
 }
 
 AMIIBO_SUITS = [

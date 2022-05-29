@@ -1,28 +1,26 @@
 # Poltergust
 
-Poltergust is a Mario Kart 8 U (Staff) Ghost Data visualization and (limited) modification tool. A secondary goal of this tool is to serve as documentation on the file format for MK8 ghost files.
+Poltergust is a Mario Kart 8 U (Staff) Ghost Data visualization and (limited) validation tool. Mario Kart 8 Deluxe is not actively supported.
 
-As the MK8 CT Wiki is open for modifications again, any findings will be documented there. A link to the relevant page will be added to this README once it's written. In the meantime, some information can already be derived from this tool's source code.
+Documentation on the Mario Kart 8 ghost files format can be found on the [MK8 CT Wiki](https://mk8.tockdom.com/wiki/Ghost_Data_(File_Format)). Additionally, the [MK8Leaderboards repo](https://github.com/Dinostraw/MK8Leaderboards/wiki) provides even more detailed information.
 
 Contributions to code and/or documentation are always welcome.
 
 ## DISCLAIMER
-This tool supports modification of ghost files, or otherwise aids in describing the file format to allow someone to perform such modifications themselves. **Under no circumstances should you upload any ghost file that was modified by this tool to the Nintendo servers**, nor should you pretend that a modified run was performed legitimately. Doing so will most likely result in a straight up ban. Furthermore, it is unsportsmanlike behaviour.
+This tool supports modification of ghost files, or otherwise aids in describing the file format to allow someone to perform such modifications themselves. **Under no circumstances should you upload any ghost file that was modified by this tool to the Nintendo servers**, nor should you pretend that a modified run was performed legitimately. Doing so will most likely result in a straight up ban. Furthermore, there is no pride to take in cheating.
 
-Nevertheless, if you decide to ignore this disclaimer and that acting like a doofus is the path in life you want to take, then none of the contributors to this tool can be held responsible for any possible repercussions you or anyone else faces.
-
-The modifications supported by this tool will likely result in some artifacts that would allow one to see whether a run was illegitimate, as there is still a lot unknown about ghost saves.
+Nevertheless, if you decide to ignore this disclaimer and that acting like a doofus is the path in life you want to take, then this tool cannot be held responsible for any possible repercussions.
 
 ## Screenshot
 ![tool-preview](resources/screenshots/tool-preview.png)
 
 ## What about Mario Kart 8 Deluxe?
-I would not be surprised if Deluxe has the same file format for ghost files as Mario Kart 8 U. However, I do not have access to the game's files, nor do I even own it currently. You are free to experiment with this tool on Deluxe ghost files, and are welcome to contribute to provide support for them if there turn out to be issues.
+Deluxe uses an almost-identical format to Mario Kart 8 U, with the most notable difference being the switch to a Little Endian format. There's also a few more snags, such as an additional ghost list file (See [MK8Leaderboards](https://github.com/Dinostraw/MK8Leaderboards/commits/master) for more details). At this point in time I have no intentions of providing support for Deluxe ghosts. However, you are welcome to contribute to provide support for them.
 
 Images for tracks, characters, and vehicle parts from Deluxe are already present in this repository, and have even already been properly mapped. Tracks from Wave I of the Booster Course Pass are the latest tracks that are present.
 
 # Features
-Poltergust supports staff ghost files, player ghost files, and (likely) downloaded ghost files. It does not support MKTV replays, as their file format is significantly different.
+Poltergust supports staff ghost files, player ghost files, and downloaded ghost files. It does not support MKTV replays, as their file format is significantly different.
 
 ## Previewing
 The following information can be previewed:
@@ -37,17 +35,18 @@ The following information can be previewed:
 The race itself cannot be previewed.
 
 ## Mii Data
-Mii data from ghost files can be extracted and replaced.
+Mii data from ghost files can be extracted.
 
 ## Staff Ghosts
-Player ghosts can be converted into staff ghosts.
+Player ghosts and downloaded ghosts can be converted into staff ghosts.
+
+## Downloaded Ghosts
+Player ghosts and staff ghosts can be converted into downloaded ghosts for any of the four available "slots". There is a limit of four downloaded ghosts per track per game save.
 
 ## Future Plans
-- DLC Data: Most DLC data has not yet been mapped as I haven't bothered to dump this data from my Wii U.
 - Additional verification:
-    - Track encoding: A track is encoded in two different ways in a ghost's filename. If they don't match up then the game will not recognise the ghost file.
     - Filename vs content: Some information is present in both the ghost's filename and its contents. Although in most cases it won't matter if these two don't match up (the filename takes presence mostly), there can sometimes be issues. For example, if the character does not match up, then animations can break when viewing the replay. See the note below.
-- Extended Editing: At least the player name and flag should be editable. Support for other things can also be added, but has less priority.
+- Editing: At least the player name and flag should be editable. Runs recorded on the CEMU emulator fail to add the correct flag. It also adds a bogus name (consisting of several types of question mark charaters) if using the default Mii data. Likewise, runs recorded on a real Wii U may use a Mii name that a player may not want to expose elsewhere.
 - Font icons: Nintendo uses some special icons in their font, such as a ★. There is a manual translation from hex to such characters (and back), but it is by no means complete.
 - Character-specific vehicle parts: Some vehicle parts are coloured differently based on the character that drives it. This is not reflected in the current UI.
 
@@ -64,13 +63,18 @@ Mii data is stored inside ghost files, although it is only really used for displ
 Ghost files were changed a little in version 4 of the game, where GCN Baby Park was added to the game. This track features seven laps that need to be stored in a ghost file name, whereas previously there was only space for at most five laps (space for two were unused). Hence, the filename of ghost files was extended in version 4 of the game.
 
 # CREDITS
-## Filename
-Figuring out the filename was done independently, but were already confirmed earlier by lonemoonHD and Cole [in a GBATemp thread](https://gbatemp.net/threads/post-your-wiiu-cheat-codes-here.395443/page-454#post-8640417).
+## B_squo
+B_squo provided the initial information on Mii data inside ghost files [in a Tweet](https://twitter.com/b_squo/status/1412392477080834056). This proved to be correct, as this data can be opened in [a Mii viewer](https://kazuki-4ys.github.io/web_apps/MiiInfoEditorCTR/).[CRC-16 XMODEM](https://crccalc.com/) checksum is used to ensure Mii data is not corrupted in that game.
 
-## Mii Data
-B_squo provided the initial information on Mii data inside ghost files [in a Tweet](https://twitter.com/b_squo/status/1412392477080834056). This proved to be correct, as this data can be opened in [a Mii viewer](https://kazuki-4ys.github.io/web_apps/MiiInfoEditorCTR/).
+It turned out Mario Kart 8 uses the exact same checksum. Directly editing Mii data _without updating this checksum_ causes a crash.
 
-However, editing this data directly caused the game to crash. Hence, I cross-checked Mii handling with [Mario Kart Wii ghost files](https://wiki.tockdom.com/wiki/RKG_(File_Format)) on the Custom Mario Kart Wiiki, revealing that a [CRC-16 XMODEM](https://crccalc.com/) checksum is used to ensure Mii data is not corrupted.
+## lonemoonHD and Cole
+lonemoonHD and Cole already independently confirmed the filename format for ghosts earlier on [in a GBATemp thread](https://gbatemp.net/threads/post-your-wiiu-cheat-codes-here.395443/page-454#post-8640417). Furthermore, they provided crucial insights in that same GBATemp thread regarding the difference between staff ghost data and player ghost data: the header.
 
-## Other File contents
-lonemoonHD and Cole provided crucial insights [in that same GBATemp thread](https://gbatemp.net/threads/post-your-wiiu-cheat-codes-here.395443/page-454#post-8640417) regarding the difference between staff ghost data and player ghost data: the header. Copying a player ghost into a staff ghost without removing the player ghost header first caused the game to crash, but completely getting rid of this header and _then_ copying file contents over works completely fine. This provides an entrypoint for custom staff ghosts.
+Copying a player ghost into a staff ghost without removing the player ghost header first caused the game to crash, but completely getting rid of this header and _then_ copying file contents over works completely fine. This provided an entrypoint for custom staff ghosts.
+
+## MK8Leaderboards by Dinostraw
+Starting May 17th 2022, Dinostraw started work on [a Leaderboards visualisation tool](https://github.com/Dinostraw/MK8Leaderboards/commits/master). It contains detailed documentation on the filename and file contents format, written independently from this tool. It provided crucial insights for downloaded ghosts as well as character variants (like Blue Yoshi), support for which was integrated into Poltergust only because of those findings.
+
+## Spriters Resource
+Character, flag, track, and vehicle part images were taken from the Spriters Resource, and originally ripped by Random Talking Bush and Ink_Larry.
