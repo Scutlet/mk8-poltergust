@@ -18,32 +18,36 @@ class MK8ImageAtlasMapper(ABC):
     x_offset: int = 0
     y_offset: int = 0
 
-    @classmethod
-    def index_to_image(cls, index: int | None, resize_to: tuple[int, int] | None = None) -> Image.Image:
+    # Cached image atlas
+    _atlas_cache: Image.Image
+
+    def __init__(self):
+        # Load Atlas in memory when initialised
+        self._atlas_cache = Image.open(self.image_name)
+
+    def index_to_image(self, index: int | None, resize_to: tuple[int, int] | None = None) -> Image.Image:
         """ Given some index, extracts the icon at that index from the atlas and optionally resizes it """
-        with Image.open(cls.image_name) as img:
-            x, y, x_offset, y_offset = cls.get_coordinates(index)
-            img = img.crop((x, y, x_offset, y_offset))
-            if resize_to:
-                img = img.resize(resize_to)
+        x, y, x_offset, y_offset = self.get_coordinates(index)
+        img = self._atlas_cache.crop((x, y, x_offset, y_offset))
+        if resize_to:
+            img = img.resize(resize_to)
         return img
 
-    @classmethod
-    def get_coordinates(cls, index: int | None) -> tuple[int, int, int, int]:
+    def get_coordinates(self, index: int | None) -> tuple[int, int, int, int]:
         """ Obtains coordinates of the icon at a specific index in the atlas  """
-        if index is None or index < 0 or index >= cls.num_icons:
-            return (*cls.invalid_coordinates, cls.invalid_coordinates[0] + cls.icon_size[0], cls.invalid_coordinates[1] + cls.icon_size[1])
+        if index is None or index < 0 or index >= self.num_icons:
+            return (*self.invalid_coordinates, self.invalid_coordinates[0] + self.icon_size[0], self.invalid_coordinates[1] + self.icon_size[1])
 
-        column = index % cls.icons_per_row
-        row = index // cls.icons_per_row
+        column = index % self.icons_per_row
+        row = index // self.icons_per_row
 
-        x_offset = column*(cls.icon_size[0] + cls.image_xgap) + cls.image_xgap
-        y_offset = row*(cls.icon_size[1] + cls.image_ygap) + cls.image_ygap
+        x_offset = column*(self.icon_size[0] + self.image_xgap) + self.image_xgap
+        y_offset = row*(self.icon_size[1] + self.image_ygap) + self.image_ygap
 
-        return (x_offset + cls.x_offset,
-            y_offset + cls.y_offset,
-            x_offset + cls.icon_size[0] + cls.x_offset,
-            y_offset + cls.icon_size[1] + cls.y_offset
+        return (x_offset + self.x_offset,
+            y_offset + self.y_offset,
+            x_offset + self.icon_size[0] + self.x_offset,
+            y_offset + self.icon_size[1] + self.y_offset
         )
 
 class MK8FlagImageMapper(MK8ImageAtlasMapper):

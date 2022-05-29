@@ -45,6 +45,12 @@ class PoltergustUI:
     # Window Icon
     WINDOW_ICON = "resources/scutlet_static_cropped.png"
 
+    # Atlas mappers
+    char_mapper = MK8CharacterImageMapper()
+    flag_mapper = MK8FlagImageMapper()
+    vehiclepart_mapper = MK8VehiclePartImageMapper()
+    track_mapper = MK8TrackImageMapper()
+
     def __init__(self, root: Tk):
         """ Initializes the UI """
         self.ghostfile: str | None = None
@@ -487,7 +493,7 @@ class PoltergustUI:
             if flag[0] is None:
                 flag = ("No Flag", None)
 
-        self.set_mapped_image(self.flag_canvas, MK8FlagImageMapper, flag[1], resize_to=self.FLAG_SIZE)
+        self.set_mapped_image(self.flag_canvas, self.flag_mapper, flag[1], resize_to=self.FLAG_SIZE)
         self.flag_tip.text = flag[0] + f" ({self.data.flag_id})"
 
     def update_character(self) -> None:
@@ -505,7 +511,7 @@ class PoltergustUI:
                 variant[0] += F" - {MII_WEIGHT_CLASSES[indx] if 0 <= indx and indx < len(MII_WEIGHT_CLASSES) else 'Unknown Weight Class'}"
             char = (f"{char[0]} ({variant[0]})", variant[1])
 
-        self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper, char[1], resize_to=self.CHARACTER_SIZE)
+        self.set_mapped_image(self.character_canvas, self.char_mapper, char[1], resize_to=self.CHARACTER_SIZE)
         self.character_tip.text = f"{char[0]} ({self.data.character_id})"
 
     def update_track(self) -> None:
@@ -518,7 +524,7 @@ class PoltergustUI:
             # Track ID - 16 matches ghost number, but only for non-download ghosts
             track = ("Unknown Track", None)
 
-        self.set_mapped_image(self.track_canvas, MK8TrackImageMapper, track[1], resize_to=self.TRACK_SIZE)
+        self.set_mapped_image(self.track_canvas, self.track_mapper, track[1], resize_to=self.TRACK_SIZE)
         self.track.set(track[0])
         self.track_tip.text = f"{self.data.ghost_number} - {self.data.track_id}"
 
@@ -528,19 +534,19 @@ class PoltergustUI:
 
         # Kart
         kart = KARTS.get(self.data.kart_id, ("Unknown Kart", None))
-        self.set_mapped_image(self.kart_canvas, MK8VehiclePartImageMapper, kart[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.set_mapped_image(self.kart_canvas, self.vehiclepart_mapper, kart[1], resize_to=self.VEHICLE_PART_SIZE)
         self.kart.set(kart[0])
         self.kart_tip.text = str(self.data.kart_id)
 
         # Wheels
         wheels = WHEELS.get(self.data.wheels_id, ("Unknown Wheels", None))
-        self.set_mapped_image(self.wheels_canvas, MK8VehiclePartImageMapper, wheels[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.set_mapped_image(self.wheels_canvas, self.vehiclepart_mapper, wheels[1], resize_to=self.VEHICLE_PART_SIZE)
         self.wheels.set(wheels[0])
         self.wheels_tip.text = str(self.data.wheels_id)
 
         # Glider
         glider = GLIDERS.get(self.data.glider_id, ("Unknown Glider", None))
-        self.set_mapped_image(self.glider_canvas, MK8VehiclePartImageMapper, glider[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.set_mapped_image(self.glider_canvas, self.vehiclepart_mapper, glider[1], resize_to=self.VEHICLE_PART_SIZE)
         self.glider.set(glider[0])
         self.glider_tip.text = str(self.data.glider_id)
 
