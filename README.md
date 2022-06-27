@@ -2,22 +2,25 @@
 
 Poltergust is a Mario Kart 8 U (Staff) Ghost Data visualization and (limited) validation tool. Mario Kart 8 Deluxe is not actively supported.
 
-Documentation on the Mario Kart 8 ghost files format can be found on the [MK8 CT Wiki](https://mk8.tockdom.com/wiki/Ghost_Data_(File_Format)). Additionally, the [MK8Leaderboards repo](https://github.com/Dinostraw/MK8Leaderboards/wiki) provides even more detailed information.
+Documentation on the Mario Kart 8 ghost files format can be found on the [MK8 CT Wiki](https://mk8.tockdom.com/wiki/Ghost_Data_(File_Format)). Alternatively, visit the [MK8Leaderboards repo](https://github.com/Dinostraw/MK8Leaderboards/wiki).
 
 Contributions to code and/or documentation are always welcome.
 
 ## DISCLAIMER
-This tool supports modification of ghost files, or otherwise aids in describing the file format to allow someone to perform such modifications themselves. **Under no circumstances should you upload any ghost file that was modified by this tool to the Nintendo servers**, nor should you pretend that a modified run was performed legitimately. Doing so will most likely result in a straight up ban. Furthermore, there is no pride to take in cheating.
-
-Nevertheless, if you decide to ignore this disclaimer and that acting like a doofus is the path in life you want to take, then this tool cannot be held responsible for any possible repercussions.
+This tool supports modification of ghost files, or otherwise aids in describing the file format to allow someone to perform such modifications themselves. **Under no circumstances should you upload any ghost file that was modified by this tool to the Nintendo servers**, nor should you pretend that a modified run was performed legitimately. Doing so will most likely result in a straight up ban. More importantly, there is no pride to take in cheating. Do **not** act like a doofus and ignore this disclaimer.
 
 ## Screenshot
 ![tool-preview](resources/screenshots/tool-preview.png)
 
 ## What about Mario Kart 8 Deluxe?
-Deluxe uses an almost-identical format to Mario Kart 8 U, with the most notable difference being the switch to a Little Endian format. There's also a few more snags, such as an additional ghost list file (See [MK8Leaderboards](https://github.com/Dinostraw/MK8Leaderboards/commits/master) for more details). At this point in time I have no intentions of providing support for Deluxe ghosts. However, you are welcome to contribute to provide support for them.
+Deluxe uses an almost-identical format to Mario Kart 8 U. It switches up to a Little Endian format, and gets rid of the long filenames (from which Poltergust fetches its information) for player ghosts. There's also a few more snags, such as an additional ghost list file (See [MK8Leaderboards](https://github.com/Dinostraw/MK8Leaderboards/commits/master) for more details). At this point in time I have no intentions of providing support for Deluxe ghosts. However, you are welcome to contribute to provide support for them.
 
-Images for tracks, characters, and vehicle parts from Deluxe are already present in this repository, and have even already been properly mapped. Tracks from Wave I of the Booster Course Pass are the latest tracks that are present.
+Images for tracks, characters, and vehicle parts from Deluxe are already present in this repository, and have even already been properly mapped (though IDs between Wii U and Deluxe do not always match up directly). Tracks images from Wave I of the Booster Course Pass are the latest ones that are present here.
+
+# How to Run
+First, grab the latest source code. To run, you'll need any recent version of [Python 3](https://www.python.org/downloads/) (Python 3.10 definitely suffices). Open up a terminal of choice, navigate to the place where you extracted the source code, and install the dependencies using `pip install -r requirements.txt` (possibly inside a Virtual Environment if that has your preference). You can then run the tool through `python poltergust.py`.
+
+I will likely provide an executable which packages everything together at a later point in time.
 
 # Features
 Poltergust supports staff ghost files, player ghost files, and downloaded ghost files. It does not support MKTV replays, as their file format is significantly different.
@@ -47,7 +50,6 @@ Player ghosts and staff ghosts can be converted into downloaded ghosts for any o
 - Additional verification:
     - Filename vs content: Some information is present in both the ghost's filename and its contents. Although in most cases it won't matter if these two don't match up (the filename takes presence mostly), there can sometimes be issues. For example, if the character does not match up, then animations can break when viewing the replay. See the note below.
 - Editing: At least the player name and flag should be editable. Runs recorded on the CEMU emulator fail to add the correct flag. It also adds a bogus name (consisting of several types of question mark charaters) if using the default Mii data. Likewise, runs recorded on a real Wii U may use a Mii name that a player may not want to expose elsewhere.
-- Font icons: Nintendo uses some special icons in their font, such as a ★. There is a manual translation from hex to such characters (and back), but it is by no means complete.
 - Character-specific vehicle parts: Some vehicle parts are coloured differently based on the character that drives it. This is not reflected in the current UI.
 
 # A quick note on Mario Kart 8 Ghost Data
@@ -73,7 +75,7 @@ lonemoonHD and Cole already independently confirmed the filename format for ghos
 
 Copying a player ghost into a staff ghost without removing the player ghost header first caused the game to crash, but completely getting rid of this header and _then_ copying file contents over works completely fine. This provided an entrypoint for custom staff ghosts.
 
-## MK8Leaderboards by Dinostraw
+## MK8Leaderboards (Dinostraw)
 Starting May 17th 2022, Dinostraw started work on [a Leaderboards visualisation tool](https://github.com/Dinostraw/MK8Leaderboards/commits/master). It contains detailed documentation on the filename and file contents format, written independently from this tool. It provided crucial insights for downloaded ghosts as well as character variants (like Blue Yoshi), support for which was integrated into Poltergust only because of those findings.
 
 ## Spriters Resource
