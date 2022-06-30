@@ -1,6 +1,7 @@
 # Poltergust
+[![Build](https://github.com/Scutlet/mk8-poltergust/actions/workflows/build.yml/badge.svg)](https://github.com/Scutlet/mk8-poltergust/actions/workflows/build.yml)
 
-Poltergust is a Mario Kart 8 U (Staff) Ghost Data visualization and (limited) validation tool. Mario Kart 8 Deluxe is not actively supported.
+Poltergust is a Mario Kart 8 U (Staff) Ghost Data visualization, extraction, and conversion tool. Mario Kart 8 Deluxe is not actively supported.
 
 Documentation on the Mario Kart 8 ghost files format can be found on the [MK8 CT Wiki](https://mk8.tockdom.com/wiki/Ghost_Data_(File_Format)). Alternatively, visit the [MK8Leaderboards repo](https://github.com/Dinostraw/MK8Leaderboards/wiki).
 
@@ -18,7 +19,7 @@ Deluxe uses an almost-identical format to Mario Kart 8 U. It switches up to a Li
 Images for tracks, characters, and vehicle parts from Deluxe are already present in this repository, and have even already been properly mapped (though IDs between Wii U and Deluxe do not always match up directly). Tracks images from Wave I of the Booster Course Pass are the latest ones that are present here.
 
 # How to Run
-First, grab the latest source code. To run, you'll need any recent version of [Python 3](https://www.python.org/downloads/) (Python 3.10 definitely suffices). Open up a terminal of choice, navigate to the place where you extracted the source code, and install the dependencies using `pip install -r requirements.txt` (possibly inside a Virtual Environment if that has your preference). You can then run the tool through `python poltergust.py`.
+First, grab the latest source code. To run, you'll need [Python 3.10](https://www.python.org/downloads/) (or later). Open up a terminal of choice, navigate to the place where you extracted the source code, and install the dependencies using `pip install -r requirements.txt` (possibly inside a Virtual Environment if that has your preference). You can then run the tool through `python poltergust.py`.
 
 I will likely provide an executable which packages everything together at a later point in time.
 
@@ -44,7 +45,7 @@ Mii data from ghost files can be extracted.
 Player ghosts and downloaded ghosts can be converted into staff ghosts.
 
 ## Downloaded Ghosts
-Player ghosts and staff ghosts can be converted into downloaded ghosts for any of the four available "slots". There is a limit of four downloaded ghosts per track per game save.
+Player ghosts and staff ghosts can be converted into downloaded ghosts for any of the sixteen available "slots". There is a limit of four downloaded ghosts per track per game save (five if no player ghost exists for it), for a total of 16 per game save. No two ghosts can occupy the same ghost slot, even if they were set on different tracks.
 
 ## Future Plans
 - Additional verification:

@@ -1,4 +1,5 @@
 import os
+
 from tkinter import messagebox
 from tkinter.font import NORMAL, BOLD
 from idlelib.tooltip import Hovertip
@@ -13,7 +14,7 @@ from gamedata import COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
 from mii_handler import MK8GhostDataMiiHandler
 from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
-
+from utils import get_resource_path
 
 
 class PoltergustUI:
@@ -43,7 +44,7 @@ class PoltergustUI:
     EDIT_STATE = "readonly"
 
     # Window Icon
-    WINDOW_ICON = "resources/scutlet_static_cropped.png"
+    WINDOW_ICON = get_resource_path("resources/scutlet_static_cropped.png")
 
     # Atlas mappers
     char_mapper = MK8CharacterImageMapper()
@@ -88,7 +89,7 @@ class PoltergustUI:
         # Export options
         self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
         self.menu_export_download = Menu(self.menu_export)
-        for slot in range(4):
+        for slot in range(16):
             self.menu_export_download.add_command(label=self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
         self.menu_export.add_cascade(menu=self.menu_export_download, label=self.BTN_EXPORT_AS_DOWNLOADED_GHOST)
         self.menu_export.add_command(label=self.BTN_EXTRACT_MII, command=self.extract_mii)
@@ -195,7 +196,7 @@ class PoltergustUI:
         win = Toplevel(self.root)
         win.wm_title("Poltergust - About")
 
-        with Image.open("resources/scutlet.png") as img:
+        with Image.open(get_resource_path("resources/scutlet.png")) as img:
             scutlet_canvas = Canvas(win, width=64, height=64)
             scutlet_canvas.grid(column=1, row=1, sticky=(N,W,E,S))
             self.scutlet_img = ImageTk.PhotoImage(img.resize((64, 64)))
@@ -311,7 +312,9 @@ class PoltergustUI:
             # Operation cancelled
             return
 
-        output_file = os.path.join(foldername, MK8_GHOST_TYPES.STAFF_GHOST.value + self.ghostfile.rpartition("/")[2][2:])
+        # Make sure to restore ghost number when converting a downloaded ghost to a staff ghost
+        output_filename = MK8_GHOST_TYPES.STAFF_GHOST.value + f"{self.data.track_id - 16:0>2x}" + self.ghostfile.rpartition("/")[2][4:]
+        output_file = os.path.join(foldername, output_filename)
         res = converter.convert(output_file, remove_header=self.data.created_in_game)
         if res:
             messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
@@ -329,7 +332,7 @@ class PoltergustUI:
             return
 
         # TODO: Use filename serializer for this
-        output_file = os.path.join(foldername, MK8_GHOST_TYPES.DOWNLOADED_GHOST.value + "0" + str(ghost_slot) + self.ghostfile.rpartition("/")[2][4:])
+        output_file = os.path.join(foldername, MK8_GHOST_TYPES.DOWNLOADED_GHOST.value + f"{ghost_slot:0>2x}" + self.ghostfile.rpartition("/")[2][4:])
         # Read current ghost data
         with open(self.ghostfile, 'rb') as file:
             ghost_data = file.read()
@@ -402,6 +405,10 @@ class PoltergustUI:
             self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=NORMAL)
             self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=NORMAL)
 
+            # Enable all download ghost slots
+            for i in range(16):
+                self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(i), state=NORMAL)
+
             # Name of opened file
             file_str = "Loaded File: " + self.ghostfile.rpartition("/")[2][:40]
             if len(self.ghostfile) > 40:
@@ -428,7 +435,7 @@ class PoltergustUI:
                     text += " (In-Game Download)"
                 self.ghost_type.config(text=text)
                 # No need to export a downloaded ghost as itself
-                self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
+                self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(self.data.ghost_number), state=DISABLED)
             else:
                 self.ghost_type.config(text="MKTV Replay")
 
