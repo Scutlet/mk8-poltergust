@@ -1,6 +1,8 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from PIL import Image
+
+from utils import get_resource_path
 
 class MK8ImageAtlasMapper(ABC):
     """ Class that can extract a single icon at a specific index from an icon atlas """
@@ -23,7 +25,7 @@ class MK8ImageAtlasMapper(ABC):
 
     def __init__(self):
         # Load Atlas in memory when initialised
-        self._atlas_cache = Image.open(self.image_name)
+        self._atlas_cache = Image.open(get_resource_path(self.image_name))
 
     def index_to_image(self, index: int | None, resize_to: tuple[int, int] | None = None) -> Image.Image:
         """ Given some index, extracts the icon at that index from the atlas and optionally resizes it """

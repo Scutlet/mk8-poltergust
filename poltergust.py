@@ -1,4 +1,5 @@
 import os
+
 from tkinter import messagebox
 from tkinter.font import NORMAL, BOLD
 from idlelib.tooltip import Hovertip
@@ -13,7 +14,7 @@ from gamedata import COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
 from mii_handler import MK8GhostDataMiiHandler
 from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
-
+from utils import get_resource_path
 
 
 class PoltergustUI:
@@ -43,7 +44,7 @@ class PoltergustUI:
     EDIT_STATE = "readonly"
 
     # Window Icon
-    WINDOW_ICON = "resources/scutlet_static_cropped.png"
+    WINDOW_ICON = get_resource_path("resources/scutlet_static_cropped.png")
 
     # Atlas mappers
     char_mapper = MK8CharacterImageMapper()
@@ -195,7 +196,7 @@ class PoltergustUI:
         win = Toplevel(self.root)
         win.wm_title("Poltergust - About")
 
-        with Image.open("resources/scutlet.png") as img:
+        with Image.open(get_resource_path("resources/scutlet.png")) as img:
             scutlet_canvas = Canvas(win, width=64, height=64)
             scutlet_canvas.grid(column=1, row=1, sticky=(N,W,E,S))
             self.scutlet_img = ImageTk.PhotoImage(img.resize((64, 64)))
