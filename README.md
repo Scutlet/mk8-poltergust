@@ -19,9 +19,21 @@ Deluxe uses an almost-identical format to Mario Kart 8 U. It switches up to a Li
 Images for tracks, characters, and vehicle parts from Deluxe are already present in this repository, and have even already been properly mapped (though IDs between Wii U and Deluxe do not always match up directly). Tracks images from Wave I of the Booster Course Pass are the latest ones that are present here.
 
 # How to Run
-First, grab the latest source code. To run, you'll need [Python 3.10](https://www.python.org/downloads/) (or later). Open up a terminal of choice, navigate to the place where you extracted the source code, and install the dependencies using `pip install -r requirements.txt` (possibly inside a Virtual Environment if that has your preference). You can then run the tool through `python poltergust.py`.
+Navigate to the [releases](https://github.com/Scutlet/mk8-poltergust/releases) and search for the latest one. If you're running Windows, you can grab the executable that's included there. These are automatically and directly built from the source code. Note that you'll likely get a Windows Defender popup when attempting to run the tool for the first time this way.
 
-I will likely provide an executable which packages everything together at a later point in time.
+If you're running MacOS or Linux, or if you don't want to run random executables from the internet, you will have to run the tool directly from source (see below).
+
+## Running from Source
+Running from source can be done as follows:
+1. Navigate to the [releases](https://github.com/Scutlet/mk8-poltergust/releases), and download the latest source code (either the `zip` or `tar.gz`).
+1. Install the latest version of [Python 3.10](https://www.python.org/downloads/).
+1. Open up a terminal of choice, and navigate to the place where you extracted the source code.
+1. Create a new virtual environment using `python -m venv venv`.
+1. Activate the newly created virtual environment using `venv\Scripts\activate.bat` (Windows CMD), `venv\Scripts\Activate.ps1` (Windows Powershell), or `source venv/bin/activate` (MacOS or Linux).
+1. Install the tool's dependencies using `pip install -r requirements.txt`.
+1. Run the tool using `python poltergust.py`.
+
+If you ever want to re-run the tool after closing your terminal, you'll need to repeat steps 3, 5 and 7. You can skip the other steps.
 
 # Features
 Poltergust supports staff ghost files, player ghost files, and downloaded ghost files. It does not support MKTV replays, as their file format is significantly different.
