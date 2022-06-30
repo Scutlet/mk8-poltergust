@@ -1,4 +1,5 @@
 # Poltergust
+[![Build](https://github.com/Scutlet/mk8-poltergust/actions/workflows/build.yml/badge.svg)](https://github.com/Scutlet/mk8-poltergust/actions/workflows/build.yml)
 
 Poltergust is a Mario Kart 8 U (Staff) Ghost Data visualization, extraction, and conversion tool. Mario Kart 8 Deluxe is not actively supported.
 

@@ -18,8 +18,15 @@ jobs:
             CMD_BUILD: pyinstaller poltergust.py --onefile --windowed --icon "./resources/scutlet.png" --add-data "resources;resources"
             OUT_FILE_NAME: poltergust.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
+            PIP_CACHE_LOCATION: "~/AppData/Local/pip/Cache"
     steps:
     - uses: actions/checkout@v3
+    - name: Cache dependencies
+      with:
+        path: ${{ matrix.PIP_CACHE_LOCATION }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
