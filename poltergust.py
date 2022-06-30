@@ -312,7 +312,9 @@ class PoltergustUI:
             # Operation cancelled
             return
 
-        output_file = os.path.join(foldername, MK8_GHOST_TYPES.STAFF_GHOST.value + self.ghostfile.rpartition("/")[2][2:])
+        # Make sure to restore ghost number when converting a downloaded ghost to a staff ghost
+        output_filename = MK8_GHOST_TYPES.STAFF_GHOST.value + f"{self.data.track_id - 16:0>2x}" + self.ghostfile.rpartition("/")[2][4:]
+        output_file = os.path.join(foldername, output_filename)
         res = converter.convert(output_file, remove_header=self.data.created_in_game)
         if res:
             messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
@@ -330,7 +332,7 @@ class PoltergustUI:
             return
 
         # TODO: Use filename serializer for this
-        output_file = os.path.join(foldername, MK8_GHOST_TYPES.DOWNLOADED_GHOST.value + "0" + str(ghost_slot) + self.ghostfile.rpartition("/")[2][4:])
+        output_file = os.path.join(foldername, MK8_GHOST_TYPES.DOWNLOADED_GHOST.value + f"{ghost_slot:0>2x}" + self.ghostfile.rpartition("/")[2][4:])
         # Read current ghost data
         with open(self.ghostfile, 'rb') as file:
             ghost_data = file.read()
