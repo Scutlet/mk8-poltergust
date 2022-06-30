@@ -32,7 +32,7 @@ jobs:
     - name: Build with pyinstaller for ${{matrix.TARGET}}
       run: ${{matrix.CMD_BUILD}}
     - name: Upload executable as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: poltergust
-          path: dist/${{ matrix.OUT_FILE_NAME }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: poltergust
+        path: dist/${{ matrix.OUT_FILE_NAME }}
