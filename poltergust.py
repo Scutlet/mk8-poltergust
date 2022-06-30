@@ -88,7 +88,7 @@ class PoltergustUI:
         # Export options
         self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
         self.menu_export_download = Menu(self.menu_export)
-        for slot in range(4):
+        for slot in range(16):
             self.menu_export_download.add_command(label=self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
         self.menu_export.add_cascade(menu=self.menu_export_download, label=self.BTN_EXPORT_AS_DOWNLOADED_GHOST)
         self.menu_export.add_command(label=self.BTN_EXTRACT_MII, command=self.extract_mii)
@@ -402,6 +402,10 @@ class PoltergustUI:
             self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=NORMAL)
             self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=NORMAL)
 
+            # Enable all download ghost slots
+            for i in range(16):
+                self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(i), state=NORMAL)
+
             # Name of opened file
             file_str = "Loaded File: " + self.ghostfile.rpartition("/")[2][:40]
             if len(self.ghostfile) > 40:
@@ -428,7 +432,7 @@ class PoltergustUI:
                     text += " (In-Game Download)"
                 self.ghost_type.config(text=text)
                 # No need to export a downloaded ghost as itself
-                self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
+                self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(self.data.ghost_number), state=DISABLED)
             else:
                 self.ghost_type.config(text="MKTV Replay")
 
