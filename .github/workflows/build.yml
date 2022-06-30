@@ -15,7 +15,7 @@ jobs:
         include:
           - os: windows-latest
             TARGET: windows
-            CMD_BUILD: pyinstaller poltergust.py --onefile --windowed --icon "./resources/scutlet.png" --add-data resources;resources
+            CMD_BUILD: pyinstaller poltergust.py --onefile --windowed --icon "./resources/scutlet.png" --add-data "resources;resources"
             OUT_FILE_NAME: clipster.exe
             ASSET_MIME: application/vnd.microsoft.portable-executable
     steps:
