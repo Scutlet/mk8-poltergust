@@ -3,7 +3,7 @@ from io import BufferedReader
 import os
 
 
-class MK8GhostDataMiiHandler:
+class MK8GhostFilenameDataMiiHandler:
     """ Class that can extract or replace Mii data from Mario Kart 8 ghost files """
     # Mii data offset from the start of a MK8 ghost file
     STAFF_MII_OFFSET = 0x244

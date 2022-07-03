@@ -1,7 +1,6 @@
 import os
 
-from tkinter import messagebox
-from tkinter.font import NORMAL, BOLD
+from tkinter.font import NORMAL as FONT_NORMAL
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk, filedialog
@@ -9,12 +8,10 @@ import webbrowser
 
 from PIL import Image, ImageTk
 
+from gamedata import COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
-from controller import PoltergustController
-from gamedata import COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
-from mii_handler import MK8GhostDataMiiHandler
-from parser import MK8GhostFilenameSerializer, MK8GhostType, MK8GhostFilenameParser, MK8GhostData
-from staff_ghost_converter import MK8StaffGhostConverter
+from mii_handler import MK8GhostFilenameDataMiiHandler
+from parser import MK8GhostFilenameSerializer, MK8GhostType, MK8GhostFilenameParser, MK8GhostFilenameData
 from view_about import PoltergustAboutView
 from utils import get_resource_path
 
@@ -26,21 +23,18 @@ class PoltergustUI:
     WINDOW_WIDTH = 550
     WINDOW_HEIGHT = 400
 
-    BTN_RELOAD_FROM_DISK = "Reload from disk"
+    # Buttons
+    BTN_OPEN = "Open..."
     BTN_CLOSE = "Close"
+    BTN_RELOAD_FROM_DISK = "Reload from disk"
     BTN_EXPORT_AS_STAFF_GHOST = "Convert to Staff Ghost"
     BTN_EXPORT_AS_DOWNLOADED_GHOST = "Convert to Downloaded Ghost"
     BTN_DOWNLOADED_GHOST_SLOT_PREFIX = "Slot "
     BTN_EXTRACT_MII = "Extract Mii"
     BTN_REPLACE_MII = "Replace Mii"
 
-    # FONT = ("Agency FB", 14, NORMAL)
-    FONT = ("Courier", 14, NORMAL)
-
-    FLAG_SIZE = (33, 22)
-    CHARACTER_SIZE = (64, 64)
-    VEHICLE_PART_SIZE = (75, 48)
-    TRACK_SIZE = (80, 45)
+    # FONT = ("Agency FB", 14, FONT_NORMAL)
+    FONT = ("Courier", 14, FONT_NORMAL)
 
     # Editing is not yet supported
     EDIT_STATE = "readonly"
@@ -48,16 +42,22 @@ class PoltergustUI:
     # Window Icon
     WINDOW_ICON = get_resource_path("resources/scutlet_static_cropped.png")
 
-    # Atlas mappers
-    char_mapper = MK8CharacterImageMapper()
-    flag_mapper = MK8FlagImageMapper()
-    vehiclepart_mapper = MK8VehiclePartImageMapper()
-    track_mapper = MK8TrackImageMapper()
+    # Icon Atlas mappers
+    CHARACTER_MAPPER = MK8CharacterImageMapper()
+    FLAG_MAPPER = MK8FlagImageMapper()
+    VEHICLE_PART_MAPPER = MK8VehiclePartImageMapper()
+    TRACK_MAPPER = MK8TrackImageMapper()
 
-    def __init__(self, root: Tk, controller: PoltergustController):
+    # Icon sizes
+    FLAG_SIZE = (33, 22)
+    CHARACTER_SIZE = (64, 64)
+    VEHICLE_PART_SIZE = (75, 48)
+    TRACK_SIZE = (80, 45)
+
+    def __init__(self, root: Tk):
         """ Initializes the UI """
-        self.ghostfile: str | None = None
-        self.data: MK8GhostData | None = None
+        self.data = None
+        self.ghostfile = None
 
         self.root = root
         root.option_add('*tearOff', FALSE)
@@ -84,20 +84,18 @@ class PoltergustUI:
         self.menubar.add_cascade(menu=self.menu_help, label='Help')
 
         # File options
-        self.menu_file.add_command(label='Open...', command=self.open_ghost_file)
-        self.menu_file.add_command(label=self.BTN_RELOAD_FROM_DISK, command=self.update)
-        self.menu_file.add_command(label=self.BTN_CLOSE, command=self.close_current_file)
+        self.menu_file.add_command(label=self.BTN_OPEN)
+        self.menu_file.add_command(label=self.BTN_RELOAD_FROM_DISK)
+        self.menu_file.add_command(label=self.BTN_CLOSE)
 
         # Export options
-        self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
+        self.menu_export.add_command(label=self.BTN_EXTRACT_MII)
+        self.menu_edit.add_command(label=self.BTN_REPLACE_MII)
+        self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST)
         self.menu_export_download = Menu(self.menu_export)
         for slot in range(16):
-            self.menu_export_download.add_command(label=self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
+            self.menu_export_download.add_command(label=self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot))
         self.menu_export.add_cascade(menu=self.menu_export_download, label=self.BTN_EXPORT_AS_DOWNLOADED_GHOST)
-        self.menu_export.add_command(label=self.BTN_EXTRACT_MII, command=self.extract_mii)
-
-        # Edit options
-        self.menu_edit.add_command(label=self.BTN_REPLACE_MII, command=self.replace_mii)
 
         # About options
         self.menu_help.add_command(label="About", command=self.popup_about)
@@ -174,7 +172,7 @@ class PoltergustUI:
         laptimesframe.grid(column=0, row=2, sticky=(N, W, E, S), padx=(0, 3))
 
         # Lap Times
-        self.lap_times = self.generate_laptimes_entries(laptimesframe, 7)
+        self.lap_splits = self.generate_laptimes_entries(laptimesframe, 7)
 
         # Vehicle frame
         vehicleframe = ttk.LabelFrame(self.dataframe)
@@ -185,21 +183,25 @@ class PoltergustUI:
         self.wheels, self.wheels_canvas, self.wheels_tip = self.generate_vehicle_entry(vehicleframe, StringVar(), 2)
         self.glider, self.glider_canvas, self.glider_tip = self.generate_vehicle_entry(vehicleframe, StringVar(), 3)
 
-        # for child in summaryframe.winfo_children():
-        #     child.grid_configure(padx=5, pady=5)
-
         playername_entry.focus()
-        # root.bind("<Return>", self.calculate)
-        self.resize_window()
-        self.update()
 
-    def popup_about(self):
+        self.resize_window()
+
+    def popup_about(self) -> None:
         """ Displays 'about' information """
         PoltergustAboutView(self.root)
 
-    def extract_mii(self):
-        """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
-        filename = filedialog.asksaveasfilename(
+    def select_ghost_file(self) -> str:
+        """ UI Popup for selecting a ghost file """
+        return filedialog.askopenfilename(
+            parent=self.root,
+            title="Open MK8 Ghost Data",
+            filetypes=(("MK8 Ghost Data (*.dat)", ".dat"), ('All files', '*.*'))
+        )
+
+    def select_mii_output_folder(self) -> str:
+        """ UI Popup for selecting a Mii extraction output location """
+        return filedialog.asksaveasfilename(
             parent=self.root,
             title=self.BTN_EXTRACT_MII,
             defaultextension=".3dsmii",
@@ -207,103 +209,115 @@ class PoltergustUI:
             initialfile=f"mii-{self.data.playername}",
         )
 
-        if not filename:
-            # Operation cancelled
-            return
-
-        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.created_in_game)
-
-        try:
-            handler.extract(filename)
-        except Exception as e:
-            print(e)
-            messagebox.showerror("Invalid Mii Data", "This ghost file contained invalid Mii data; it could not be extracted.")
-            return
-
-        messagebox.showinfo("Mii extracted!", f"The Mii for this ghost file was extracted successfully to {filename}")
-
-    def replace_mii(self):
-        """ Invokes the Mii handler and replaces the Mii from the currently loaded ghost file """
-        assert self.ghostfile is not None
-
-        new_mii = filedialog.askopenfilename(
+    def select_mii_file(self) -> str:
+        """ UI Popup for selecting a Mii file """
+        return filedialog.askopenfilename(
             parent=self.root,
             title="Select new Mii",
             defaultextension=".3dsmii",
             filetypes=(("Wii U/3DS Mii (.3dsmii)", ".3dsmii"), ('All files', '*.*')),
         )
 
-        if not new_mii:
-            # Operation cancelled
-            return
-
-        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8GhostType.STAFF_GHOST)
-
-        try:
-            handler.replace(new_mii)
-        except Exception as e:
-            print(e)
-            messagebox.showerror("Invalid Mii Data", "This Mii file contained invalid Mii data; it could not be injected.")
-            return
-
-        # Generate new filename
-        mii_name = handler.extract_mii_name()
-        self.data.playername = mii_name
-        serializer = MK8GhostFilenameSerializer()
-        new_name = serializer.serialize(self.data)
-
-        # Rename file
-        current_folder = self.ghostfile.rpartition("/")[0]
-        new_file = current_folder + "/" + new_name
-        os.rename(self.ghostfile, new_file)
-
-        self.ghostfile = new_file
-        self.playername.set(self.data.playername)
-
-        messagebox.showinfo("Mii replaced!", f"The Mii for this ghost file was successfully replaced!")
-
-    def export_as_staff(self):
-        """ Exports the currently loaded ghostfile as a staff ghost """
-        assert self.ghostfile is not None
-        converter = MK8StaffGhostConverter(self.ghostfile)
-        foldername = filedialog.askdirectory(
+    def select_conversion_staff_output_folder(self) -> str:
+        """ UI Popup for selecting a Staff Ghost conversion output location """
+        return filedialog.askdirectory(
             parent=self.root,
             title="Output directory for MK8 Staff Ghost",
         )
-        if not foldername:
-            # Operation cancelled
-            return
 
-        # Make sure to restore ghost number when converting a downloaded ghost to a staff ghost
-        output_filename = MK8GhostType.STAFF_GHOST.value + f"{self.data.track_id - 16:0>2x}" + self.ghostfile.rpartition("/")[2][4:]
-        output_file = os.path.join(foldername, output_filename)
-        res = converter.convert(output_file, remove_header=self.data.created_in_game)
-        if res:
-            messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
-
-    def export_as_downloaded(self, ghost_slot: int = 0):
-        """ Exports the currently loaded ghostfile as a downloaded ghost """
-        assert self.ghostfile is not None
-        # TODO: Move this to a converter class
-        foldername = filedialog.askdirectory(
+    def select_conversion_download_output_folder(self) -> str:
+        """ UI Popup for selecting a Downloaded Ghost conversion output location """
+        return filedialog.askdirectory(
             parent=self.root,
             title="Output directory for MK8 Downloaded Ghost",
         )
-        if not foldername:
-            # Operation cancelled
-            return
 
-        # TODO: Use filename serializer for this
-        output_file = os.path.join(foldername, MK8GhostType.DOWNLOADED_GHOST.value + f"{ghost_slot:0>2x}" + self.ghostfile.rpartition("/")[2][4:])
-        # Read current ghost data
-        with open(self.ghostfile, 'rb') as file:
-            ghost_data = file.read()
 
-        # Write new file
-        with open(output_file, 'wb') as file:
-            file.write(ghost_data)
 
-        messagebox.showinfo("Downloaded Ghost Exported", f"Downloaded Ghost data was exported successfully! It can be found under {output_file}")
+
+    def set_ghost_type(self, ghost_type: MK8GhostType, ghost_number: int, ghost_has_header: bool) -> None:
+        """ Sets ghost type text """
+        if ghost_type == MK8GhostType.STAFF_GHOST:
+            self.ghost_type.config(text="Staff Ghost")
+            # No need to export a staff ghost as itself
+            self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
+        elif ghost_type == MK8GhostType.PLAYER_GHOST:
+            self.ghost_type.config(text="Player Ghost")
+        elif ghost_type == MK8GhostType.DOWNLOADED_GHOST:
+            text = f"Downloaded Ghost - Slot {ghost_number}"
+            if not ghost_has_header:
+                text += " (Poltergust Conversion/Nintendo Clients Package Download)"
+            else:
+                text += " (In-Game Download)"
+            self.ghost_type.config(text=text)
+            # No need to export a downloaded ghost in the same ghost slot
+            self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(ghost_number), state=DISABLED)
+        else:
+            self.ghost_type.config(text="MKTV Replay")
+
+    def set_flag(self, flag_id: int) -> None:
+        """ Sets the player flag """
+        flag = ("Unknown Flag", None)
+        if 0 <= flag_id < len(FLAGS):
+            flag = FLAGS[flag_id]
+            if flag[0] is None:
+                # A zero-flag means no flag was set
+                flag = ("No Flag", None)
+
+        # Update flag image
+        self.set_mapped_image(self.flag_canvas, self.FLAG_MAPPER, flag[1], resize_to=self.FLAG_SIZE)
+        self.flag_tip.text = flag[0] + f" ({flag_id})"
+
+    def set_character(self, character_id: int, character_variant_id: int, mii_weight_class_id: int) -> None:
+        """ Sets the character icon """
+
+        char = CHARACTERS.get(character_id, (f"Unknown Character", None))
+        if type(char[1]) != int and char[1] is not None:
+            # We have subcharacters (E.g. Blue Yoshi, BoTW Link, Mii)
+            indx = character_variant_id
+            variant = char[1][indx] if 0 <= indx and indx < len(char[1]) else ("Unknown Variant", None)
+            if char[0] == "Mii":
+                # Miis also have a weight class
+                indx = mii_weight_class_id
+                variant[0] += F" - {MII_WEIGHT_CLASSES[indx] if 0 <= indx and indx < len(MII_WEIGHT_CLASSES) else 'Unknown Weight Class'}"
+            char = (f"{char[0]} ({variant[0]})", variant[1])
+
+        self.set_mapped_image(self.character_canvas, self.CHARACTER_MAPPER, char[1], resize_to=self.CHARACTER_SIZE)
+        self.character_tip.text = f"{char[0]} ({character_id})"
+
+    def set_track(self, track_id: int, ghost_number: int) -> None:
+        """ Sets the track preview """
+        track = COURSE_IDS.get(track_id, ("Unknown Track", None))
+        self.set_mapped_image(self.track_canvas, self.TRACK_MAPPER, track[1], resize_to=self.TRACK_SIZE)
+        self.track.set(track[0])
+        self.track_tip.text = f"{ghost_number} - {track_id}"
+
+    def set_vehicle_parts(self, kart_id: int, wheels_id: int, glider_id: int) -> None:
+        """ Sets vehicle part previews """
+        # Kart
+        kart = KARTS.get(kart_id, ("Unknown Kart", None))
+        self.set_mapped_image(self.kart_canvas, self.VEHICLE_PART_MAPPER, kart[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.kart.set(kart[0])
+        self.kart_tip.text = str(kart_id)
+
+        # Wheels
+        wheels = WHEELS.get(wheels_id, ("Unknown Wheels", None))
+        self.set_mapped_image(self.wheels_canvas, self.VEHICLE_PART_MAPPER, wheels[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.wheels.set(wheels[0])
+        self.wheels_tip.text = str(wheels_id)
+
+        # Glider
+        glider = GLIDERS.get(glider_id, ("Unknown Glider", None))
+        self.set_mapped_image(self.glider_canvas, self.VEHICLE_PART_MAPPER, glider[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.glider.set(glider[0])
+        self.glider_tip.text = str(glider_id)
+
+    def set_mapped_image(self, canvas: Canvas, mapper: MK8ImageAtlasMapper, index: int | None, resize_to: tuple[int, int] | None = None) -> None:
+        """ Extracts the icon at a specific index in an icon atlas, resizes it, and places it in a canvas element """
+        img = mapper.index_to_image(index, resize_to=resize_to)
+        self_img_name = str(canvas)
+        setattr(self, self_img_name, ImageTk.PhotoImage(img))
+        canvas.create_image(0, 0, image=getattr(self, self_img_name), anchor=NW)
 
     def generate_laptimes_entries(self, frame, amount):
         """ Builds the UI for individual lap times """
@@ -355,202 +369,3 @@ class PoltergustUI:
         y = int(hs/8)
 
         self.root.geometry(f"{self.WINDOW_WIDTH}x{self.WINDOW_HEIGHT}+{x}+{y}")
-
-    def update(self):
-        """ Updates the UI contents based on the loaded ghostfile """
-        if self.ghostfile:
-            # Enable buttons if a file is open
-            self.menu_file.entryconfig(self.BTN_CLOSE, state=NORMAL)
-            self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=NORMAL)
-            self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
-            self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=NORMAL)
-            self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=NORMAL)
-            self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=NORMAL)
-
-            # Enable all download ghost slots
-            for i in range(16):
-                self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(i), state=NORMAL)
-
-            # Name of opened file
-            file_str = "Loaded File: " + self.ghostfile.rpartition("/")[2][:40]
-            if len(self.ghostfile) > 40:
-                file_str += "..."
-
-            self.lb_ghostfile.config(text=file_str)
-
-            # Parse file
-            self.parse_file(self.ghostfile)
-
-            # Update ghostinfos
-            self.game_version.config(text=f"Game version {self.data.game_version.value}")
-            if self.data.ghost_type == MK8GhostType.STAFF_GHOST:
-                self.ghost_type.config(text="Staff Ghost")
-                # No need to export a staff ghost as itself
-                self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
-            elif self.data.ghost_type == MK8GhostType.PLAYER_GHOST:
-                self.ghost_type.config(text="Player Ghost")
-            elif self.data.ghost_type == MK8GhostType.DOWNLOADED_GHOST:
-                text = f"Downloaded Ghost - Slot {self.data.ghost_number}"
-                if not self.data.created_in_game:
-                    text += " (Nintendo Clients Package Download)"
-                else:
-                    text += " (In-Game Download)"
-                self.ghost_type.config(text=text)
-                # No need to export a downloaded ghost as itself
-                self.menu_export_download.entryconfig(self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(self.data.ghost_number), state=DISABLED)
-            else:
-                self.ghost_type.config(text="MKTV Replay")
-
-            # Update Images
-            self.update_flag()
-            self.update_character()
-            self.update_vehicle_parts()
-            self.update_track()
-
-            # Update text
-            self.playername.set(self.data.playername)
-            self.total_min.set(self.data.total_minutes)
-            self.total_sec.set(f"{self.data.total_seconds:02d}")
-            self.total_ms.set(f"{self.data.total_ms:03d}")
-
-            for i, lap in enumerate(self.lap_times):
-                lap_mins = getattr(self.data, f'lap{i+1}_minutes')
-                if lap_mins is not None:
-                    lap['min'][0].set(lap_mins)
-                    lap['sec'][0].set(f"{getattr(self.data, f'lap{i+1}_seconds'):02d}")
-                    lap['ms'][0].set(f"{getattr(self.data, f'lap{i+1}_ms'):03d}")
-                else:
-                    lap['min'][0].set("9")
-                    lap['sec'][0].set("59")
-                    lap['ms'][0].set("999")
-
-            # Show Preview
-            self.dataframe.grid()
-        else:
-            # Discard data
-            self.data = None
-
-            # Disable buttons if no file is open
-            self.menu_file.entryconfig(self.BTN_CLOSE, state=DISABLED)
-            self.menu_file.entryconfig(self.BTN_RELOAD_FROM_DISK, state=DISABLED)
-            self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
-            self.menu_export.entryconfig(self.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
-            self.menu_export.entryconfig(self.BTN_EXTRACT_MII, state=DISABLED)
-            self.menu_edit.entryconfig(self.BTN_REPLACE_MII, state=DISABLED)
-            self.lb_ghostfile.config(text="No ghost data loaded")
-
-            # Remove Preview
-            self.dataframe.grid_remove()
-
-    def parse_file(self, filepath: str):
-        """ Invokes a parser to read ghost data from a ghost's filename """
-        filename = filepath.rpartition("/")[2].rpartition(".")[0]
-        self.data = MK8GhostFilenameParser().parse(filename)
-
-        # TODO: Move this to a file parser instead
-        with open(filepath, 'rb') as f:
-            prefix = f.read(4)
-            self.data.created_in_game = prefix == "CTG0".encode()
-
-    def update_flag(self):
-        """ Updates the player flag in the UI based on the loaded ghostfile """
-        assert self.data is not None
-
-        flag = ("Unknown Flag", None)
-        if 0 <= self.data.flag_id < len(FLAGS):
-            flag = FLAGS[self.data.flag_id]
-            if flag[0] is None:
-                flag = ("No Flag", None)
-
-        self.set_mapped_image(self.flag_canvas, self.flag_mapper, flag[1], resize_to=self.FLAG_SIZE)
-        self.flag_tip.text = flag[0] + f" ({self.data.flag_id})"
-
-    def update_character(self) -> None:
-        """ Updates the character in the UI based on the loaded ghostfile """
-        assert self.data is not None
-
-        char = CHARACTERS.get(self.data.character_id, (f"Unknown Character", None))
-        if type(char[1]) != int and char[1] is not None:
-            # We have subcharacters (E.g. Blue Yoshi, BoTW Link, Mii)
-            indx = self.data.character_variant_id
-            variant = char[1][indx] if 0 <= indx and indx < len(char[1]) else ("Unknown Variant", None)
-            if char[0] == "Mii":
-                # We also have a weight class
-                indx = self.data.mii_weight_class_id
-                variant[0] += F" - {MII_WEIGHT_CLASSES[indx] if 0 <= indx and indx < len(MII_WEIGHT_CLASSES) else 'Unknown Weight Class'}"
-            char = (f"{char[0]} ({variant[0]})", variant[1])
-
-        self.set_mapped_image(self.character_canvas, self.char_mapper, char[1], resize_to=self.CHARACTER_SIZE)
-        self.character_tip.text = f"{char[0]} ({self.data.character_id})"
-
-    def update_track(self) -> None:
-        """ Updates the track in the UI based on the loaded ghostfile """
-        assert self.data is not None
-
-        track = COURSE_IDS.get(self.data.track_id, ("Unknown Track", None))
-
-        if self.data.ghost_type != MK8GhostType.DOWNLOADED_GHOST and self.data.track_id - 16 != self.data.ghost_number:
-            # Track ID - 16 matches ghost number, but only for non-download ghosts
-            track = ("Unknown Track", None)
-
-        self.set_mapped_image(self.track_canvas, self.track_mapper, track[1], resize_to=self.TRACK_SIZE)
-        self.track.set(track[0])
-        self.track_tip.text = f"{self.data.ghost_number} - {self.data.track_id}"
-
-    def update_vehicle_parts(self) -> None:
-        """ Updates the vehicle parts in the UI based on the loaded ghostfile """
-        assert self.data is not None
-
-        # Kart
-        kart = KARTS.get(self.data.kart_id, ("Unknown Kart", None))
-        self.set_mapped_image(self.kart_canvas, self.vehiclepart_mapper, kart[1], resize_to=self.VEHICLE_PART_SIZE)
-        self.kart.set(kart[0])
-        self.kart_tip.text = str(self.data.kart_id)
-
-        # Wheels
-        wheels = WHEELS.get(self.data.wheels_id, ("Unknown Wheels", None))
-        self.set_mapped_image(self.wheels_canvas, self.vehiclepart_mapper, wheels[1], resize_to=self.VEHICLE_PART_SIZE)
-        self.wheels.set(wheels[0])
-        self.wheels_tip.text = str(self.data.wheels_id)
-
-        # Glider
-        glider = GLIDERS.get(self.data.glider_id, ("Unknown Glider", None))
-        self.set_mapped_image(self.glider_canvas, self.vehiclepart_mapper, glider[1], resize_to=self.VEHICLE_PART_SIZE)
-        self.glider.set(glider[0])
-        self.glider_tip.text = str(self.data.glider_id)
-
-    def set_mapped_image(self, canvas: Canvas, mapper: MK8ImageAtlasMapper, index: int | None, resize_to: tuple[int, int] | None = None) -> None:
-        """ Extracts the icon at a specific index in an icon atlas, resizes it, and places it in a canvas element """
-        img = mapper.index_to_image(index, resize_to=resize_to)
-        self_img_name = str(canvas)
-        setattr(self, self_img_name, ImageTk.PhotoImage(img))
-        canvas.create_image(0, 0, image=getattr(self, self_img_name), anchor=NW)
-
-    def open_ghost_file(self):
-        """ UI Popup for opening a ghost file """
-        filename = filedialog.askopenfilename(
-            parent=self.root,
-            title="Open MK8 Ghost Data",
-            filetypes=(("MK8 Ghost Data (*.dat)", ".dat"), ('All files', '*.*'))
-        )
-        if not filename:
-            # Selection aborted; nothing to do
-            return
-
-        self.ghostfile = filename
-        self.update()
-
-    def close_current_file(self):
-        """ Closes the currently opened ghostfile and cleans up left-behind data """
-        self.ghostfile = None
-        self.data = None
-        self.update()
-
-
-if __name__ == '__main__':
-    # Create and display the UI
-    controller = PoltergustController()
-
-    root = Tk()
-    PoltergustUI(root, controller)
-    root.mainloop()

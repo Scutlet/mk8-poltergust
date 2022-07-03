@@ -73,7 +73,7 @@ class MK8GhostFilenameFormat:
         FILENAME_V4 = 114
 
 @dataclass
-class MK8GhostData:
+class MK8GhostFilenameData:
     """
         Dataclass containing all information present in the filename of a Mario Kart 8 ghost file.
     """
@@ -147,7 +147,6 @@ class MK8GhostFilenameParser:
         """ Parses game version from filename """
         # Santity check filename length
         filename_len = len(filename)
-        print(filename_len)
         valid_filename_lens = [item.value for item in MK8GhostFilenameFormat.Length]
         if filename_len not in valid_filename_lens:
             raise ValueError(f"Filename was of incorrect length. Expected one of {', '.join(map(str, valid_filename_lens))}.")
@@ -158,7 +157,7 @@ class MK8GhostFilenameParser:
             return MK8GhostFilenameFormat.GameVersion.FILENAME_V3
         return MK8GhostFilenameFormat.GameVersion.FILENAME_V3_NONSTANDARD
 
-    def parse(self, filename: str) -> MK8GhostData:
+    def parse(self, filename: str) -> MK8GhostFilenameData:
         """ Parses the filename of the attached file"""
         game_version = self.parse_game_version(filename)
 
@@ -173,7 +172,7 @@ class MK8GhostFilenameParser:
                     break
                 results[identifier] = getattr(self, f"parse_{data_type.__name__}")(val)
             i += num_chars
-        return MK8GhostData(game_version, **results)
+        return MK8GhostFilenameData(game_version, **results)
 
 class MK8GhostFilenameSerializer:
     """ Serializes information from the filename of Mario Kart 8 Ghost Files """
@@ -200,12 +199,11 @@ class MK8GhostFilenameSerializer:
         """ Serializes utf-16-be encoded string """
         return (val.encode('utf-16-be').hex()).ljust(num_chars, "0")
 
-    def serialize(self, data: MK8GhostData) -> str:
+    def serialize(self, data: MK8GhostFilenameData) -> str:
         """ Serializes ghost data into a filename as expected by the game """
         # Obtain filename pattern based on game version
         output = ""
         chars_remaining = MK8GhostFilenameFormat.Length[data.game_version.name].value
-        print(chars_remaining)
         for num_chars, identifier, data_type in MK8GhostFilenameFormat.format:
             if data_type is not None:
                 output += getattr(self, f"serialize_{data_type.__name__}")(getattr(data, identifier, None), num_chars)
@@ -214,7 +212,6 @@ class MK8GhostFilenameSerializer:
                 output += "0" * min(num_chars, chars_remaining)
 
             chars_remaining -= num_chars
-            print(chars_remaining)
             if chars_remaining <= 0:
                 # Nothing left to serialize
                 break
