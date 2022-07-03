@@ -2,8 +2,6 @@ import binascii
 from io import BufferedReader
 import os
 
-from parser import MK8_UNICODE_HELPER
-
 
 class MK8GhostDataMiiHandler:
     """ Class that can extract or replace Mii data from Mario Kart 8 ghost files """
@@ -68,7 +66,7 @@ class MK8GhostDataMiiHandler:
             file.seek(offset + self.MII_NAME_OFFSET, os.SEEK_SET)
             mii_name = file.read(self.MII_NAME_LENGTH)
             mii_name = binascii.hexlify(mii_name).decode("utf-8")
-            return MK8_UNICODE_HELPER.parse(mii_name, left=True)
+            return None #MK8_UNICODE_HELPER.parse(mii_name, left=True)
 
     def extract(self, output_filename: str) -> None:
         """ Extract the Mii from `self.ghost_filename`, and export the result to a given location """

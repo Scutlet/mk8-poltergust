@@ -118,6 +118,10 @@ AMIIBO_SUITS = [
     ("Hylian Suit Male 2", 64), ("Hylian Suit Female 2", 64),
     ("Hylian Suit Male 3", 64), ("Hylian Suit Female 3", 64),
     ("Hylian Suit Male 4", 64), ("Hylian Suit Female 4", 64),
+    ("Inkling Suit Male 1", 64), ("Inkling Suit Female 1", 64), # MK8D
+    ("Inkling Suit Male 2", 64), ("Inkling Suit Female 2", 64), # MK8D
+    ("Inkling Suit Male 3", 64), ("Inkling Suit Female 3", 64), # MK8D
+    ("Inkling Suit Male 4", 64), ("Inkling Suit Female 4", 64), # MK8D
     ("Kirby Suit Male 1", 64), ("Kirby Suit Female 1", 64),
     ("Kirby Suit Male 2", 64), ("Kirby Suit Female 2", 64),
     ("Kirby Suit Male 3", 64), ("Kirby Suit Female 3", 64),
@@ -146,10 +150,6 @@ AMIIBO_SUITS = [
     ("Sonic Suit Male 2", 64), ("Sonic Suit Female 2", 64),
     ("Sonic Suit Male 3", 64), ("Sonic Suit Female 3", 64),
     ("Sonic Suit Male 4", 64), ("Sonic Suit Female 4", 64),
-    ("Inkling Suit Male 1", 64), ("Inkling Suit Female 1", 64), # MK8D (unverified)
-    ("Inkling Suit Male 2", 64), ("Inkling Suit Female 2", 64), # MK8D (unverified)
-    ("Inkling Suit Male 3", 64), ("Inkling Suit Female 3", 64), # MK8D (unverified)
-    ("Inkling Suit Male 4", 64), ("Inkling Suit Female 4", 64), # MK8D (unverified)
 ]
 
 CHARACTERS = {

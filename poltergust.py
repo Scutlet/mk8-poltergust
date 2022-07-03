@@ -12,7 +12,7 @@ from PIL import Image, ImageTk
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
 from gamedata import COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
 from mii_handler import MK8GhostDataMiiHandler
-from parser import MK8_GHOST_TYPES, MK8GhostFilenameParser, MK8GhostData
+from parser import MK8GhostFilenameSerializer, MK8GhostType, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
 from utils import get_resource_path
 
@@ -276,7 +276,7 @@ class PoltergustUI:
             # Operation cancelled
             return
 
-        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST)
+        handler = MK8GhostDataMiiHandler(self.ghostfile, self.data.ghost_type == MK8GhostType.STAFF_GHOST)
 
         try:
             handler.replace(new_mii)
@@ -288,7 +288,8 @@ class PoltergustUI:
         # Generate new filename
         mii_name = handler.extract_mii_name()
         self.data.playername = mii_name
-        new_name = MK8GhostFilenameParser.serialize_filename(self.data)
+        serializer = MK8GhostFilenameSerializer()
+        new_name = serializer.serialize(self.data)
 
         # Rename file
         current_folder = self.ghostfile.rpartition("/")[0]
@@ -313,7 +314,7 @@ class PoltergustUI:
             return
 
         # Make sure to restore ghost number when converting a downloaded ghost to a staff ghost
-        output_filename = MK8_GHOST_TYPES.STAFF_GHOST.value + f"{self.data.track_id - 16:0>2x}" + self.ghostfile.rpartition("/")[2][4:]
+        output_filename = MK8GhostType.STAFF_GHOST.value + f"{self.data.track_id - 16:0>2x}" + self.ghostfile.rpartition("/")[2][4:]
         output_file = os.path.join(foldername, output_filename)
         res = converter.convert(output_file, remove_header=self.data.created_in_game)
         if res:
@@ -332,7 +333,7 @@ class PoltergustUI:
             return
 
         # TODO: Use filename serializer for this
-        output_file = os.path.join(foldername, MK8_GHOST_TYPES.DOWNLOADED_GHOST.value + f"{ghost_slot:0>2x}" + self.ghostfile.rpartition("/")[2][4:])
+        output_file = os.path.join(foldername, MK8GhostType.DOWNLOADED_GHOST.value + f"{ghost_slot:0>2x}" + self.ghostfile.rpartition("/")[2][4:])
         # Read current ghost data
         with open(self.ghostfile, 'rb') as file:
             ghost_data = file.read()
@@ -420,14 +421,14 @@ class PoltergustUI:
             self.parse_file(self.ghostfile)
 
             # Update ghostinfos
-            self.game_version.config(text=f"Game version {self.data.game_version}")
-            if self.data.ghost_type == MK8_GHOST_TYPES.STAFF_GHOST:
+            self.game_version.config(text=f"Game version {self.data.game_version.value}")
+            if self.data.ghost_type == MK8GhostType.STAFF_GHOST:
                 self.ghost_type.config(text="Staff Ghost")
                 # No need to export a staff ghost as itself
                 self.menu_export.entryconfig(self.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
-            elif self.data.ghost_type == MK8_GHOST_TYPES.PLAYER_GHOST:
+            elif self.data.ghost_type == MK8GhostType.PLAYER_GHOST:
                 self.ghost_type.config(text="Player Ghost")
-            elif self.data.ghost_type == MK8_GHOST_TYPES.DOWNLOADED_GHOST:
+            elif self.data.ghost_type == MK8GhostType.DOWNLOADED_GHOST:
                 text = f"Downloaded Ghost - Slot {self.data.ghost_number}"
                 if not self.data.created_in_game:
                     text += " (Nintendo Clients Package Download)"
@@ -483,7 +484,7 @@ class PoltergustUI:
     def parse_file(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """
         filename = filepath.rpartition("/")[2].rpartition(".")[0]
-        self.data = MK8GhostFilenameParser(filename).parse()
+        self.data = MK8GhostFilenameParser().parse(filename)
 
         # TODO: Move this to a file parser instead
         with open(filepath, 'rb') as f:
@@ -527,7 +528,7 @@ class PoltergustUI:
 
         track = COURSE_IDS.get(self.data.track_id, ("Unknown Track", None))
 
-        if self.data.ghost_type != MK8_GHOST_TYPES.DOWNLOADED_GHOST and self.data.track_id - 16 != self.data.ghost_number:
+        if self.data.ghost_type != MK8GhostType.DOWNLOADED_GHOST and self.data.track_id - 16 != self.data.ghost_number:
             # Track ID - 16 matches ghost number, but only for non-download ghosts
             track = ("Unknown Track", None)
 

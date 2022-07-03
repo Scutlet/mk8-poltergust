@@ -1,6 +1,6 @@
 import os
 
-from parser import MK8_GHOST_TYPES, MK8GhostData
+from parser import MK8GhostType, MK8GhostData
 
 
 class MK8StaffGhostConverter:
