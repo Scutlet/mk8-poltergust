@@ -10,10 +10,12 @@ import webbrowser
 from PIL import Image, ImageTk
 
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
+from controller import PoltergustController
 from gamedata import COURSE_IDS, CHARACTERS, KARTS, WHEELS, GLIDERS, FLAGS
 from mii_handler import MK8GhostDataMiiHandler
 from parser import MK8GhostFilenameSerializer, MK8GhostType, MK8GhostFilenameParser, MK8GhostData
 from staff_ghost_converter import MK8StaffGhostConverter
+from view_about import PoltergustAboutView
 from utils import get_resource_path
 
 
@@ -52,7 +54,7 @@ class PoltergustUI:
     vehiclepart_mapper = MK8VehiclePartImageMapper()
     track_mapper = MK8TrackImageMapper()
 
-    def __init__(self, root: Tk):
+    def __init__(self, root: Tk, controller: PoltergustController):
         """ Initializes the UI """
         self.ghostfile: str | None = None
         self.data: MK8GhostData | None = None
@@ -193,48 +195,7 @@ class PoltergustUI:
 
     def popup_about(self):
         """ Displays 'about' information """
-        win = Toplevel(self.root)
-        win.wm_title("Poltergust - About")
-
-        with Image.open(get_resource_path("resources/scutlet.png")) as img:
-            scutlet_canvas = Canvas(win, width=64, height=64)
-            scutlet_canvas.grid(column=1, row=1, sticky=(N,W,E,S))
-            self.scutlet_img = ImageTk.PhotoImage(img.resize((64, 64)))
-            scutlet_canvas.create_image(0, 0, image=self.scutlet_img, anchor=NW)
-
-        ttk.Label(win, wraplength=275, text="Poltergust visualises Mario Kart 8 ghost data based on their filenames. It's possible to manually tinker with those, but doing so may break assumptions made by this tool. Do so at your own risk.").grid(column=0, row=0, columnspan=2, padx=2, pady=2)
-        ttk.Label(win, wraplength=135, text="Created by Scutlet").grid(column=0, row=1)
-        ttk.Label(win, text="This software is available under GPL v3").grid(column=0, row=2, columnspan=2)
-
-        ws = self.root.winfo_screenwidth() # width of the screen
-        hs = self.root.winfo_screenheight() # height of the screen
-
-        # calculate x and y coordinates for the Tk root window
-        x = int((ws/2) - (275/2))
-        y = int(hs/7)
-
-        win.geometry(f"275x160+{x}+{y}")
-
-        win.wait_visibility()
-        win.grab_set()
-
-    def popup_success(self, title: str, message: str) -> None:
-        """ Displays 'export success' message """
-        win = Toplevel(self.root)
-        win.wm_title(title)
-
-        ttk.Label(win, text=message, wraplength=275).grid(row=0, column=0)
-
-        ttk.Button(win, text="Ok", command=win.destroy).grid(row=1, column=0, pady=(20, 0))
-
-        ws = self.root.winfo_screenwidth() # width of the screen
-        hs = self.root.winfo_screenheight() # height of the screen
-
-        # calculate x and y coordinates for the Tk root window
-        x = int((ws/2) - (275/2))
-        y = int(hs/7)
-
-        win.geometry(f"275x150+{x}+{y}")
+        PoltergustAboutView(self.root)
 
     def extract_mii(self):
         """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
@@ -588,6 +549,8 @@ class PoltergustUI:
 
 if __name__ == '__main__':
     # Create and display the UI
+    controller = PoltergustController()
+
     root = Tk()
-    PoltergustUI(root)
+    PoltergustUI(root, controller)
     root.mainloop()
