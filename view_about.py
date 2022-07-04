@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 
 from utils import get_resource_path
 
+
 class PoltergustAboutView(Toplevel):
     """ Displays "About" information of the application. """
 

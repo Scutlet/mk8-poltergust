@@ -1,4 +1,5 @@
 
+
 class MK8GhostDataParser:
     """ Parser for (staff) ghost data files from Mario Kart 8 (Wii U) """
     HEADER_PREFIX = "CTG0"

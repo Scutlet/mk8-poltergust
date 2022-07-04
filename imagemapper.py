@@ -4,6 +4,7 @@ from PIL import Image
 
 from utils import get_resource_path
 
+
 class MK8ImageAtlasMapper(ABC):
     """ Class that can extract a single icon at a specific index from an icon atlas """
     image_name: str = None

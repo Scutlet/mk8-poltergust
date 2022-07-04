@@ -1,13 +1,8 @@
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 
+from gamedata import MK8GhostType
 
-class MK8GhostType(Enum):
-    """ Enumeration of all types of ghosts in Mario Kart 8 """
-    STAFF_GHOST = "sg"
-    PLAYER_GHOST = "gs"
-    DOWNLOADED_GHOST = "dg"
-    MKTV_REPLAY = "rp" # Different file format than a ghost
 
 class str_utf16be(str):
     """ Marker for utf-16-be encoded strings """
@@ -19,7 +14,7 @@ class int_lap(int):
 
 
 class MK8GhostFilenameFormat:
-    """ TODO """
+    """ Format describing the structure of MK8 ghost files (Wii U) """
     # Data present in ghost files of all game versions
     format = [
         (2, "ghost_type", MK8GhostType),

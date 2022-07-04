@@ -2,17 +2,18 @@ import os
 from tkinter import *
 from tkinter import messagebox
 
+from gamedata import MK8GhostType
+from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
 from ghost_converter import MK8GhostConverter
 from ghost_file_parser import MK8GhostDataParser
 from mii_handler import MK8GhostFilenameDataMiiHandler
-from parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer, MK8GhostType
-from poltergust import PoltergustUI
+from view_main import PoltergustMainView
 
 
 class PoltergustController:
-    """ TODO """
+    """ Controller for the application. It invokes models/parsers and controls the view/UI state """
 
-    def __init__(self, view: PoltergustUI):
+    def __init__(self, view: PoltergustMainView):
         self.ghostfile: str = None
         self.filename_data: MK8GhostFilenameData = None
         self.ghost_has_header = None
@@ -34,16 +35,18 @@ class PoltergustController:
         self.close_ghostfile()
 
     def open_ghostfile(self):
-        """ TODO """
+        """ Invokes the view to select a ghost file, and loads its data """
         filename = self.view.select_ghost_file()
-        # Selection is none if it was aborted
-        if filename is not None:
-            self.ghostfile = filename
-            self.filename_data = None
-            self.update()
+        # Selection is empty if it was aborted
+        if not filename:
+            return
+
+        self.ghostfile = filename
+        self.filename_data = None
+        self.update()
 
     def close_ghostfile(self):
-        """ TODO """
+        """ Closes the currently loaded ghostfile, and cleans up its data """
         # Discard filename_data
         self.ghostfile = None
         self.filename_data = None
@@ -56,7 +59,7 @@ class PoltergustController:
         self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
         self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, state=DISABLED)
         self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=DISABLED)
-        self.view.lb_ghostfile.config(text="No ghost filename_data loaded")
+        self.view.lb_ghostfile.config(text="No ghost data loaded")
 
         # Remove Preview
         self.view.dataframe.grid_remove()

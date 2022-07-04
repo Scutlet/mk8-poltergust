@@ -1,22 +1,18 @@
-import os
-
-from tkinter.font import NORMAL as FONT_NORMAL
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk, filedialog
+from tkinter.font import NORMAL as FONT_NORMAL
 import webbrowser
 
-from PIL import Image, ImageTk
+from PIL import ImageTk
 
-from gamedata import COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
+from gamedata import MK8GhostType, COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
 from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
-from mii_handler import MK8GhostFilenameDataMiiHandler
-from parser import MK8GhostFilenameSerializer, MK8GhostType, MK8GhostFilenameParser, MK8GhostFilenameData
-from view_about import PoltergustAboutView
 from utils import get_resource_path
+from view_about import PoltergustAboutView
 
 
-class PoltergustUI:
+class PoltergustMainView:
     """
         Defines and builds the Poltergust UI using Tkinter.
     """

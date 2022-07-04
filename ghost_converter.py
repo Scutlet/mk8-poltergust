@@ -1,6 +1,7 @@
 import os
 
-from parser import MK8GhostFilenameData, MK8GhostType, MK8GhostFilenameSerializer
+from filename_parser import MK8GhostFilenameData, MK8GhostFilenameSerializer
+from gamedata import MK8GhostType
 
 
 class MK8GhostConverter:

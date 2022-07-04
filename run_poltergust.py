@@ -1,13 +1,13 @@
 from tkinter import *
 
-from poltergust import PoltergustUI
 from controller import PoltergustController
+from view_main import PoltergustMainView
 
 
 if __name__ == '__main__':
     # Create and display the UI
     root = Tk()
-    view = PoltergustUI(root)
+    view = PoltergustMainView(root)
     controller = PoltergustController(view)
 
     root.mainloop()
