@@ -199,14 +199,14 @@ class PoltergustUI:
             filetypes=(("MK8 Ghost Data (*.dat)", ".dat"), ('All files', '*.*'))
         )
 
-    def select_mii_output_folder(self) -> str:
+    def select_mii_output_folder(self, filename: str) -> str:
         """ UI Popup for selecting a Mii extraction output location """
         return filedialog.asksaveasfilename(
             parent=self.root,
             title=self.BTN_EXTRACT_MII,
             defaultextension=".3dsmii",
             filetypes=(("Wii U/3DS Mii (.3dsmii)", ".3dsmii"), ('All files', '*.*')),
-            initialfile=f"mii-{self.data.playername}",
+            initialfile=filename,
         )
 
     def select_mii_file(self) -> str:

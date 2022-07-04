@@ -1,5 +1,4 @@
 import binascii
-from io import BufferedReader
 import os
 
 
@@ -65,8 +64,8 @@ class MK8GhostFilenameDataMiiHandler:
         with open(self.filename, 'rb') as file:
             file.seek(offset + self.MII_NAME_OFFSET, os.SEEK_SET)
             mii_name = file.read(self.MII_NAME_LENGTH)
-            mii_name = binascii.hexlify(mii_name).decode("utf-8")
-            return None #MK8_UNICODE_HELPER.parse(mii_name, left=True)
+            mii_name = mii_name.decode('utf-16-le')
+            return mii_name
 
     def extract(self, output_filename: str) -> None:
         """ Extract the Mii from `self.ghost_filename`, and export the result to a given location """
@@ -83,8 +82,12 @@ class MK8GhostFilenameDataMiiHandler:
             new_mii_data = file.read()
             new_mii_data += b'\x00\x00'
 
+        if self.has_header:
+            # TODO: Handling for player ghosts (header CRC should change)
+            raise ValueError("Replacing Miis in a ghost file with a header is unsupported at the moment.")
+
         # Offset depends on whether this is a staff ghost
-        offset = get_mii_offset()
+        offset = self.get_mii_offset()
 
         with open(self.filename, 'rb+') as file:
             file.seek(offset, os.SEEK_SET)

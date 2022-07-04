@@ -1,9 +1,11 @@
+import os
 from tkinter import *
 from tkinter import messagebox
 
 from ghost_converter import MK8GhostConverter
 from ghost_file_parser import MK8GhostDataParser
-from parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostType
+from mii_handler import MK8GhostFilenameDataMiiHandler
+from parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer, MK8GhostType
 from poltergust import PoltergustUI
 
 
@@ -67,21 +69,21 @@ class PoltergustController:
 
     def extract_mii(self):
         """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
-        filename = self.view.select_mii_output_folder()
-        if not filename:
+        filepath = self.view.select_mii_output_folder(f"mii-{self.filename_data.playername}")
+        if not filepath:
             # Operation cancelled
             return
 
-        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.filename_data.created_in_game)
+        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.ghost_has_header)
 
         try:
-            handler.extract(filename)
+            handler.extract(filepath)
         except Exception as e:
             print(e)
             messagebox.showerror("Invalid Mii Data", "This ghost file contained invalid Mii data; it could not be extracted.")
             return
 
-        messagebox.showinfo("Mii extracted!", f"The Mii for this ghost file was extracted successfully to {filename}")
+        messagebox.showinfo("Mii extracted!", f"The Mii for this ghost file was extracted successfully to {filepath}")
 
     def replace_mii(self):
         """ Invokes the Mii handler and replaces the Mii from the currently loaded ghost file """
@@ -93,7 +95,7 @@ class PoltergustController:
             # Operation cancelled
             return
 
-        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.filename_data.ghost_type == MK8GhostType.STAFF_GHOST)
+        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.ghost_has_header)
 
         try:
             handler.replace(new_mii)
@@ -114,7 +116,6 @@ class PoltergustController:
         os.rename(self.ghostfile, new_file)
 
         self.ghostfile = new_file
-        self.playername.set(self.filename_data.playername)
 
         messagebox.showinfo("Mii replaced!", f"The Mii for this ghost file was successfully replaced!")
 
