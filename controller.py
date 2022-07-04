@@ -7,6 +7,8 @@ from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8Gho
 from ghost_converter import MK8GhostConverter
 from ghost_file_parser import MK8GhostDataParser
 from mii_handler import MK8GhostFilenameDataMiiHandler
+from view_change_track import PoltergustChangeTrackView
+from view_ct_manager import TEMP_TRACKS, PoltergustCTManagerView
 from view_main import PoltergustMainView
 
 
@@ -26,11 +28,13 @@ class PoltergustController:
 
         # Setup Export callbacks
         self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, command=self.extract_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-
         self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
         for slot in range(16):
             self.view.menu_export_download.entryconfig(self.view.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
+
+        # Setup Edit callbacks
+        # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=self.change_track)
 
         self.close_ghostfile()
 
@@ -58,7 +62,8 @@ class PoltergustController:
         self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
         self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
         self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, state=DISABLED)
-        self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=DISABLED)
+        # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=DISABLED)
+        # self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=DISABLED)
         self.view.lb_ghostfile.config(text="No ghost data loaded")
 
         # Remove Preview
@@ -69,6 +74,11 @@ class PoltergustController:
         filename = filepath.rpartition("/")[2].rpartition(".")[0]
         self.filename_data = MK8GhostFilenameParser().parse(filename)
         self.ghost_has_header = MK8GhostDataParser().check_header(filepath)
+
+    def change_track(self):
+        """ Opens up a new UI to change the track slot and/or assign a custom track ID """
+        # PoltergustChangeTrackView(self.view.root)
+        PoltergustCTManagerView(self.view.root, TEMP_TRACKS)
 
     def extract_mii(self):
         """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
@@ -157,7 +167,9 @@ class PoltergustController:
         self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
         self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=NORMAL)
         self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, state=NORMAL)
-        self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=NORMAL)
+        # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=NORMAL)
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=NORMAL)
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=NORMAL)
 
         # Enable all download ghost slots
         for i in range(16):

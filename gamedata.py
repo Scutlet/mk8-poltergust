@@ -13,7 +13,7 @@ COURSE_IDS = {
     19: ("Sweet Sweet Canyon", 2),
     17: ("Thwomp Ruins", 3),
     16: ("Mario Circuit", 4),
-    18: ("Toad Harbour", 5),
+    18: ("Toad Harbor", 5),
     20: ("Twisted Mansion", 6),
     21: ("Shy Guy Falls", 7),
     26: ("Sunshine Airport", 8),
@@ -21,7 +21,7 @@ COURSE_IDS = {
     25: ("Electrodrome", 10),
     24: ("Mount Wario", 11),
     23: ("Cloudtop Cruise", 12),
-    22: ("Bone Dry Dunes", 13),
+    22: ("Bone-Dry Dunes", 13),
     30: ("Bowser's Castle", 14),
     31: ("Rainbow Road", 15),
     33: ("Wii Moo Moo Meadows", 16),
@@ -34,10 +34,10 @@ COURSE_IDS = {
     32: ("3DS DK Jungle", 23),
     46: ("DS Wario Stadium", 24),
     37: ("GCN Sherbet Land", 25),
-    39: ("3DS Melody Motorway", 26),
+    39: ("3DS Music Park", 26),
     45: ("N64 Yoshi Valley", 27),
     44: ("DS Tick-Tock Clock", 28),
-    43: ("3DS Piranha Plant Pipeway", 29),
+    43: ("3DS Piranha Plant Slide", 29),
     40: ("Wii Grumble Volcano", 30),
     47: ("N64 Rainbow Road", 31),
     56: ("GCN Yoshi Circuit", 32),
@@ -59,14 +59,14 @@ COURSE_IDS = {
     59: ("GBA Ribbon Road", 45),
     48: ("Super Bell Subway", 46),
     63: ("Big Blue", 47),
-    67: ("Battle Stadium", 48), # MK8D (unverified)
-    68: ("Sweet Sweet Kingdom", 49), # MK8D (unverified)
-    69: ("Dragon Palace", 50), # MK8D (unverified)
-    70: ("Lunar Colony", 51), # MK8D (unverified)
-    71: ("3DS Wuhu Town", 52), # MK8D (unverified)
-    72: ("GCN Luigi's Mansion", 53), # MK8D (unverified)
-    73: ("SNES Battle Course 1", 54), # MK8D (unverified)
-    74: ("Urchin Underpass", 55), # MK8D (unverified)
+    67: ("Battle Stadium", 48), # MK8D
+    68: ("Sweet Sweet Kingdom", 49), # MK8D
+    69: ("Dragon Palace", 50), # MK8D
+    70: ("Lunar Colony", 51), # MK8D
+    71: ("3DS Wuhu Town", 52), # MK8D
+    72: ("GCN Luigi's Mansion", 53), # MK8D
+    73: ("SNES Battle Course 1", 54), # MK8D
+    74: ("Urchin Underpass", 55), # MK8D
     75: ("Tour Paris Promenade", 56), # MK8D DLC
     76: ("3DS Toad Circuit", 57), # MK8D DLC
     77: ("N64 Choco Mountain", 58), # MK8D DLC

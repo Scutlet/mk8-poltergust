@@ -28,6 +28,7 @@ class PoltergustMainView:
     BTN_DOWNLOADED_GHOST_SLOT_PREFIX = "Slot "
     BTN_EXTRACT_MII = "Extract Mii"
     BTN_REPLACE_MII = "Replace Mii"
+    BTN_CHANGE_TRACK = "Change Track"
 
     # FONT = ("Agency FB", 14, FONT_NORMAL)
     FONT = ("Courier", 14, FONT_NORMAL)
@@ -75,7 +76,7 @@ class PoltergustMainView:
         self.menu_edit = Menu(self.menubar)
         self.menu_help = Menu(self.menubar)
         self.menubar.add_cascade(menu=self.menu_file, label='File')
-        # self.menubar.add_cascade(menu=self.menu_edit, label='Edit') # Disabled for now
+        self.menubar.add_cascade(menu=self.menu_edit, label='Edit')
         self.menubar.add_cascade(menu=self.menu_export, label='Export')
         self.menubar.add_cascade(menu=self.menu_help, label='Help')
 
@@ -86,12 +87,15 @@ class PoltergustMainView:
 
         # Export options
         self.menu_export.add_command(label=self.BTN_EXTRACT_MII)
-        self.menu_edit.add_command(label=self.BTN_REPLACE_MII)
         self.menu_export.add_command(label=self.BTN_EXPORT_AS_STAFF_GHOST)
         self.menu_export_download = Menu(self.menu_export)
         for slot in range(16):
             self.menu_export_download.add_command(label=self.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot))
         self.menu_export.add_cascade(menu=self.menu_export_download, label=self.BTN_EXPORT_AS_DOWNLOADED_GHOST)
+
+        # Edit Options
+        # self.menu_edit.add_command(label=self.BTN_REPLACE_MII)
+        self.menu_edit.add_command(label=self.BTN_CHANGE_TRACK)
 
         # About options
         self.menu_help.add_command(label="About", command=self.popup_about)

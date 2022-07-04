@@ -1,1 +1,2 @@
-Pillow~=9.1.0
+Pillow~=9.1.0 # Image handling
+ttkwidgets~=0.12.1 # Combobox with autocomplete
