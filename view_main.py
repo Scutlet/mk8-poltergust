@@ -29,6 +29,7 @@ class PoltergustMainView:
     BTN_EXTRACT_MII = "Extract Mii"
     BTN_REPLACE_MII = "Replace Mii"
     BTN_CHANGE_TRACK = "Change Track"
+    BTN_CT_MANAGER = "Custom Track Manager"
 
     # FONT = ("Agency FB", 14, FONT_NORMAL)
     FONT = ("Courier", 14, FONT_NORMAL)
@@ -78,6 +79,7 @@ class PoltergustMainView:
         self.menubar.add_cascade(menu=self.menu_file, label='File')
         self.menubar.add_cascade(menu=self.menu_edit, label='Edit')
         self.menubar.add_cascade(menu=self.menu_export, label='Export')
+        self.menubar.add_command(label=self.BTN_CT_MANAGER)
         self.menubar.add_cascade(menu=self.menu_help, label='Help')
 
         # File options

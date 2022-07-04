@@ -1,6 +1,7 @@
 import os
 from tkinter import *
 from tkinter import messagebox
+from ct_storage import MK8CTStorage
 
 from gamedata import MK8GhostType
 from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
@@ -8,18 +9,20 @@ from ghost_converter import MK8GhostConverter
 from ghost_file_parser import MK8GhostDataParser
 from mii_handler import MK8GhostFilenameDataMiiHandler
 from view_change_track import PoltergustChangeTrackView
-from view_ct_manager import TEMP_TRACKS, PoltergustCTManagerView
+from view_ct_add import PoltergustAddCTViewView
+from view_ct_manager import PoltergustCTManagerView
 from view_main import PoltergustMainView
 
 
 class PoltergustController:
     """ Controller for the application. It invokes models/parsers and controls the view/UI state """
 
-    def __init__(self, view: PoltergustMainView):
+    def __init__(self, view: PoltergustMainView, db: MK8CTStorage):
         self.ghostfile: str = None
         self.filename_data: MK8GhostFilenameData = None
         self.ghost_has_header = None
         self.view = view
+        self.db = db
 
         # Setup Menu callbacks
         self.view.menu_file.entryconfig(self.view.BTN_OPEN, command=self.open_ghostfile)
@@ -34,7 +37,11 @@ class PoltergustController:
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=self.change_track)
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustAddCTViewView(self.view.root))
+        # self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root))
+
+        # CT Manager
+        self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=lambda: PoltergustCTManagerView(self.view.root, self.db.get_mods()))
 
         self.close_ghostfile()
 
@@ -74,11 +81,6 @@ class PoltergustController:
         filename = filepath.rpartition("/")[2].rpartition(".")[0]
         self.filename_data = MK8GhostFilenameParser().parse(filename)
         self.ghost_has_header = MK8GhostDataParser().check_header(filepath)
-
-    def change_track(self):
-        """ Opens up a new UI to change the track slot and/or assign a custom track ID """
-        # PoltergustChangeTrackView(self.view.root)
-        PoltergustCTManagerView(self.view.root, TEMP_TRACKS)
 
     def extract_mii(self):
         """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
