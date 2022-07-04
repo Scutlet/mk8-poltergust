@@ -6,26 +6,8 @@ from tkinter import ttk
 from enum import Enum
 from PIL import Image, ImageTk
 
+from downloader import MK8CustomTrack, MK8ModSite, MOD_SITES
 from utils import PoltergustPopup
-from view_change_track import MK8ModSite, MOD_SITES
-
-@dataclass
-class MK8ModVersion:
-    major: int
-    minor: int
-    patch: int = 0
-
-    def __str__(self):
-        return f"v{self.major}.{self.minor}.{self.patch}"
-
-@dataclass
-class MK8CustomTrack:
-    name: str
-    mod_site: MK8ModSite
-    mod_id: int
-
-    def __str__(self):
-        return f"[{self.mod_site}] {self.name}"
 
 
 class PoltergustCTManagerView(PoltergustPopup):
@@ -37,7 +19,7 @@ class PoltergustCTManagerView(PoltergustPopup):
     window_height = 200
 
     # Add mod sites
-    mod_site_choices = {site.name: (site.domain, site.api_endpoint) for site in MOD_SITES}
+    mod_site_choices = {site.name: site for site in MOD_SITES}
 
     def __init__(self, master: Tk, track_list: list[MK8CustomTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)

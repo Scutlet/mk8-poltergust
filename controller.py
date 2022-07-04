@@ -2,6 +2,7 @@ import os
 from tkinter import *
 from tkinter import messagebox
 from ct_storage import MK8CTStorage
+from downloader import PoltergustDownloader
 
 from gamedata import MK8GhostType
 from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
@@ -9,7 +10,7 @@ from ghost_converter import MK8GhostConverter
 from ghost_file_parser import MK8GhostDataParser
 from mii_handler import MK8GhostFilenameDataMiiHandler
 from view_change_track import PoltergustChangeTrackView
-from view_ct_add import PoltergustAddCTViewView
+from view_ct_add import PoltergustAddCTView
 from view_ct_manager import PoltergustCTManagerView
 from view_main import PoltergustMainView
 
@@ -23,6 +24,7 @@ class PoltergustController:
         self.ghost_has_header = None
         self.view = view
         self.db = db
+        self.downloader = PoltergustDownloader()
 
         # Setup Menu callbacks
         self.view.menu_file.entryconfig(self.view.BTN_OPEN, command=self.open_ghostfile)
@@ -37,7 +39,7 @@ class PoltergustController:
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustAddCTViewView(self.view.root))
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=self.add_ct)
         # self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root))
 
         # CT Manager
@@ -75,6 +77,11 @@ class PoltergustController:
 
         # Remove Preview
         self.view.dataframe.grid_remove()
+
+    def add_ct(self):
+        """ Opens up a new UI to fetch a new CT """
+        ct_view = PoltergustAddCTView(self.view.root)
+        ct_view.fetch_button.config(command=lambda: self.downloader.download(ct_view.ct_url.get()))
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """
