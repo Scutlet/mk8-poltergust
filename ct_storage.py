@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 import sqlite3
 from typing import Iterable
-from downloader import MOD_SITE_CT_WIKI, MOD_SITES
+from downloader import MOD_SITES
 
 from view_ct_manager import MK8CustomTrack
 
@@ -52,7 +52,7 @@ class MK8CTStorage:
 
 if __name__ == "__main__":
     x = MK8CTStorage()
-    x.add_or_update_mod(MK8CustomTrack("My cool mod", MOD_SITE_CT_WIKI, 100039))
+    x.add_or_update_mod(MK8CustomTrack("My cool mod", MOD_SITES[0], 100039))
     for mod in x.get_mods():
         print(mod)
 

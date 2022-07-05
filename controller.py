@@ -82,6 +82,8 @@ class PoltergustController:
         """ Opens up a new UI to fetch a new CT """
         ct_view = PoltergustAddCTView(self.view.root)
         ct_view.fetch_button.config(command=lambda: self.downloader.download(ct_view.ct_url.get()))
+        # TODO: Get <Enter> key to work
+        # self.view.root.bind('<Return>', lambda: self.downloader.download(ct_view.ct_url.get()))
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """
