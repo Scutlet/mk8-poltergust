@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import io
-from itertools import count
+import json
 from typing import ClassVar
 
 from PIL import Image, ImageOps
@@ -9,7 +9,7 @@ import requests
 
 
 class ModDownloadException(Exception):
-    """ TODO """
+    """ Raised when something goes wrong when downloading a mod. """
 
 class MK8ModSite(ABC):
     id: int
@@ -22,31 +22,40 @@ class MK8ModSite(ABC):
 
     @abstractmethod
     def get_api_endpoint(self, identifier: str) -> str:
-        """ TODO """
+        """
+            Gets the API endpoint to fetch mod data for a mod with a given identifier.
+            This identifier can, for example, be the mod_id or a mod's (unique) title
+        """
 
     def clean_json(self, json_res: dict) -> dict:
-        """ TODO """
+        """
+            Cleans up the json response from the request to the site's API endpoint.
+            This cleaned version is passed to the `validate` and `get_foo` methods.
+        """
         return json_res
 
     @abstractmethod
     def validate(self, clean_json: dict) -> None:
-        """ TODO """
+        """
+            Validates the returned json. Can, for example, check whether a mod is
+            for the correct game.
+        """
 
     @abstractmethod
     def get_mod_id(self, identifier: str, clean_json: dict) -> int:
-        """ TODO """
+        """ Gets the mod id of the response. """
 
     @abstractmethod
     def get_mod_name(self, clean_json: dict) -> str:
-        """ TODO """
+        """ Gets the mod name of the response. """
 
     @abstractmethod
     def get_mod_author(self, clean_json: dict) -> str:
-        """ TODO """
+        """ Gets the mod's author(s) of the response. """
 
     @abstractmethod
     def get_mod_preview_image(self, clean_json: dict) -> str:
-        """ TODO """
+        """ Gets a preview image of the mod of the response. """
 
 class CTWikiSite(MK8ModSite):
     id = 0
@@ -74,12 +83,14 @@ class CTWikiSite(MK8ModSite):
         return next(iter(pages.values()))
 
     def validate(self, clean_json: dict) -> None:
-        # Must have title
-        clean_json['title']
-
         # Page doesn't exist (invalid URL)
-        if clean_json['pageid'] < 0:
+        if clean_json.get('pageid', -1) < 0:
             raise ModDownloadException("Mod not found. Is the URL correct?")
+
+        # Must have params
+        for val in ('title', 'pageid'):
+            if val not in clean_json:
+                raise ModDownloadException(f"Missing {val} in {self.name} API ({self.domain}). The API might have changed!")
 
         # Incorrect Category
         #   Must be one of: Track/Retro, Track/Custom, Track/Edit, Track/Import
@@ -152,7 +163,7 @@ class GameBananaSite(MK8ModSite):
     name = "GameBanana"
     domain = "https://gamebanana.com/mods/"
 
-    api_endpoint = "https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&return_keys=1&format=json_min&itemid=%(mod_id)s&fields=authors,creator,date,description,name,Owner().name,Preview().sSubFeedImageUrl(),screenshots,Credits().ssvAuthorNames(),Credits().aAuthors(),catid,Category().name,Withhold().bIsWithheld(),RootCategory().name,RootCategory().id,is_obsolete,Game().name,Trash().bIsTrashed()"
+    api_endpoint = "https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&return_keys=1&format=json_min&itemid=%(mod_id)s&fields=authors,name,Owner().name,Preview().sSubFeedImageUrl(),screenshots,Credits().aAuthors(),Category().name,Withhold().bIsWithheld(),RootCategory().name,Game().name,Trash().bIsTrashed()"
 
     def get_api_endpoint(self, identifier: str) -> str:
         if identifier.isdigit():
@@ -164,29 +175,26 @@ class GameBananaSite(MK8ModSite):
             raise ModDownloadException("Mod not found. Is the URL correct?")
 
         # Must have params
-        clean_json['name']
-        clean_json['Credits().aAuthors()']
-        clean_json['Owner().name']
-        clean_json['Preview().sSubFeedImageUrl()']
-        clean_json['screenshots']
-        clean_json['name']
+        for val in ('name', 'Credits().aAuthors()', 'Owner().name', 'Preview().sSubFeedImageUrl()', 'screenshots', 'Withhold().bIsWithheld()', 'Trash().bIsTrashed()', 'Game().name', 'RootCategory().name', 'Category().name'):
+            if val not in clean_json:
+                raise ModDownloadException(f"Missing {val} in {self.name} API ({self.domain}). The API might have changed!")
 
-        if clean_json.get("Withhold().bIsWithheld()", True):
+        if clean_json["Withhold().bIsWithheld()"]:
             raise ModDownloadException("Mod is withheld. Please fix the issues highlighed by the GameBanana moderators first.")
 
-        if clean_json.get("Trash().bIsTrashed()", True):
+        if clean_json["Trash().bIsTrashed()"]:
             raise ModDownloadException("Mod is trashed. Please untrash the mod.")
 
-        if clean_json.get("Game().name", None)  == "Mario Kart 8 Deluxe":
+        if clean_json["Game().name"]  == "Mario Kart 8 Deluxe":
             raise ModDownloadException("Mario Kart 8 Deluxe mods are not supported.")
 
-        if clean_json.get("Game().name", None) not in ("Mario Kart 8",):
+        if clean_json["Game().name"] not in ("Mario Kart 8",):
             raise ModDownloadException("Mod is not a Mario Kart 8 mod.")
 
-        if clean_json.get("RootCategory().name", None) != "Courses":
+        if clean_json["RootCategory().name"] != "Courses":
             raise ModDownloadException("Mod is not a custom track.")
 
-        if clean_json.get("Category().name", None) not in ("Courses", "Custom Tracks"):
+        if clean_json["Category().name"] not in ("Courses", "Custom Tracks"):
             raise ModDownloadException("Mod cannot be a texture hack or battle course.")
 
     def get_mod_id(self, identifier: str, clean_json: dict) -> int:
@@ -210,6 +218,12 @@ class GameBananaSite(MK8ModSite):
         return clean_json['Owner().name']
 
     def get_mod_preview_image(self, clean_json: dict) -> str:
+        # See if a specific image was marked as a preview
+        if 'screenshots' in clean_json:
+            screenshots = json.loads(clean_json['screenshots'])
+            for screenshot in screenshots:
+                if "course image" in screenshot.get('_sCaption', '').lower():
+                    return "https://images.gamebanana.com/img/ss/mods/" + screenshot["_sFile"]
         return clean_json['Preview().sSubFeedImageUrl()']
 
 MOD_SITES: tuple[MK8ModSite] = (CTWikiSite(), GameBananaSite())
@@ -225,7 +239,7 @@ class MK8ModVersion:
 
 @dataclass
 class MK8CustomTrack:
-    """ TODO """
+    """ Dataclass for a Mario Kart 8 Custom Track """
     name: str
     mod_site: MK8ModSite
     mod_id: int
@@ -240,52 +254,49 @@ class MK8CustomTrack:
         return f"[{self.mod_site}] {self.name}"
 
 
-
 class PoltergustDownloader:
-    """ TODO """
+    """ Connects to the API endpoint of `MOD_SITES` and fetches a mod's information from them. """
+    TIMEOUT = 3.05
 
     def download(self, site_url: str) -> MK8CustomTrack:
-        """ TODO """
-        site, identifier, api_endpoint = self.get_api_endpoint(site_url)
+        """
+            Fetches mod data from a given site_url, raising a ModDownloadException if
+            that is not possible.
+        """
+        site, identifier, api_endpoint = self.get_mod_site_for_url(site_url)
         if api_endpoint is None:
-            raise ModDownloadException("Invalid Domain! Mods cannot be downloaded from the given website. Please check the URL for typos.")
-        print(api_endpoint)
-        print("start fetching!")
-
-        res = requests.get(api_endpoint)
-        if res.status_code != 200:
-            raise ModDownloadException(f"Could not reach {site.name}. The site may be down or you may not have an Internet connection.")
+            raise ModDownloadException("Invalid Domain! Mods cannot be downloaded from the given URL. Please check the URL for typos.")
 
         try:
-            clean_json = site.clean_json(res.json())
-            site.validate(clean_json)
+            print(f"Making request to: {api_endpoint}")
+            res = requests.get(api_endpoint, timeout=self.TIMEOUT)
+            print("Request done!")
+        except requests.ConnectTimeout as e:
+            raise ModDownloadException(f"Could not reach {site.name}. The site may be down or you may not have an Internet connection.") from e
 
-            print(site.get_mod_id(identifier, clean_json))
-            print(site.get_mod_name(clean_json))
-            print(site.get_mod_author(clean_json))
-            print(site.get_mod_preview_image(clean_json))
+        if res.status_code != 200:
+            raise ModDownloadException(f"Something went wrong when fetching the mod data from {site.name}: HTTP {res.status_code}. Please try again later.")
 
-            mod = MK8CustomTrack(
-                name=site.get_mod_name(clean_json),
-                author=site.get_mod_author(clean_json),
-                mod_id=site.get_mod_id(identifier, clean_json),
-                mod_site=site,
-                preview_image=site.get_mod_preview_image(clean_json)
-            )
-            print(mod.author)
-            return mod
+        clean_json = site.clean_json(res.json())
+        site.validate(clean_json)
 
-        except ModDownloadException as e:
-            print(e)
-            # TODO: Error handling
-            return
-        except KeyError as e:
-            print(e)
-            # TODO: Error handling
-            return
+        mod = MK8CustomTrack(
+            name=site.get_mod_name(clean_json),
+            author=site.get_mod_author(clean_json),
+            mod_id=site.get_mod_id(identifier, clean_json),
+            mod_site=site,
+            preview_image=site.get_mod_preview_image(clean_json)
+        )
+        return mod
 
-    def get_api_endpoint(self, site_url: str) -> tuple[MK8ModSite, str, str]:
-        """ TODO """
+    def get_mod_site_for_url(self, site_url: str) -> tuple[MK8ModSite, str, str]:
+        """
+            Gets a (mod_site, identifier, api_endpoint) triple for a given URL.
+            The triple represents a site with a corresponding API endpoint that
+            can be used to fetch data from the mod located at the site URL.
+            The identifier represents what is injected in the api_endpoint, and is
+            extracted from the site URL.
+        """
         for site in MOD_SITES:
             if site_url.startswith(site.domain):
                 identifier = site_url[len(site.domain):].replace("#", "/").rsplit("/")[0]
@@ -295,15 +306,14 @@ class PoltergustDownloader:
         return None, None, None
 
     def download_preview_image(self, preview_url: str, output_path: str) -> None:
-        """ TODO """
-        with requests.get(preview_url, stream=True) as res:
-            print(res.status_code)
+        """ Downloads a preview image from a given URL to a given path on the system """
+        with requests.get(preview_url, stream=True, timeout=self.TIMEOUT) as res:
             if res.status_code != 200:
                 raise ModDownloadException(f"Could not download {preview_url}: HTTP {res.status_code}. Please check your Internet connection.")
 
             # Check image size (assumes this is actually correct)
-            if int(res.headers['content-length']) > 100000000:
-                raise ModDownloadException("Image preview size too large. Max size is 50Mb.")
+            if int(res.headers['content-length']) > 5*1000*1000:
+                raise ModDownloadException(f"Image preview size too large: {res.headers['content-length']}. Max size is 50Mb.")
 
             with io.BytesIO(res.content) as f:
                 with Image.open(f) as img:
@@ -312,4 +322,3 @@ class PoltergustDownloader:
                     # Discard alpha channel (if present)
                     img = img.convert('RGB')
                     img.save(output_path)
-                    return

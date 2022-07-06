@@ -45,7 +45,6 @@ class MK8CTStorage:
 
     def add_or_update_mod(self, mod: MK8CustomTrack) -> None:
         """ TODO """
-        print(mod.author)
         self.connection.execute('''INSERT OR REPLACE INTO mods (id, mod_site, author, name, last_updated_at) VALUES (:mod_id, :mod_site, :author, :name, :last_updated_at)''', {
             "mod_id": mod.mod_id,
             "mod_site": mod.mod_site.id,
