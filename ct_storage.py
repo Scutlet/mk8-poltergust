@@ -10,7 +10,9 @@ class MK8CTStorage:
     """ Stores Custom Track information on disc """
     CACHE_PATH = "cache"
     DB_NAME = "modinfos.db"
-    MOD_PREVIEW_FILENAME = "preview_%(mod_site)s_%(mod_id)s"
+
+    MOD_PREVIEW_FILENAME = "preview_%(mod_site_id)s_%(mod_id)s.jpeg"
+    MOD_PREVIEW_PATH = os.path.join(CACHE_PATH, MOD_PREVIEW_FILENAME)
 
     def __init__(self):
         self._setup()
@@ -43,9 +45,11 @@ class MK8CTStorage:
 
     def add_or_update_mod(self, mod: MK8CustomTrack) -> None:
         """ TODO """
-        self.connection.execute('''INSERT OR REPLACE INTO mods (id, mod_site, name, last_updated_at) VALUES (:mod_id, :mod_site, :name, :last_updated_at)''', {
+        print(mod.author)
+        self.connection.execute('''INSERT OR REPLACE INTO mods (id, mod_site, author, name, last_updated_at) VALUES (:mod_id, :mod_site, :author, :name, :last_updated_at)''', {
             "mod_id": mod.mod_id,
             "mod_site": mod.mod_site.id,
+            "author": mod.author,
             "name": mod.name,
             "last_updated_at": datetime.now().isoformat()
         })

@@ -81,9 +81,19 @@ class PoltergustController:
     def add_ct(self):
         """ Opens up a new UI to fetch a new CT """
         ct_view = PoltergustAddCTView(self.view.root)
-        ct_view.fetch_button.config(command=lambda: self.downloader.download(ct_view.ct_url.get()))
+        ct_view.fetch_button.config(command=lambda: self.download_ct_infos(ct_view.ct_url.get()))
         # TODO: Get <Enter> key to work
         # self.view.root.bind('<Return>', lambda: self.downloader.download(ct_view.ct_url.get()))
+
+    def download_ct_infos(self, url: str) -> None:
+        """ TODO """
+        mod = self.downloader.download(url)
+        if mod.preview_image is not None:
+            mod.preview_image = self.downloader.download_preview_image(mod.preview_image, self.db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id})
+
+        self.db.add_or_update_mod(mod)
+        self.db.save_changes()
+
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """

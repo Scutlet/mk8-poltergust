@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+import io
 from itertools import count
+from typing import ClassVar
 
-from PIL import Image
+from PIL import Image, ImageOps
 import requests
 
 
@@ -47,7 +49,7 @@ class MK8ModSite(ABC):
         """ TODO """
 
 class CTWikiSite(MK8ModSite):
-    id: 0
+    id = 0
     name = "CT Wiki"
     domain = "https://mk8.tockdom.com/wiki/"
 
@@ -102,22 +104,24 @@ class CTWikiSite(MK8ModSite):
             return title.rsplit(" (")[0]
         return title
 
-    def get_author_from_user_link_template(self, templates_json: list) -> str|None:
+    def get_author_from_user_link_template(self, templates_json: list) -> list[str]:
         """ Fetches the User-XXXX-Link template if it exists """
+        authors = []
+        # Loop over all templates (there might be multiple authors)
         for template in templates_json:
             title: str = template.get('title')
             # Check template name
             if title.startswith("Template:User-") and title.endswith("-Link"):
                 # Extract author
-                return title[len("Template:User-"):-len("-Link")]
-        return None
+                authors.append(title[len("Template:User-"):-len("-Link")])
+        return authors
 
     def get_mod_author(self, clean_json: dict) -> str:
         # Fetch author from 'User-<author>-Link' template
         if 'templates' in clean_json:
             author = self.get_author_from_user_link_template(clean_json['templates'])
-            if author is not None:
-                return author
+            if author:
+                return '& '.join(author)
 
         # Fallback to page title (if available)
         if self.mod_has_category(["Category:Track/Retro"], clean_json.get('categories', [])):
@@ -128,10 +132,23 @@ class CTWikiSite(MK8ModSite):
         return None
 
     def get_mod_preview_image(self, clean_json: dict) -> str:
-        return None
+        image_url = None
+        for image_data in clean_json.get('images', []):
+            title: str = image_data.get('title', '')
+            # Simply select the first image that can be found
+            image_url = title
+            # Check image name
+            if "course image" in title.lower():
+                # Special override found
+                image_url = title
+                break
+
+        if image_url is not None:
+            # Use special URL to find the url of the image
+            return f"{self.domain}Special:FilePath/{image_url[len('File:'):]}"
 
 class GameBananaSite(MK8ModSite):
-    id: 1
+    id = 1
     name = "GameBanana"
     domain = "https://gamebanana.com/mods/"
 
@@ -180,15 +197,20 @@ class GameBananaSite(MK8ModSite):
 
     def get_mod_author(self, clean_json: dict) -> str:
         # Fetch override from credits list (if available)
+        authors = []
         for credit in clean_json['Credits().aAuthors()']:
-            if credit[1].lower() in ("original author", "original creator", "created the track"):
-                return credit[0]
+            if credit[1].lower() in ("original author", "original creator", "created the track", "main author", "main creator"):
+                # There might be multiple main authors, so don't quit yet
+                authors.append(credit[0])
+
+        if authors:
+            return '& '.join(authors)
 
         # Otherwise just return the uploader
         return clean_json['Owner().name']
 
     def get_mod_preview_image(self, clean_json: dict) -> str:
-        return None
+        return clean_json['Preview().sSubFeedImageUrl()']
 
 MOD_SITES: tuple[MK8ModSite] = (CTWikiSite(), GameBananaSite())
 
@@ -203,9 +225,16 @@ class MK8ModVersion:
 
 @dataclass
 class MK8CustomTrack:
+    """ TODO """
     name: str
     mod_site: MK8ModSite
     mod_id: int
+
+    author: str|None = None
+    preview_image: str|None = None
+
+    # Preview Image size
+    PREVIEW_SIZE: ClassVar[tuple[int, int]] = (288, 162)
 
     def __str__(self):
         return f"[{self.mod_site}] {self.name}"
@@ -214,6 +243,7 @@ class MK8CustomTrack:
 
 class PoltergustDownloader:
     """ TODO """
+
     def download(self, site_url: str) -> MK8CustomTrack:
         """ TODO """
         site, identifier, api_endpoint = self.get_api_endpoint(site_url)
@@ -235,6 +265,16 @@ class PoltergustDownloader:
             print(site.get_mod_author(clean_json))
             print(site.get_mod_preview_image(clean_json))
 
+            mod = MK8CustomTrack(
+                name=site.get_mod_name(clean_json),
+                author=site.get_mod_author(clean_json),
+                mod_id=site.get_mod_id(identifier, clean_json),
+                mod_site=site,
+                preview_image=site.get_mod_preview_image(clean_json)
+            )
+            print(mod.author)
+            return mod
+
         except ModDownloadException as e:
             print(e)
             # TODO: Error handling
@@ -253,3 +293,23 @@ class PoltergustDownloader:
                 if api_endpoint is not None:
                     return site, identifier, api_endpoint
         return None, None, None
+
+    def download_preview_image(self, preview_url: str, output_path: str) -> None:
+        """ TODO """
+        with requests.get(preview_url, stream=True) as res:
+            print(res.status_code)
+            if res.status_code != 200:
+                raise ModDownloadException(f"Could not download {preview_url}: HTTP {res.status_code}. Please check your Internet connection.")
+
+            # Check image size (assumes this is actually correct)
+            if int(res.headers['content-length']) > 100000000:
+                raise ModDownloadException("Image preview size too large. Max size is 50Mb.")
+
+            with io.BytesIO(res.content) as f:
+                with Image.open(f) as img:
+                    # Resize and crop image to expected size
+                    img = ImageOps.fit(img, MK8CustomTrack.PREVIEW_SIZE)
+                    # Discard alpha channel (if present)
+                    img = img.convert('RGB')
+                    img.save(output_path)
+                    return
