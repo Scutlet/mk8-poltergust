@@ -149,7 +149,7 @@ class CTWikiSite(MK8ModSite):
             # Simply select the first image that can be found
             image_url = title
             # Check image name
-            if "course image" in title.lower():
+            if any(substr in title.lower() for substr in ("course image", "course icon", "menu image", "menu icon")):
                 # Special override found
                 image_url = title
                 break
@@ -222,7 +222,7 @@ class GameBananaSite(MK8ModSite):
         if 'screenshots' in clean_json:
             screenshots = json.loads(clean_json['screenshots'])
             for screenshot in screenshots:
-                if "course image" in screenshot.get('_sCaption', '').lower():
+                if any(substr in screenshot.get('_sCaption', '').lower() for substr in ("course image", "course icon", "menu image", "menu icon")):
                     return "https://images.gamebanana.com/img/ss/mods/" + screenshot["_sFile"]
         return clean_json['Preview().sSubFeedImageUrl()']
 

@@ -45,7 +45,6 @@ class MK8GhostFilenameFormat:
         (2, "lap5_seconds", int_lap),
         (3, "lap5_ms", int_lap),
         (40, "playername", str_utf16be),
-        # lambda name: , lambda name: ),
         (2, "flag_id", int),
         (2, "motion_control_flag", int),
         (4, None, None), # 0000 (or 00) Padding.
