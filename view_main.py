@@ -131,7 +131,7 @@ class PoltergustMainView:
         summaryframe.grid(column=0, row=1, sticky=(N, W, E, S), padx=(0, 3))
 
         # Character
-        self.character_canvas = Canvas(summaryframe, width=self.CHARACTER_SIZE[0], height=self.CHARACTER_SIZE[1])
+        self.character_canvas = Canvas(summaryframe, width=self.CHARACTER_SIZE[0], height=self.CHARACTER_SIZE[1], borderwidth=0, highlightthickness=0)
         self.character_canvas.grid(column=0, row=0, rowspan=2, sticky=(N,W,E,S))
         self.character_tip = Hovertip(self.character_canvas, 'PLACEHOLDER', hover_delay=1000)
 
@@ -141,7 +141,7 @@ class PoltergustMainView:
         playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E), padx=(0, 3))
 
         # Flag
-        self.flag_canvas = Canvas(summaryframe, width=self.FLAG_SIZE[0], height=self.FLAG_SIZE[1])
+        self.flag_canvas = Canvas(summaryframe, width=self.FLAG_SIZE[0], height=self.FLAG_SIZE[1], borderwidth=0, highlightthickness=0)
         self.flag_canvas.grid(column=1, row=1)
         self.flag_tip = Hovertip(self.flag_canvas, 'PLACEHOLDER', hover_delay=1000)
 
@@ -161,8 +161,8 @@ class PoltergustMainView:
         # Trackinfo frame
         trackframe = ttk.LabelFrame(self.dataframe)
         trackframe.grid(column=1, row=1, sticky=(N, W, E, S))
-        self.track_canvas = Canvas(trackframe, width=self.TRACK_SIZE[0], height=self.TRACK_SIZE[1])
-        self.track_canvas.grid(column=0, row=0, sticky=(N,W,E,S), pady=(7, 10))
+        self.track_canvas = Canvas(trackframe, width=self.TRACK_SIZE[0], height=self.TRACK_SIZE[1], borderwidth=0, highlightthickness=0)
+        self.track_canvas.grid(column=0, row=0, sticky=(N,W,E,S), pady=(7, 10), padx=(4, 4))
         self.track_tip = Hovertip(self.track_canvas, 'PLACEHOLDER', hover_delay=1000)
 
         self.track = StringVar()
@@ -319,6 +319,7 @@ class PoltergustMainView:
         img = mapper.index_to_image(index, resize_to=resize_to)
         self_img_name = str(canvas)
         setattr(self, self_img_name, ImageTk.PhotoImage(img))
+        canvas.delete("all")
         canvas.create_image(0, 0, image=getattr(self, self_img_name), anchor=NW)
 
     def generate_laptimes_entries(self, frame, amount):
@@ -351,8 +352,8 @@ class PoltergustMainView:
         vehicleframe = ttk.LabelFrame(frame)
         vehicleframe.grid(column=5, row=i, sticky=(N, W, E, S), padx=10, pady=1)
 
-        canvas = Canvas(vehicleframe, width=self.VEHICLE_PART_SIZE[0], height=self.VEHICLE_PART_SIZE[1])
-        canvas.grid(column=0, row=0, sticky=(N,W,E,S))
+        canvas = Canvas(vehicleframe, width=self.VEHICLE_PART_SIZE[0], height=self.VEHICLE_PART_SIZE[1], borderwidth=0, highlightthickness=0)
+        canvas.grid(column=0, row=0, sticky=(N,W,E,S), padx=(4, 4))
 
         tip = Hovertip(canvas, 'PLACEHOLDER', hover_delay=1000)
 

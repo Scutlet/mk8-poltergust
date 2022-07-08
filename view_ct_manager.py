@@ -1,12 +1,11 @@
-from dataclasses import dataclass, field
-from itertools import count
+from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk
+import webbrowser
 
-from enum import Enum
 from PIL import Image, ImageTk
 
-from downloader import MK8CustomTrack, MK8ModSite, MOD_SITES
+from downloader import MK8CustomTrack, MOD_SITES
 from utils import PoltergustPopup
 
 
@@ -16,7 +15,7 @@ class PoltergustCTManagerView(PoltergustPopup):
     """
     window_title = "Poltergust - Custom Track Manager"
     window_width = 300
-    window_height = 200
+    window_height = 400
 
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}
@@ -24,13 +23,30 @@ class PoltergustCTManagerView(PoltergustPopup):
     def __init__(self, master: Tk, track_list: list[MK8CustomTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
+        self._mod_site_image_cache = [ImageTk.PhotoImage(site.icon) for site in MOD_SITES]
+
+        # Top frame
+        top = Frame(self)
+        top.pack(padx=5, pady=6, fill=X)
+
+        # Add CT Box
+        self._plus_img = PhotoImage(file='resources/icons/plus-solid.png')
+        self.add_button = Button(top, text="Add a Mod", image=self._plus_img, compound=LEFT)
+        self.add_button.pack(side=LEFT)
+
         # Search Box
         self.search_value = StringVar()
         self.search_value.trace_add("write", lambda var, index, mode: self.reload_list())
-        ttk.Entry(self, width=16, textvariable=self.search_value).pack()
+        ttk.Entry(top, width=25, textvariable=self.search_value).pack(side=RIGHT)
+
+        # Search Icon
+        self._search_img = PhotoImage(file='resources/icons/magnifying-glass-solid.png')
+        canvas = Canvas(top, width=10, height=10, borderwidth=0, highlightthickness=0)
+        canvas.create_image(0, 0, image=self._search_img, anchor=NW)
+        canvas.pack(side=RIGHT, padx=(0, 4))
 
         # Only canvas elements are scrollable
-        self.canvas = Canvas(self, bd=0)
+        self.canvas = Canvas(self, bd=0, borderwidth=0, highlightthickness=0)
         vsb = Scrollbar(self, command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=vsb.set)
 
@@ -79,13 +95,46 @@ class PoltergustCTManagerView(PoltergustPopup):
     def _build_track_list(self, track_list: list[MK8CustomTrack]) -> list[tuple[MK8CustomTrack, Widget]]:
         """ TODO """
         track_widgets = []
+        imgs = []
 
         for track in sorted(track_list, key=lambda item: item.name):
             frame = ttk.LabelFrame(self.track_frame)
+            canvas = Canvas(frame, width=96, height=54, borderwidth=0, highlightthickness=0)
+            img = None
+            if track.preview_image is not None:
+                try:
+                    img = Image.open(track.preview_image)
+                    img = img.resize(size=(96, 54))
+                except FileNotFoundError as e:
+                    pass
+
+            if img is None:
+                # Select fallback image
+                img = track.mod_site.icon
+                img = img.resize(size=(24, 24))
+
+            img = ImageTk.PhotoImage(img)
+            imgs.append(img)
+
+            canvas.create_image(96/2, 54/2, image=img, anchor=CENTER)
+            canvas.pack(side=LEFT, padx=(0, 4))
+
+
             ttk.Label(frame, wraplength=135, text=track.name).pack(side=TOP, fill='x')
-            ttk.Label(frame, wraplength=135, text=track.mod_site).pack(side=LEFT)
-            ttk.Label(frame, wraplength=135, text=track.mod_id).pack(side=LEFT)
+            ttk.Label(frame, wraplength=135, text=track.author).pack(side=LEFT)
+            mod_id_lb = Label(frame, wraplength=135, text=f" {track.mod_id}", image=self._mod_site_image_cache[track.mod_site.id], compound=LEFT, cursor="hand2", fg="blue")
+            mod_id_lb.place(relx=0.5, rely=0.5, anchor=CENTER)
+            mod_id_lb.pack(side=RIGHT)
+
+            # Tooltip and URL
+            site_url = track.mod_site.get_url_for_mod_id(track.mod_id)
+            mod_id_lb.bind("<Button-1>",
+                lambda e, site_url=site_url: webbrowser.open(site_url)
+            )
+            Hovertip(mod_id_lb, f"{track.mod_site} - {site_url}", hover_delay=1000)
+
             track_widgets.append((track, frame))
+        self._previews = imgs
         return track_widgets
 
     def reload_list(self):

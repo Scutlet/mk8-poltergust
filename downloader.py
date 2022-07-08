@@ -2,10 +2,13 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import io
 import json
+from tkinter import PhotoImage
 from typing import ClassVar
 
 from PIL import Image, ImageOps
 import requests
+
+from utils import get_resource_path
 
 
 class ModDownloadException(Exception):
@@ -15,10 +18,16 @@ class MK8ModSite(ABC):
     id: int
     name: str
     domain: str
-    icon: Image.Image|None = None
+    icon: Image.Image
+
+    mod_id_url = "%(mod_id)s"
 
     def __str__(self):
         return self.name
+
+    def get_url_for_mod_id(self, mod_id: int) -> str:
+        """ TODO """
+        return self.mod_id_url % {'mod_id': mod_id}
 
     @abstractmethod
     def get_api_endpoint(self, identifier: str) -> str:
@@ -61,7 +70,9 @@ class CTWikiSite(MK8ModSite):
     id = 0
     name = "CT Wiki"
     domain = "https://mk8.tockdom.com/wiki/"
+    icon = Image.open(get_resource_path("resources/favicons/favicon_ctwiki.png")).resize(size=(16, 16))
 
+    mod_id_url = "https://mk8.tockdom.com/w/index.php?curid=%(mod_id)s"
     shared_api_endpoint = "https://mk8.tockdom.com/w/api.php?action=query&prop=images|templates|categories&clcategories=Category:Track/Retro|Category:Track/Custom|Category:Track/Edit|Category:Track/Import&tldir=descending&format=json&format=json&%s"
 
     int_api_endpoint = shared_api_endpoint % "pageids=%(mod_id)s"
@@ -162,7 +173,9 @@ class GameBananaSite(MK8ModSite):
     id = 1
     name = "GameBanana"
     domain = "https://gamebanana.com/mods/"
+    icon = Image.open(get_resource_path("resources/favicons/favicon_gb.png")).resize(size=(16, 16))
 
+    mod_id_url = "https://gamebanana.com/mods/%(mod_id)s"
     api_endpoint = "https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&return_keys=1&format=json_min&itemid=%(mod_id)s&fields=authors,name,Owner().name,Preview().sSubFeedImageUrl(),screenshots,Credits().aAuthors(),Category().name,Withhold().bIsWithheld(),RootCategory().name,Game().name,Trash().bIsTrashed()"
 
     def get_api_endpoint(self, identifier: str) -> str:

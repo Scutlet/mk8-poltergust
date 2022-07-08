@@ -2,7 +2,7 @@ import os
 from tkinter import *
 from tkinter import messagebox
 from ct_storage import MK8CTStorage
-from downloader import PoltergustDownloader
+from downloader import ModDownloadException, PoltergustDownloader
 
 from gamedata import MK8GhostType
 from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
@@ -43,7 +43,7 @@ class PoltergustController:
         # self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root))
 
         # CT Manager
-        self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=lambda: PoltergustCTManagerView(self.view.root, self.db.get_mods()))
+        self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=self.open_ct_manager)
 
         self.close_ghostfile()
 
@@ -78,22 +78,31 @@ class PoltergustController:
         # Remove Preview
         self.view.dataframe.grid_remove()
 
-    def add_ct(self):
+    def add_ct(self, view: Toplevel):
         """ Opens up a new UI to fetch a new CT """
-        ct_view = PoltergustAddCTView(self.view.root)
-        ct_view.fetch_button.config(command=lambda: self.download_ct_infos(ct_view.ct_url.get()))
+        ct_view = PoltergustAddCTView(view)
+        ct_view.fetch_button.config(command=lambda: self.download_ct_infos(ct_view.ct_url.get(), ct_view))
         # TODO: Get <Enter> key to work
         # self.view.root.bind('<Return>', lambda: self.downloader.download(ct_view.ct_url.get()))
 
-    def download_ct_infos(self, url: str) -> None:
+    def open_ct_manager(self):
         """ TODO """
-        mod = self.downloader.download(url)
-        if mod.preview_image is not None:
-            mod.preview_image = self.downloader.download_preview_image(mod.preview_image, self.db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id})
+        manager_view = PoltergustCTManagerView(self.view.root, self.db.get_mods())
+        manager_view.add_button.config(command=lambda: self.add_ct(manager_view))
 
-        self.db.add_or_update_mod(mod)
-        self.db.save_changes()
+    def download_ct_infos(self, url: str, view: Toplevel) -> None:
+        """ Downloads info for a mod located at a given URL. """
+        try:
+            mod = self.downloader.download(url)
+            if mod.preview_image is not None:
+                mod.preview_image = self.downloader.download_preview_image(mod.preview_image, self.db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id})
 
+            self.db.add_or_update_mod(mod)
+            self.db.save_changes()
+            messagebox.showinfo("Download Complete!", f"Mod information was downloaded successfully!\nName: {mod.name}\nAuthor(s): {mod.author}\nSite: {mod.mod_site}", parent=view)
+        except ModDownloadException as e:
+            print(e)
+            messagebox.showerror("Download Error!", str(e), parent=view)
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """

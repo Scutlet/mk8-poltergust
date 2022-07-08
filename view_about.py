@@ -16,7 +16,7 @@ class PoltergustAboutView(PoltergustPopup):
         super().__init__(master, *args, **kwargs)
 
         with Image.open(get_resource_path("resources/scutlet.png")) as img:
-            scutlet_canvas = Canvas(self, width=64, height=64)
+            scutlet_canvas = Canvas(self, width=64, height=64, borderwidth=0, highlightthickness=0)
             scutlet_canvas.grid(column=1, row=1, sticky=(N,W,E,S))
             self.scutlet_img = ImageTk.PhotoImage(img.resize((64, 64)))
             scutlet_canvas.create_image(0, 0, image=self.scutlet_img, anchor=NW)

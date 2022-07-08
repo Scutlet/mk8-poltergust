@@ -41,7 +41,12 @@ class MK8CTStorage:
 
     def get_mods(self) -> Iterable[MK8CustomTrack]:
         """ TODO """
-        return map(lambda row: MK8CustomTrack(row[1], MOD_SITES[row[3]], row[0]), self.connection.execute('SELECT id, name, author, mod_site FROM mods'))
+        return map(lambda row: self._get_mod_from_db_infos(row[0], row[1], row[2], row[3]), self.connection.execute('SELECT id, name, author, mod_site FROM mods'))
+
+    def _get_mod_from_db_infos(self, mod_id, name, author, mod_site_id) -> MK8CustomTrack:
+        """ TODO """
+        preview_image = self.MOD_PREVIEW_PATH % {'mod_id': mod_id, 'mod_site_id': mod_site_id}
+        return MK8CustomTrack(name, MOD_SITES[mod_site_id], mod_id, author, preview_image)
 
     def add_or_update_mod(self, mod: MK8CustomTrack) -> None:
         """ TODO """
