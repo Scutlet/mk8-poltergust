@@ -135,7 +135,12 @@ class MK8GhostFilenameParser:
 
     def parse_str_utf16be(self, hex: str) -> str:
         """ Parses a utf-16-be encoded string """
-        return bytes.fromhex(hex).split(b'\x00\x00', 1)[0].decode('utf-16-be')
+        name = bytes.fromhex(hex).split(b'\x00\x00', 1)[0]
+        if len(name) % 2 == 1:
+            # Embedded Mii data ends in a non utf-8 character,
+            #   or is in little endian.
+            name += b'\x00'
+        return name.decode('utf-16-be')
 
     def parse_game_version(self, filename: str) -> str:
         """ Parses game version from filename """

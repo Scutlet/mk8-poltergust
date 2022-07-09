@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
-from utils import PoltergustPopup
+from utils import PoltergustPopup, WrappingLabel
 from downloader import MOD_SITES
 
 
@@ -20,8 +20,8 @@ class PoltergustAddCTView(PoltergustPopup):
 
         # Info
         ttk.Label(self, text="Fetch Custom Track Info", font=14).pack(padx=5, pady=5)
-        ttk.Label(self, wraplength=self.window_width, text="In order to link a ghost file to a mod, Poltergust first needs to add it to its local mod repository. To do so, enter the URL to the mod's (GameBanana or CT Wiki) page.").pack(fill=X, padx=5)
-        ttk.Label(self, wraplength=self.window_width, text="Note: Poltergust automatically adds mod information embedded into ghost files.").pack(fill=X, padx=5)
+        WrappingLabel(self, text="In order to link a ghost file to a mod, Poltergust first needs to add it to its local mod repository. To do so, enter the URL to the mod's (GameBanana or CT Wiki) page.").pack(fill=X, padx=5)
+        WrappingLabel(self, text="Note: Poltergust automatically adds mod information embedded into ghost files to its local mod repository.").pack(fill=X, padx=5)
 
         ttk.Separator(self, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(8, 4))
 

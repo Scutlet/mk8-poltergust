@@ -1,21 +1,24 @@
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk
+from tkinter.font import Font, ITALIC
 import webbrowser
 
 from PIL import Image, ImageTk
 
 from downloader import MK8CustomTrack, MOD_SITES
-from utils import PoltergustPopup
+from utils import PoltergustPopup, WrappingLabel
 
 
 class PoltergustCTManagerView(PoltergustPopup):
     """
         Displays a window of all cached CTs.
     """
-    window_title = "Poltergust - Custom Track Manager"
-    window_width = 300
+    window_title = "Poltergust - Custom Track Database"
+    window_width = 310
     window_height = 400
+
+    BASE_FONT = "TkDefaultFont"
 
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}
@@ -23,6 +26,10 @@ class PoltergustCTManagerView(PoltergustPopup):
     def __init__(self, master: Tk, track_list: list[MK8CustomTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
+        self.ITALICS_FONT = Font(font=self.BASE_FONT)
+        self.ITALICS_FONT.config(slant=ITALIC)
+
+        # Cache mod site icons so they're not garbage collected
         self._mod_site_image_cache = [ImageTk.PhotoImage(site.icon) for site in MOD_SITES]
 
         # Top frame
@@ -99,6 +106,8 @@ class PoltergustCTManagerView(PoltergustPopup):
 
         for track in sorted(track_list, key=lambda item: item.name):
             frame = ttk.LabelFrame(self.track_frame)
+
+            # Track Preview Image
             canvas = Canvas(frame, width=96, height=54, borderwidth=0, highlightthickness=0)
             img = None
             if track.preview_image is not None:
@@ -119,12 +128,20 @@ class PoltergustCTManagerView(PoltergustPopup):
             canvas.create_image(96/2, 54/2, image=img, anchor=CENTER)
             canvas.pack(side=LEFT, padx=(0, 4))
 
+            # Track Name
+            title_lb = WrappingLabel(frame, text=track.name)
+            title_lb.pack(side=TOP, fill=X, padx=(0, 2))
+            ttk.Separator(frame, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(2, 0))
 
-            ttk.Label(frame, wraplength=135, text=track.name).pack(side=TOP, fill='x')
-            ttk.Label(frame, wraplength=135, text=track.author).pack(side=LEFT)
+            # Track author
+            author_text = track.author or "Unknown Author"
+            author_lb = Label(frame, wraplength=135, text=author_text, font=self.ITALICS_FONT)
+            author_lb.pack(side=LEFT, anchor=N)
+
+            # ModId
             mod_id_lb = Label(frame, wraplength=135, text=f" {track.mod_id}", image=self._mod_site_image_cache[track.mod_site.id], compound=LEFT, cursor="hand2", fg="blue")
             mod_id_lb.place(relx=0.5, rely=0.5, anchor=CENTER)
-            mod_id_lb.pack(side=RIGHT)
+            mod_id_lb.pack(side=RIGHT, anchor=N)
 
             # Tooltip and URL
             site_url = track.mod_site.get_url_for_mod_id(track.mod_id)

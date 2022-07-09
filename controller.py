@@ -82,8 +82,7 @@ class PoltergustController:
         """ Opens up a new UI to fetch a new CT """
         ct_view = PoltergustAddCTView(view)
         ct_view.fetch_button.config(command=lambda: self.download_ct_infos(ct_view.ct_url.get(), ct_view))
-        # TODO: Get <Enter> key to work
-        # self.view.root.bind('<Return>', lambda: self.downloader.download(ct_view.ct_url.get()))
+        ct_view.bind('<Return>', lambda e: self.download_ct_infos(ct_view.ct_url.get(), ct_view))
 
     def open_ct_manager(self):
         """ TODO """

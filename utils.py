@@ -2,9 +2,6 @@ import os
 import sys
 from tkinter import *
 from tkinter import ttk
-from turtle import window_width
-
-from PIL import Image, ImageTk
 from ttkwidgets.autocomplete import AutocompleteCombobox
 
 def get_resource_path(relative_path):
@@ -17,6 +14,11 @@ def get_resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+class WrappingLabel(ttk.Label):
+    ''' A type of Label that automatically adjusts the wrap to the size '''
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bind('<Configure>', lambda e: self.config(wraplength=self.winfo_width()))
 
 class PoltergustPopup(Toplevel):
     """ General Popup class that takes control from the main window """
