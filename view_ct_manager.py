@@ -169,9 +169,16 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
 
     def add_mod(self, mod: MK8CustomTrack) -> None:
         """ Adds a mod to the view """
-        mod_widget = self._build_track_widget(mod)
+        # Remove existing mod from the list if the mod_id matches
+        indx = None
+        for i, (existing_mod, widget) in enumerate(self.track_widgets):
+            if mod.mod_site.id == existing_mod.mod_site.id and mod.mod_id == existing_mod.mod_id:
+                indx = i
+                widget.destroy()
+                break
+        del self.track_widgets[indx]
 
         # Insert into sorted list
+        mod_widget = self._build_track_widget(mod)
         bisect.insort(self.track_widgets, (mod, mod_widget), key=lambda pair: pair[0].name)
-
         self.reload_list()
