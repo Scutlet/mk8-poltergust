@@ -1,8 +1,10 @@
+import logging
 import os
 from tkinter import *
 from tkinter import messagebox
+from typing import Callable
 from ct_storage import MK8CTStorage
-from downloader import ModDownloadException, PoltergustDownloader
+from downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
 
 from gamedata import MK8GhostType
 from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
@@ -82,30 +84,38 @@ class PoltergustController:
         # Remove Preview
         self.view.dataframe.grid_remove()
 
-    def add_ct(self, view: Toplevel):
+    def add_ct(self, view: Toplevel, on_download_complete_fn: Callable[[MK8CustomTrack], None]|None=None) -> None:
         """ Opens up a new UI to fetch a new CT """
+        def _on_click_add(e=None) -> None:
+            try:
+                mod = self.download_ct_infos(ct_view.ct_url.get())
+                if mod is not None and on_download_complete_fn is not None:
+                    on_download_complete_fn(mod)
+                    messagebox.showinfo("Download Complete!", f"Mod information was downloaded successfully!\nName: {mod.name}\nAuthor(s): {mod.author}\nSite: {mod.mod_site}", parent=ct_view)
+            except ModDownloadException as e:
+                logging.error(e)
+                messagebox.showerror("Download Error!", str(e), parent=ct_view)
+
         ct_view = PoltergustAddCTView(view)
-        ct_view.fetch_button.config(command=lambda: self.download_ct_infos(ct_view.ct_url.get(), ct_view))
-        ct_view.bind('<Return>', lambda e: self.download_ct_infos(ct_view.ct_url.get(), ct_view))
+        ct_view.fetch_button.config(command=_on_click_add)
+        ct_view.bind('<Return>', _on_click_add)
 
     def open_ct_manager(self):
         """ TODO """
         manager_view = PoltergustCTManagerView(self.view.root, self.db.get_mods())
-        manager_view.add_button.config(command=lambda: self.add_ct(manager_view))
+        manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.add_mod(m)))
 
-    def download_ct_infos(self, url: str, view: Toplevel) -> None:
-        """ Downloads info for a mod located at a given URL. """
-        try:
-            mod = self.downloader.download(url)
-            if mod.preview_image is not None:
-                mod.preview_image = self.downloader.download_preview_image(mod.preview_image, self.db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id})
+    def download_ct_infos(self, url: str) -> MK8CustomTrack|None:
+        """ Downloads info for a mod located at a given URL. :raise: ModDownloadException if the download could not be completed """
+        mod = self.downloader.download(url)
+        if mod.preview_image is not None:
+            preview_path = self.db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id}
+            self.downloader.download_preview_image(mod.preview_image, preview_path)
+            mod.preview_image = preview_path
 
-            self.db.add_or_update_mod(mod)
-            self.db.save_changes()
-            messagebox.showinfo("Download Complete!", f"Mod information was downloaded successfully!\nName: {mod.name}\nAuthor(s): {mod.author}\nSite: {mod.mod_site}", parent=view)
-        except ModDownloadException as e:
-            print(e)
-            messagebox.showerror("Download Error!", str(e), parent=view)
+        self.db.add_or_update_mod(mod)
+        self.db.save_changes()
+        return mod
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """

@@ -21,6 +21,9 @@ class WrappingLabel(ttk.Label):
         self.bind('<Configure>', lambda e: self.config(wraplength=self.winfo_width()))
 
 class PoltergustPopup(Toplevel):
+    """ General Popup class that places the window in the middle of the screen on creation """
+
+class PoltergustBlockingPopup(PoltergustPopup):
     """ General Popup class that takes control from the main window """
     window_title = None
     window_width = None

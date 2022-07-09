@@ -3,10 +3,10 @@ from tkinter import ttk
 
 from PIL import Image, ImageTk
 
-from utils import PoltergustPopup, get_resource_path
+from utils import PoltergustBlockingPopup, get_resource_path
 
 
-class PoltergustAboutView(PoltergustPopup):
+class PoltergustAboutView(PoltergustBlockingPopup):
     """ Displays "About" information of the application. """
     window_title = "Poltergust - About"
     window_width = 275

@@ -1,11 +1,11 @@
 from tkinter import *
 from tkinter import ttk
 
-from utils import PoltergustPopup, WrappingLabel
+from utils import PoltergustBlockingPopup, WrappingLabel
 from downloader import MOD_SITES
 
 
-class PoltergustAddCTView(PoltergustPopup):
+class PoltergustAddCTView(PoltergustBlockingPopup):
     """
         Displays a window to add a custom track to Poltergust's storage.
     """

@@ -1,3 +1,4 @@
+import bisect
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk
@@ -7,10 +8,10 @@ import webbrowser
 from PIL import Image, ImageTk
 
 from downloader import MK8CustomTrack, MOD_SITES
-from utils import PoltergustPopup, WrappingLabel, get_resource_path
+from utils import PoltergustBlockingPopup, WrappingLabel, get_resource_path
 
 
-class PoltergustCTManagerView(PoltergustPopup):
+class PoltergustCTManagerView(PoltergustBlockingPopup):
     """
         Displays a window of all cached CTs.
     """
@@ -65,6 +66,8 @@ class PoltergustCTManagerView(PoltergustPopup):
         # Track List
         self.track_frame = ttk.Frame(self.canvas)
         self.track_frame.pack()
+        self._track_previews = []
+
         self.track_widgets = self._build_track_list(track_list)
         self.reload_list()
 
@@ -102,62 +105,73 @@ class PoltergustCTManagerView(PoltergustPopup):
     def _build_track_list(self, track_list: list[MK8CustomTrack]) -> list[tuple[MK8CustomTrack, Widget]]:
         """ TODO """
         track_widgets = []
-        imgs = []
-
         for track in sorted(track_list, key=lambda item: item.name):
-            frame = ttk.LabelFrame(self.track_frame)
-
-            # Track Preview Image
-            canvas = Canvas(frame, width=96, height=54, borderwidth=0, highlightthickness=0)
-            img = None
-            if track.preview_image is not None:
-                try:
-                    img = Image.open(track.preview_image)
-                    img = img.resize(size=(96, 54))
-                except FileNotFoundError as e:
-                    pass
-
-            if img is None:
-                # Select fallback image
-                img = track.mod_site.icon
-                img = img.resize(size=(24, 24))
-
-            img = ImageTk.PhotoImage(img)
-            imgs.append(img)
-
-            canvas.create_image(96/2, 54/2, image=img, anchor=CENTER)
-            canvas.pack(side=LEFT, padx=(0, 4))
-
-            # Track Name
-            title_lb = WrappingLabel(frame, text=track.name)
-            title_lb.pack(side=TOP, fill=X, padx=(0, 2))
-            ttk.Separator(frame, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(2, 0))
-
-            # Track author
-            author_text = track.author or "Unknown Author"
-            author_lb = Label(frame, wraplength=135, text=author_text, font=self.ITALICS_FONT)
-            author_lb.pack(side=LEFT, anchor=N)
-
-            # ModId
-            mod_id_lb = Label(frame, wraplength=135, text=f" {track.mod_id}", image=self._mod_site_image_cache[track.mod_site.id], compound=LEFT, cursor="hand2", fg="blue")
-            mod_id_lb.place(relx=0.5, rely=0.5, anchor=CENTER)
-            mod_id_lb.pack(side=RIGHT, anchor=N)
-
-            # Tooltip and URL
-            site_url = track.mod_site.get_url_for_mod_id(track.mod_id)
-            mod_id_lb.bind("<Button-1>",
-                lambda e, site_url=site_url: webbrowser.open(site_url)
-            )
-            Hovertip(mod_id_lb, f"{track.mod_site} - {site_url}", hover_delay=1000)
-
-            track_widgets.append((track, frame))
-        self._previews = imgs
+            track_widgets.append((track, self._build_track_widget(track)))
         return track_widgets
 
-    def reload_list(self):
+    def _build_track_widget(self, track: MK8CustomTrack) -> Widget:
+        """ TODO """
+        frame = ttk.LabelFrame(self.track_frame)
+
+        # Track Preview Image
+        canvas = Canvas(frame, width=96, height=54, borderwidth=0, highlightthickness=0)
+        img = None
+        if track.preview_image is not None:
+            try:
+                img = Image.open(track.preview_image)
+                img = img.resize(size=(96, 54))
+            except FileNotFoundError as e:
+                pass
+
+        if img is None:
+            # Select fallback image
+            img = track.mod_site.icon
+            img = img.resize(size=(24, 24))
+
+        # Cache image so it's not garbage collected
+        img = ImageTk.PhotoImage(img)
+        self._track_previews.append(img)
+
+        canvas.create_image(96/2, 54/2, image=img, anchor=CENTER)
+        canvas.pack(side=LEFT, padx=(0, 4))
+
+        # Track Name
+        title_lb = WrappingLabel(frame, text=track.name)
+        title_lb.pack(side=TOP, fill=X, padx=(0, 2))
+        ttk.Separator(frame, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(2, 0))
+
+        # Track author
+        author_text = track.author or "Unknown Author"
+        author_lb = Label(frame, wraplength=135, text=author_text, font=self.ITALICS_FONT)
+        author_lb.pack(side=LEFT, anchor=N)
+
+        # ModId
+        mod_id_lb = Label(frame, wraplength=135, text=f" {track.mod_id}", image=self._mod_site_image_cache[track.mod_site.id], compound=LEFT, cursor="hand2", fg="blue")
+        mod_id_lb.place(relx=0.5, rely=0.5, anchor=CENTER)
+        mod_id_lb.pack(side=RIGHT, anchor=N)
+
+        # Tooltip and URL
+        site_url = track.mod_site.get_url_for_mod_id(track.mod_id)
+        mod_id_lb.bind("<Button-1>",
+            lambda e, site_url=site_url: webbrowser.open(site_url)
+        )
+        Hovertip(mod_id_lb, f"{track.mod_site} - {site_url}", hover_delay=1000)
+
+        return frame
+
+    def reload_list(self) -> None:
         """ TODO """
         search_value = self.search_value.get().lower()
         for track, widget in self.track_widgets:
             widget.pack_forget()
             if not search_value or search_value in track.name.lower():
                 widget.pack(fill='both', padx=(2, 5))
+
+    def add_mod(self, mod: MK8CustomTrack) -> None:
+        """ Adds a mod to the view """
+        mod_widget = self._build_track_widget(mod)
+
+        # Insert into sorted list
+        bisect.insort(self.track_widgets, (mod, mod_widget), key=lambda pair: pair[0].name)
+
+        self.reload_list()

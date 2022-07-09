@@ -269,7 +269,7 @@ class MK8CustomTrack:
 
 class PoltergustDownloader:
     """ Connects to the API endpoint of `MOD_SITES` and fetches a mod's information from them. """
-    TIMEOUT = 3.05
+    TIMEOUT = 6.05
 
     def download(self, site_url: str) -> MK8CustomTrack:
         """
