@@ -47,12 +47,16 @@ class PoltergustController:
 
         self.close_ghostfile()
 
-    def open_ghostfile(self):
+    def open_ghostfile(self, filename=None):
         """ Invokes the view to select a ghost file, and loads its data """
-        filename = self.view.select_ghost_file()
+        if filename is None:
+            filename = self.view.select_ghost_file()
+
         # Selection is empty if it was aborted
         if not filename:
             return
+
+        print(filename)
 
         self.ghostfile = filename
         self.filename_data = None

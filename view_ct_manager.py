@@ -7,7 +7,7 @@ import webbrowser
 from PIL import Image, ImageTk
 
 from downloader import MK8CustomTrack, MOD_SITES
-from utils import PoltergustPopup, WrappingLabel
+from utils import PoltergustPopup, WrappingLabel, get_resource_path
 
 
 class PoltergustCTManagerView(PoltergustPopup):
@@ -37,7 +37,7 @@ class PoltergustCTManagerView(PoltergustPopup):
         top.pack(padx=5, pady=6, fill=X)
 
         # Add CT Box
-        self._plus_img = PhotoImage(file='resources/icons/plus-solid.png')
+        self._plus_img = PhotoImage(file=get_resource_path('resources/icons/plus-solid.png'))
         self.add_button = Button(top, text="Add a Mod", image=self._plus_img, compound=LEFT)
         self.add_button.pack(side=LEFT)
 
@@ -47,7 +47,7 @@ class PoltergustCTManagerView(PoltergustPopup):
         ttk.Entry(top, width=25, textvariable=self.search_value).pack(side=RIGHT)
 
         # Search Icon
-        self._search_img = PhotoImage(file='resources/icons/magnifying-glass-solid.png')
+        self._search_img = PhotoImage(file=get_resource_path('resources/icons/magnifying-glass-solid.png'))
         canvas = Canvas(top, width=10, height=10, borderwidth=0, highlightthickness=0)
         canvas.create_image(0, 0, image=self._search_img, anchor=NW)
         canvas.pack(side=RIGHT, padx=(0, 4))

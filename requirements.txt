@@ -1,3 +1,4 @@
 Pillow~=9.1.0 # Image handling
 requests~=2.28.1 # HTTP Requests
+python-dotenv~=0.20.0 # Load .env files
 ttkwidgets~=0.12.1 # Combobox with autocomplete
