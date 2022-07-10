@@ -81,11 +81,15 @@ class MK8CustomTrackFrame(MK8TrackBaseFrame):
 class MK8NintendoTrackFrame(MK8TrackBaseFrame):
     """ TODO """
     def __init__(self, master: Tk, track_id: int, track_mapper: MK8TrackImageMapper, *args, **kwargs):
-        icon_index = COURSE_IDS[track_id][1]
+        track = COURSE_IDS.get(track_id, None)
+        if track is not None:
+            pass
+            # TODO: Error handling
+        icon_index = track.icon_index
         track_preview = track_mapper.index_to_image(icon_index, resize_to=self.TRACK_PREVIEW_SIZE)
 
-        track_name = COURSE_IDS[track_id][0]
-        track_author = "Nintendo"
+        track_name = track.name
+        track_author = track.cup
         url_text = str(track_id)
         url_icon = GameBananaSite.icon # TODO
         url_link = "https://www.mariowiki.com/Mario_Kart_8#Courses"

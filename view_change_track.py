@@ -4,7 +4,6 @@ from tkinter import ttk
 from tkinter.font import BOLD, NORMAL as FONT_NORMAL
 
 from downloader import MOD_SITES, MK8CustomTrack
-from gamedata import COURSE_IDS
 from utils import PoltergustBlockingPopup
 from widgets import IconButton, IntEntry, MK8CustomTrackFrame, MK8NintendoTrackFrame
 
@@ -21,9 +20,6 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
 
     FONT = ("Courier", 9, FONT_NORMAL)
     FONT_TITLE = ("TkDefaultfont", 14, BOLD)
-
-    # Limit track selection to Wii U tracks
-    track_slot_choices = {track_name: (track_id, icon_index) for track_id, (track_name, icon_index) in COURSE_IDS.items() if track_id <= 63}
 
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}

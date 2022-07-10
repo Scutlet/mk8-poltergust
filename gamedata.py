@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 
 class MK8GhostType(Enum):
@@ -7,74 +8,125 @@ class MK8GhostType(Enum):
     DOWNLOADED_GHOST = "dg"
     MKTV_REPLAY = "rp" # Different file format than a ghost
 
+@dataclass
+class MK8DLC:
+    name: str
+
+    def __str__(self):
+        return self.name
+
+DLC_ZELDA = MK8DLC("The Legend of Zelda × Mario Kart 8")
+DLC_ANIMAL_CROSSING = MK8DLC("Animal Crossing × Mario Kart 8")
+DLC_DELUXE = MK8DLC("Mario Kart 8 Deluxe")
+DLC_BOOSTER_COURSE_1 = MK8DLC("Booster Course Pass (Wave 1)")
+DLC_BOOSTER_COURSE_2 = MK8DLC("Booster Course Pass (Wave 2)")
+DLC_BOOSTER_COURSE_3 = MK8DLC("Booster Course Pass (Wave 3)")
+DLC_BOOSTER_COURSE_4 = MK8DLC("Booster Course Pass (Wave 4)")
+DLC_BOOSTER_COURSE_5 = MK8DLC("Booster Course Pass (Wave 5)")
+DLC_BOOSTER_COURSE_6 = MK8DLC("Booster Course Pass (Wave 6)")
+
+@dataclass
+class MK8Cup:
+    name: str
+    dlc: MK8DLC|None = None
+
+    def __str__(self):
+        return self.name
+
+CUP_MUSHROOM = MK8Cup("Mushroom Cup")
+CUP_FLOWER = MK8Cup("Flower Cup")
+CUP_STAR = MK8Cup("Star Cup")
+CUP_SPECIAL = MK8Cup("Special Cup")
+CUP_SHELL = MK8Cup("Shell Cup")
+CUP_BANANA = MK8Cup("Banana Cup")
+CUP_LEAF = MK8Cup("Leaf Cup")
+CUP_LIGHTNING = MK8Cup("Lightning Cup")
+CUP_EGG = MK8Cup("Egg Cup", dlc=DLC_ZELDA)
+CUP_TRIFORCE = MK8Cup("Triforce Cup", dlc=DLC_ZELDA)
+CUP_CROSSING = MK8Cup("Crossing Cup", dlc=DLC_ANIMAL_CROSSING)
+CUP_BELL = MK8Cup("Bell Cup", dlc=DLC_ANIMAL_CROSSING)
+CUP_BATTLE_COURSES = MK8Cup("Battle Course", dlc=DLC_DELUXE)
+CUP_GOLDEN_DASH = MK8Cup("Golden Dash Cup", dlc=DLC_BOOSTER_COURSE_1)
+CUP_LUCKY_CAT = MK8Cup("Lucky Cat Cup", dlc=DLC_BOOSTER_COURSE_1)
+
+@dataclass
+class MK8Course:
+    course_id: int
+    name: str
+    icon_index: int
+    cup: MK8Cup
+
+    def __str__(self):
+        return self.name
+
 COURSE_IDS = {
-    27: ("Mario Kart Stadium", 0),
-    28: ("Water Park", 1),
-    19: ("Sweet Sweet Canyon", 2),
-    17: ("Thwomp Ruins", 3),
-    16: ("Mario Circuit", 4),
-    18: ("Toad Harbor", 5),
-    20: ("Twisted Mansion", 6),
-    21: ("Shy Guy Falls", 7),
-    26: ("Sunshine Airport", 8),
-    29: ("Dolphin Shoals", 9),
-    25: ("Electrodrome", 10),
-    24: ("Mount Wario", 11),
-    23: ("Cloudtop Cruise", 12),
-    22: ("Bone-Dry Dunes", 13),
-    30: ("Bowser's Castle", 14),
-    31: ("Rainbow Road", 15),
-    33: ("Wii Moo Moo Meadows", 16),
-    38: ("GBA Mario Circuit", 17),
-    36: ("DS Cheep Cheep Beach", 18),
-    35: ("N64 Toad's Turnpike", 19),
-    42: ("GCN Dry Dry Desert", 20),
-    41: ("SNES Donut Plains 3", 21),
-    34: ("N64 Royal Raceway", 22),
-    32: ("3DS DK Jungle", 23),
-    46: ("DS Wario Stadium", 24),
-    37: ("GCN Sherbet Land", 25),
-    39: ("3DS Music Park", 26),
-    45: ("N64 Yoshi Valley", 27),
-    44: ("DS Tick-Tock Clock", 28),
-    43: ("3DS Piranha Plant Slide", 29),
-    40: ("Wii Grumble Volcano", 30),
-    47: ("N64 Rainbow Road", 31),
-    56: ("GCN Yoshi Circuit", 32),
-    53: ("Excitebike Arena", 33),
-    50: ("Dragon Driftway", 34),
-    49: ("Mute City", 35),
-    57: ("Wii Wario's Gold Mine", 36),
-    58: ("SNES Rainbow Road", 37),
-    55: ("Ice Ice Outpost", 38),
-    51: ("Hyrule Circuit", 39),
-    61: ("GCN Baby Park", 40),
-    62: ("GBA Cheese Land", 41),
-    54: ("Wild Woods", 42),
-    64: ("Animal Crossing (Spring)", 43),
-    52: ("Animal Crossing (Summer)", 43),
-    65: ("Animal Crossing (Autumn)", 43),
-    66: ("Animal Crossing (Winter)", 43),
-    60: ("3DS Neo Bowser City", 44),
-    59: ("GBA Ribbon Road", 45),
-    48: ("Super Bell Subway", 46),
-    63: ("Big Blue", 47),
-    67: ("Battle Stadium", 48), # MK8D
-    68: ("Sweet Sweet Kingdom", 49), # MK8D
-    69: ("Dragon Palace", 50), # MK8D
-    70: ("Lunar Colony", 51), # MK8D
-    71: ("3DS Wuhu Town", 52), # MK8D
-    72: ("GCN Luigi's Mansion", 53), # MK8D
-    73: ("SNES Battle Course 1", 54), # MK8D
-    74: ("Urchin Underpass", 55), # MK8D
-    75: ("Tour Paris Promenade", 56), # MK8D DLC
-    76: ("3DS Toad Circuit", 57), # MK8D DLC
-    77: ("N64 Choco Mountain", 58), # MK8D DLC
-    78: ("Wii Coconut Mall", 59), # MK8D DLC
-    79: ("Tour Tokyo Blur", 60), # MK8D DLC
-    80: ("DS Shroom Ridge", 61), # MK8D DLC
-    81: ("GBA Sky Garden", 62), # MK8D DLC
-    82: ("Tour Ninja Hideaway", 63), # MK8D DLC
+    16: MK8Course(16, "Mario Circuit", 4, CUP_FLOWER),
+    17: MK8Course(17, "Thwomp Ruins", 3, CUP_MUSHROOM),
+    18: MK8Course(18, "Toad Harbor", 5, CUP_FLOWER),
+    19: MK8Course(19, "Sweet Sweet Canyon", 2, CUP_MUSHROOM),
+    20: MK8Course(20, "Twisted Mansion", 6, CUP_FLOWER),
+    21: MK8Course(21, "Shy Guy Falls", 7, CUP_FLOWER),
+    22: MK8Course(22, "Bone-Dry Dunes", 13, CUP_SPECIAL),
+    23: MK8Course(23, "Cloudtop Cruise", 12, CUP_SPECIAL),
+    24: MK8Course(24, "Mount Wario", 11, CUP_STAR),
+    25: MK8Course(25, "Electrodrome", 10, CUP_STAR),
+    26: MK8Course(26, "Sunshine Airport", 8, CUP_STAR),
+    27: MK8Course(27, "Mario Kart Stadium", 0, CUP_MUSHROOM),
+    28: MK8Course(28, "Water Park", 1, CUP_MUSHROOM),
+    29: MK8Course(29, "Dolphin Shoals", 9, CUP_STAR),
+    30: MK8Course(30, "Bowser's Castle", 14, CUP_SPECIAL),
+    31: MK8Course(31, "Rainbow Road", 15, CUP_SPECIAL),
+    32: MK8Course(32, "3DS DK Jungle", 23, CUP_BANANA),
+    33: MK8Course(33, "Wii Moo Moo Meadows", 16, CUP_SHELL),
+    34: MK8Course(34, "N64 Royal Raceway", 22, CUP_BANANA),
+    35: MK8Course(35, "N64 Toad's Turnpike", 19, CUP_SHELL),
+    36: MK8Course(36, "DS Cheep Cheep Beach", 18, CUP_SHELL),
+    37: MK8Course(37, "GCN Sherbet Land", 25, CUP_LEAF),
+    38: MK8Course(38, "GBA Mario Circuit", 17, CUP_SHELL),
+    39: MK8Course(39, "3DS Music Park", 26, CUP_LEAF),
+    40: MK8Course(40, "Wii Grumble Volcano", 30, CUP_LIGHTNING),
+    41: MK8Course(41, "SNES Donut Plains 3", 21, CUP_BANANA),
+    42: MK8Course(42, "GCN Dry Dry Desert", 20, CUP_BANANA),
+    43: MK8Course(43, "3DS Piranha Plant Slide", 29, CUP_LIGHTNING),
+    44: MK8Course(44, "DS Tick-Tock Clock", 28, CUP_LIGHTNING),
+    45: MK8Course(45, "N64 Yoshi Valley", 27, CUP_LEAF),
+    46: MK8Course(46, "DS Wario Stadium", 24, CUP_LEAF),
+    47: MK8Course(47, "N64 Rainbow Road", 31, CUP_LIGHTNING),
+    48: MK8Course(48, "Super Bell Subway", 46, CUP_BELL),
+    49: MK8Course(49, "Mute City", 35, CUP_EGG),
+    50: MK8Course(50, "Dragon Driftway", 34, CUP_EGG),
+    51: MK8Course(51, "Hyrule Circuit", 39, CUP_TRIFORCE),
+    52: MK8Course(52, "Animal Crossing (Summer)", 43, CUP_CROSSING),
+    53: MK8Course(53, "Excitebike Arena", 33, CUP_EGG),
+    54: MK8Course(54, "Wild Woods", 42, CUP_CROSSING),
+    55: MK8Course(55, "Ice Ice Outpost", 38, CUP_TRIFORCE),
+    56: MK8Course(56, "GCN Yoshi Circuit", 32, CUP_EGG),
+    57: MK8Course(57, "Wii Wario's Goldmine", 36, CUP_TRIFORCE),
+    58: MK8Course(58, "SNES Rainbow Road", 37, CUP_TRIFORCE),
+    59: MK8Course(59, "GBA Ribbon Road", 45, CUP_BELL),
+    60: MK8Course(60, "3DS Neo Bowser City", 44, CUP_BELL),
+    61: MK8Course(61, "GCN Baby Park", 40, CUP_CROSSING),
+    62: MK8Course(62, "GBA Cheese Land", 41, CUP_CROSSING),
+    63: MK8Course(63, "Big Blue", 47, CUP_BELL),
+    64: MK8Course(64, "Animal Crossing (Spring)", 43, CUP_CROSSING),
+    65: MK8Course(65, "Animal Crossing (Autumn)", 43, CUP_CROSSING),
+    66: MK8Course(66, "Animal Crossing (Winter)", 43, CUP_CROSSING),
+    67: MK8Course(67, "Battle Stadium", 48, CUP_BATTLE_COURSES),
+    68: MK8Course(68, "Sweet Sweet Kindom", 49, CUP_BATTLE_COURSES),
+    69: MK8Course(69, "Dragon Palace", 50, CUP_BATTLE_COURSES),
+    70: MK8Course(70, "Lunar Colony", 51, CUP_BATTLE_COURSES),
+    71: MK8Course(71, "3DS Wuhu Town", 52, CUP_BATTLE_COURSES),
+    72: MK8Course(72, "GCN Luigi's Mansion", 53, CUP_BATTLE_COURSES),
+    73: MK8Course(73, "SNES Battle Course 1", 54, CUP_BATTLE_COURSES),
+    74: MK8Course(74, "Urchin Underpass", 55, CUP_BATTLE_COURSES),
+    75: MK8Course(75, "Tour Paris Promenade", 56, CUP_GOLDEN_DASH),
+    76: MK8Course(76, "3DS Toad Circuit", 57, CUP_GOLDEN_DASH),
+    77: MK8Course(77, "N64 Choco Mountain", 58, CUP_GOLDEN_DASH),
+    78: MK8Course(78, "Wii Coconut Mall", 59, CUP_GOLDEN_DASH),
+    79: MK8Course(79, "Tour Tokyo Blur", 60, CUP_LUCKY_CAT),
+    80: MK8Course(80, "DS Shroom Ridge", 61, CUP_LUCKY_CAT),
+    81: MK8Course(81, "GBA Sky Garden", 62, CUP_LUCKY_CAT),
+    82: MK8Course(82, "Tour Ninja Hideway", 63, CUP_LUCKY_CAT),
 }
 
 AMIIBO_SUITS = [

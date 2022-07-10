@@ -289,9 +289,14 @@ class PoltergustMainView:
 
     def set_track(self, track_id: int, ghost_number: int) -> None:
         """ Sets the track preview """
-        track = COURSE_IDS.get(track_id, ("Unknown Track", None))
-        self.set_mapped_image(self.track_canvas, self.TRACK_MAPPER, track[1], resize_to=self.TRACK_SIZE)
-        self.track.set(track[0])
+        track = COURSE_IDS.get(track_id, None)
+        track_name = "Unknown Track"
+        track_icon_index = None
+        if track is not None:
+            track_name = track.name
+            track_icon_index = track.icon_index
+        self.set_mapped_image(self.track_canvas, self.TRACK_MAPPER, track_icon_index, resize_to=self.TRACK_SIZE)
+        self.track.set(track_name)
         self.track_tip.text = f"{ghost_number} - {track_id}"
 
     def set_vehicle_parts(self, kart_id: int, wheels_id: int, glider_id: int) -> None:
