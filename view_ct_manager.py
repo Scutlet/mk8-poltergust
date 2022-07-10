@@ -1,83 +1,44 @@
 import bisect
-from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk
-from tkinter.font import Font, ITALIC
-import webbrowser
-
-from PIL import Image, ImageTk
-from downloader import MOD_SITES
 
 from utils import PoltergustBlockingPopup, get_resource_path
 from widgets import FramableTrack, IconButton
 
+class ScrollableTrackCanvas(Canvas):
+    """ TODO """
+    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, search_widget:ttk.Entry|None=None, **kwargs):
+        super().__init__(master, *args, bd=0, borderwidth=0, highlightthickness=0, **kwargs)
 
-class PoltergustCTManagerView(PoltergustBlockingPopup):
-    """
-        Displays a window of all cached CTs.
-    """
-    window_title = "Poltergust - Custom Track Database"
-    window_width = 310
-    window_height = 400
-
-    BASE_FONT = "TkDefaultFont"
-
-    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-
-        self.ITALICS_FONT = Font(font=self.BASE_FONT)
-        self.ITALICS_FONT.config(slant=ITALIC)
-
-        # Cache mod site icons so they're not garbage collected
-        self._mod_site_image_cache = [ImageTk.PhotoImage(site.icon) for site in MOD_SITES]
-
-        # Top frame
-        top = Frame(self)
-        top.pack(padx=5, pady=6, fill=X)
-
-        # Add CT Box
-        self.add_button = IconButton(top, text="Add a mod", image_path='resources/icons/plus-solid.png')
-        self.add_button.pack(side=LEFT)
-
-        # Search Box
+        # Link search box
         self.search_value = StringVar()
-        self.search_value.trace_add("write", lambda var, index, mode: self.reload_list())
-        ttk.Entry(top, width=25, textvariable=self.search_value).pack(side=RIGHT)
+        if search_widget is not None:
+            self.search_value.trace_add("write", lambda var, index, mode: self.reload_list())
+            search_widget.config(textvariable=self.search_value)
 
-        # Search Icon
-        self._search_img = PhotoImage(file=get_resource_path('resources/icons/magnifying-glass-solid.png'))
-        canvas = Canvas(top, width=10, height=10, borderwidth=0, highlightthickness=0)
-        canvas.create_image(0, 0, image=self._search_img, anchor=NW)
-        canvas.pack(side=RIGHT, padx=(0, 4))
-
-        # Only canvas elements are scrollable
-        self.canvas = Canvas(self, bd=0, borderwidth=0, highlightthickness=0)
-        vsb = Scrollbar(self, command=self.canvas.yview)
-        self.canvas.configure(yscrollcommand=vsb.set)
-
-        # Scrollbar
-        vsb.pack(side=RIGHT, fill=Y)
-        self.vsb = vsb
-        self.canvas.pack(side=RIGHT, fill=BOTH, expand=True)
+        # Scrollbar (only Canvas elements are scrollable)
+        self.vsb = Scrollbar(master, command=self.yview)
+        self.configure(yscrollcommand=self.vsb.set)
+        self.vsb.pack(side=RIGHT, fill=Y)
 
         # Track List
-        self.track_frame = ttk.Frame(self.canvas)
+        self.track_frame = ttk.Frame(self)
         self.track_frame.pack()
 
         self.track_widgets = self._build_track_list(track_list)
         self.reload_list()
 
         # Make sure Tkinter knows what's scrollable
-        self.canvas.create_window(0, 0, anchor="nw", window=self.track_frame, tags=("inner",))
+        self.create_window(0, 0, anchor="nw", window=self.track_frame, tags=("inner",))
 
         # Recalculate bounding box if the frame or window changes size
-        self.canvas.bind("<Configure>", self._resize_inner_frame)
+        self.bind("<Configure>", self._resize_inner_frame)
         self.track_frame.bind("<Configure>", self._reset_scrollregion)
 
         # Make the mouse wheel move the scrollbar
-        self.canvas.bind_all("<MouseWheel>", self._set_scroll) # for Windows/MacOS
-        self.canvas.bind_all("<Button-4>", self._set_scroll) # for Linux
-        self.canvas.bind_all("<Button-5>", self._set_scroll) # for Linux
+        master.bind("<MouseWheel>", self._set_scroll) # for Windows/MacOS
+        master.bind("<Button-4>", self._set_scroll) # for Linux
+        master.bind("<Button-5>", self._set_scroll) # for Linux
 
     def _set_scroll(self, event):
         """ Moves the scrollbar when the user scrolls the mouse wheel """
@@ -90,13 +51,13 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         if event.num == 5 or event.delta < 0:
             # Scrolling down instead
             amount = 1
-        self.canvas.yview_scroll(amount, "units")
+        self.yview_scroll(amount, "units")
 
     def _reset_scrollregion(self, event):
-        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        self.configure(scrollregion=self.bbox("all"))
 
     def _resize_inner_frame(self, event):
-        self.canvas.itemconfig("inner", width=event.width)
+        self.itemconfig("inner", width=event.width)
 
     def _build_track_list(self, track_list: list[FramableTrack]) -> list[tuple[FramableTrack, Widget]]:
         """ TODO """
@@ -130,3 +91,38 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         mod_widget = track.frame(self.track_frame)
         bisect.insort(self.track_widgets, (track, mod_widget), key=lambda pair: pair[0].sort_field)
         self.reload_list()
+
+
+class PoltergustCTManagerView(PoltergustBlockingPopup):
+    """
+        Displays a window of all cached CTs.
+    """
+    window_title = "Poltergust - Custom Track Database"
+    window_width = 310
+    window_height = 400
+
+    BASE_FONT = "TkDefaultFont"
+
+    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+
+        # Top frame
+        top = Frame(self)
+        top.pack(padx=5, pady=6, fill=X)
+
+        # Add CT Box
+        self.add_button = IconButton(top, text="Add a mod", image_path='resources/icons/plus-solid.png')
+        self.add_button.pack(side=LEFT)
+
+        # Search Box
+        search_widget = ttk.Entry(top, width=25)
+        search_widget.pack(side=RIGHT)
+
+        # Search Icon
+        self._search_img = PhotoImage(file=get_resource_path('resources/icons/magnifying-glass-solid.png'))
+        canvas = Canvas(top, width=10, height=10, borderwidth=0, highlightthickness=0)
+        canvas.create_image(0, 0, image=self._search_img, anchor=NW)
+        canvas.pack(side=RIGHT, padx=(0, 4))
+
+        track_canvas = ScrollableTrackCanvas(self, track_list=track_list, search_widget=search_widget)
+        track_canvas.pack(side=RIGHT, fill=BOTH, expand=True)

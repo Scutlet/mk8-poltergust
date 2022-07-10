@@ -46,7 +46,6 @@ class MK8Course(FramableTrack):
         track_author = self.cup
         url_text = str(self.course_id)
         url_icon = GameBananaSite.icon # TODO
-        url_icon = track_preview
         url_link = "https://www.mariowiki.com/Mario_Kart_8#Courses"
         url_tooltip = f"Super Mario Wiki - {url_link}"
 

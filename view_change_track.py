@@ -4,7 +4,7 @@ from tkinter import ttk
 from tkinter.font import BOLD, NORMAL as FONT_NORMAL
 
 from downloader import MOD_SITES, MK8CustomTrack
-from gamedata import COURSE_IDS
+from pg_dataclasses import MK8Course
 from utils import PoltergustBlockingPopup
 from widgets import IconButton, IntEntry
 
@@ -25,12 +25,12 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}
 
-    def __init__(self, master: Tk, track_slot_index: int, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
+    def __init__(self, master: Tk, current_track_slot_index: MK8Course, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Track slot selection
         ttk.Label(self, wraplength=135, text="Track Slot").pack()
-        track_slot_frame = COURSE_IDS[track_slot_index].frame(self)
+        track_slot_frame = current_track_slot_index.frame(self)
         track_slot_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
 
         ttk.Separator(self, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(8, 4))

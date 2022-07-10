@@ -6,7 +6,7 @@ from typing import Callable
 from ct_storage import MK8CTStorage
 from downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
 
-from gamedata import MK8GhostType
+from gamedata import COURSE_IDS, MK8GhostType
 from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
 from ghost_converter import MK8GhostConverter
 from ghost_file_parser import MK8GhostDataParser
@@ -41,7 +41,7 @@ class PoltergustController:
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root, 60, current_mod=next(self.db.get_mods())))
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root, COURSE_IDS[42], current_mod=next(self.db.get_mods())))
 
         # CT Manager
         self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=self.open_ct_manager)
