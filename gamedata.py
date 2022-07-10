@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 from enum import Enum
+
+from pg_dataclasses import MK8DLC, MK8Course, MK8Cup
 
 class MK8GhostType(Enum):
     """ Enumeration of all types of ghosts in Mario Kart 8 """
@@ -7,13 +8,6 @@ class MK8GhostType(Enum):
     PLAYER_GHOST = "gs"
     DOWNLOADED_GHOST = "dg"
     MKTV_REPLAY = "rp" # Different file format than a ghost
-
-@dataclass
-class MK8DLC:
-    name: str
-
-    def __str__(self):
-        return self.name
 
 DLC_ZELDA = MK8DLC("The Legend of Zelda × Mario Kart 8")
 DLC_ANIMAL_CROSSING = MK8DLC("Animal Crossing × Mario Kart 8")
@@ -24,14 +18,6 @@ DLC_BOOSTER_COURSE_3 = MK8DLC("Booster Course Pass (Wave 3)")
 DLC_BOOSTER_COURSE_4 = MK8DLC("Booster Course Pass (Wave 4)")
 DLC_BOOSTER_COURSE_5 = MK8DLC("Booster Course Pass (Wave 5)")
 DLC_BOOSTER_COURSE_6 = MK8DLC("Booster Course Pass (Wave 6)")
-
-@dataclass
-class MK8Cup:
-    name: str
-    dlc: MK8DLC|None = None
-
-    def __str__(self):
-        return self.name
 
 CUP_MUSHROOM = MK8Cup("Mushroom Cup")
 CUP_FLOWER = MK8Cup("Flower Cup")
@@ -48,16 +34,6 @@ CUP_BELL = MK8Cup("Bell Cup", dlc=DLC_ANIMAL_CROSSING)
 CUP_BATTLE_COURSES = MK8Cup("Battle Course", dlc=DLC_DELUXE)
 CUP_GOLDEN_DASH = MK8Cup("Golden Dash Cup", dlc=DLC_BOOSTER_COURSE_1)
 CUP_LUCKY_CAT = MK8Cup("Lucky Cat Cup", dlc=DLC_BOOSTER_COURSE_1)
-
-@dataclass
-class MK8Course:
-    course_id: int
-    name: str
-    icon_index: int
-    cup: MK8Cup
-
-    def __str__(self):
-        return self.name
 
 COURSE_IDS = {
     16: MK8Course(16, "Mario Circuit", 4, CUP_FLOWER),

@@ -6,10 +6,10 @@ from tkinter.font import Font, ITALIC
 import webbrowser
 
 from PIL import Image, ImageTk
+from downloader import MOD_SITES
 
-from downloader import MK8CustomTrack, MOD_SITES
-from utils import PoltergustBlockingPopup, WrappingLabel, get_resource_path
-from widgets import IconButton, MK8CustomTrackFrame
+from utils import PoltergustBlockingPopup, get_resource_path
+from widgets import FramableTrack, IconButton
 
 
 class PoltergustCTManagerView(PoltergustBlockingPopup):
@@ -22,10 +22,7 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
 
     BASE_FONT = "TkDefaultFont"
 
-    # Add mod sites
-    mod_site_choices = {site.name: site for site in MOD_SITES}
-
-    def __init__(self, master: Tk, track_list: list[MK8CustomTrack], *args, **kwargs):
+    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.ITALICS_FONT = Font(font=self.BASE_FONT)
@@ -66,7 +63,6 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         # Track List
         self.track_frame = ttk.Frame(self.canvas)
         self.track_frame.pack()
-        self._track_previews = []
 
         self.track_widgets = self._build_track_list(track_list)
         self.reload_list()
@@ -102,11 +98,12 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
     def _resize_inner_frame(self, event):
         self.canvas.itemconfig("inner", width=event.width)
 
-    def _build_track_list(self, track_list: list[MK8CustomTrack]) -> list[tuple[MK8CustomTrack, Widget]]:
+    def _build_track_list(self, track_list: list[FramableTrack]) -> list[tuple[FramableTrack, Widget]]:
         """ TODO """
         track_widgets = []
-        for track in sorted(track_list, key=lambda item: item.name):
-            track_widgets.append((track, MK8CustomTrackFrame(self.track_frame, track)))
+        for track in sorted(track_list, key=lambda item: item.sort_field):
+            track_widgets.append((track, track.frame(self.track_frame)))
+
         return track_widgets
 
     def reload_list(self) -> None:
@@ -114,15 +111,15 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         search_value = self.search_value.get().lower()
         for track, widget in self.track_widgets:
             widget.pack_forget()
-            if not search_value or search_value in track.name.lower():
+            if not search_value or search_value in track.sort_field.lower():
                 widget.pack(fill='both', padx=(2, 5), pady=(0, 5))
 
-    def add_mod(self, mod: MK8CustomTrack) -> None:
-        """ Adds a mod to the view """
-        # Remove existing mod from the list if the mod_id matches
+    def add_track(self, track: FramableTrack) -> None:
+        """ Adds a track to the view """
+        # Remove existing track from the list if the id field matches
         indx = None
-        for i, (existing_mod, widget) in enumerate(self.track_widgets):
-            if mod.mod_site.id == existing_mod.mod_site.id and mod.mod_id == existing_mod.mod_id:
+        for i, (existing_track, widget) in enumerate(self.track_widgets):
+            if track == existing_track:
                 indx = i
                 widget.destroy()
                 break
@@ -130,6 +127,6 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
             del self.track_widgets[indx]
 
         # Insert into sorted list
-        mod_widget = MK8CustomTrackFrame(self.track_frame, mod)
-        bisect.insort(self.track_widgets, (mod, mod_widget), key=lambda pair: pair[0].name)
+        mod_widget = track.frame(self.track_frame)
+        bisect.insort(self.track_widgets, (track, mod_widget), key=lambda pair: pair[0].sort_field)
         self.reload_list()

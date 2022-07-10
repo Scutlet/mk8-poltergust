@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk
@@ -6,15 +7,11 @@ import webbrowser
 
 from PIL import Image, ImageTk
 
-from downloader import GameBananaSite, MK8CustomTrack
-from gamedata import COURSE_IDS
-from imagemapper import MK8TrackImageMapper
 from utils import WrappingLabel, get_resource_path
 
-class MK8TrackBaseFrame(LabelFrame):
+class MK8TrackFrame(LabelFrame):
     """ TODO """
     BASE_FONT = "TkDefaultFont"
-    TRACK_PREVIEW_SIZE: tuple[int, int] = (96, 54)
 
     def __init__(self, master: Tk, track_name: str, track_author: str, track_preview: Image.Image, url_text: str, url_icon: Image.Image, url_link: str, url_tooltip: str, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -56,46 +53,21 @@ class MK8TrackBaseFrame(LabelFrame):
         )
         Hovertip(mod_id_lb, url_tooltip, hover_delay=1000)
 
-
-class MK8CustomTrackFrame(MK8TrackBaseFrame):
+class FramableTrack(ABC):
     """ TODO """
+    TRACK_PREVIEW_SIZE: tuple[int, int] = (96, 54)
 
-    def __init__(self, master: Tk, track: MK8CustomTrack, *args, **kwargs):
-        track_name = track.name
-        track_author = track.author or "Unknown Author"
+    _sort_field_name: str = None
 
-        track_preview = None
-        if track.preview_image is not None:
-            try:
-                track_preview = Image.open(track.preview_image).resize(size=self.TRACK_PREVIEW_SIZE)
-            except FileNotFoundError as e:
-                track_preview = track.mod_site.icon.resize(size=(24, 24))
+    @property
+    def sort_field(self) -> str:
+        """ TODO """
+        return getattr(self, self._sort_field_name)
 
-        url_text = str(track.mod_id)
-        url_icon = track.mod_site.icon
-        url_link = track.mod_site.get_url_for_mod_id(track.mod_id)
-        url_tooltip = f"{track.mod_site} - {url_link}"
+    @abstractmethod
+    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrame:
+        """ TODO """
 
-        super().__init__(master, track_name, track_author, track_preview, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
-
-class MK8NintendoTrackFrame(MK8TrackBaseFrame):
-    """ TODO """
-    def __init__(self, master: Tk, track_id: int, *args, **kwargs):
-        track = COURSE_IDS.get(track_id, None)
-        if track is not None:
-            pass
-            # TODO: Error handling
-        icon_index = track.icon_index
-        track_preview = MK8TrackImageMapper().index_to_image(icon_index, resize_to=self.TRACK_PREVIEW_SIZE)
-
-        track_name = track.name
-        track_author = track.cup
-        url_text = str(track_id)
-        url_icon = GameBananaSite.icon # TODO
-        url_link = "https://www.mariowiki.com/Mario_Kart_8#Courses"
-        url_tooltip = f"Super Mario Wiki - {url_link}"
-
-        super().__init__(master, track_name, track_author, track_preview, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
 
 class IntEntry(ttk.Entry):
     """ Tkinter entry that only accepts numbers as its input """

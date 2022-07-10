@@ -57,7 +57,7 @@ class PoltergustController:
         if not filename:
             return
 
-        print(filename)
+        logging.info(f"Opened ghost file: {filename}")
 
         self.ghostfile = filename
         self.filename_data = None
@@ -102,7 +102,7 @@ class PoltergustController:
     def open_ct_manager(self):
         """ TODO """
         manager_view = PoltergustCTManagerView(self.view.root, self.db.get_mods())
-        manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.add_mod(m)))
+        manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.add_track(m)))
 
     def download_ct_infos(self, url: str) -> MK8CustomTrack|None:
         """ Downloads info for a mod located at a given URL. :raise: ModDownloadException if the download could not be completed """

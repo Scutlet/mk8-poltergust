@@ -4,8 +4,9 @@ from tkinter import ttk
 from tkinter.font import BOLD, NORMAL as FONT_NORMAL
 
 from downloader import MOD_SITES, MK8CustomTrack
+from gamedata import COURSE_IDS
 from utils import PoltergustBlockingPopup
-from widgets import IconButton, IntEntry, MK8CustomTrackFrame, MK8NintendoTrackFrame
+from widgets import IconButton, IntEntry
 
 
 
@@ -29,7 +30,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
 
         # Track slot selection
         ttk.Label(self, wraplength=135, text="Track Slot").pack()
-        track_slot_frame = MK8NintendoTrackFrame(self, track_slot_index)
+        track_slot_frame = COURSE_IDS[track_slot_index].frame(self)
         track_slot_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
 
         ttk.Separator(self, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(8, 4))
@@ -57,7 +58,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         self.change_button.pack(side=LEFT, padx=(4, 0))
 
         # CT Preview
-        mod_frame = MK8CustomTrackFrame(self, current_mod)
+        mod_frame = current_mod.frame(self)
         mod_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
 
         # Version frame

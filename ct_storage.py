@@ -2,9 +2,9 @@ from datetime import datetime
 import os
 import sqlite3
 from typing import Iterable
-from downloader import MOD_SITES
+from downloader import MOD_SITES, MK8CustomTrack
 
-from view_ct_manager import MK8CustomTrack
+
 
 class MK8CTStorage:
     """ Stores Custom Track information on disc """
