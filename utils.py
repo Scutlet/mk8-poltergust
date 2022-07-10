@@ -1,7 +1,19 @@
+from abc import ABCMeta
 import os
 import sys
 from tkinter import *
 from tkinter import ttk
+
+class Singleton(type):
+    """ Singleton Metaclass """
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class SingletonABCMeta(ABCMeta, Singleton):
+    """ Singleton Metaclass to use if also using an abstract base class """
 
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """

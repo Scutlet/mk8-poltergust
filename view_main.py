@@ -40,12 +40,6 @@ class PoltergustMainView:
     # Window Icon
     WINDOW_ICON = get_resource_path("resources/scutlet_static_cropped.png")
 
-    # Icon Atlas mappers
-    CHARACTER_MAPPER = MK8CharacterImageMapper()
-    FLAG_MAPPER = MK8FlagImageMapper()
-    VEHICLE_PART_MAPPER = MK8VehiclePartImageMapper()
-    TRACK_MAPPER = MK8TrackImageMapper()
-
     # Icon sizes
     FLAG_SIZE = (33, 22)
     CHARACTER_SIZE = (64, 64)
@@ -267,7 +261,7 @@ class PoltergustMainView:
                 flag = ("No Flag", None)
 
         # Update flag image
-        self.set_mapped_image(self.flag_canvas, self.FLAG_MAPPER, flag[1], resize_to=self.FLAG_SIZE)
+        self.set_mapped_image(self.flag_canvas, MK8FlagImageMapper(), flag[1], resize_to=self.FLAG_SIZE)
         self.flag_tip.text = flag[0] + f" ({flag_id})"
 
     def set_character(self, character_id: int, character_variant_id: int, mii_weight_class_id: int) -> None:
@@ -284,7 +278,7 @@ class PoltergustMainView:
                 variant[0] += F" - {MII_WEIGHT_CLASSES[indx] if 0 <= indx and indx < len(MII_WEIGHT_CLASSES) else 'Unknown Weight Class'}"
             char = (f"{char[0]} ({variant[0]})", variant[1])
 
-        self.set_mapped_image(self.character_canvas, self.CHARACTER_MAPPER, char[1], resize_to=self.CHARACTER_SIZE)
+        self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper(), char[1], resize_to=self.CHARACTER_SIZE)
         self.character_tip.text = f"{char[0]} ({character_id})"
 
     def set_track(self, track_id: int, ghost_number: int) -> None:
@@ -295,7 +289,7 @@ class PoltergustMainView:
         if track is not None:
             track_name = track.name
             track_icon_index = track.icon_index
-        self.set_mapped_image(self.track_canvas, self.TRACK_MAPPER, track_icon_index, resize_to=self.TRACK_SIZE)
+        self.set_mapped_image(self.track_canvas, MK8TrackImageMapper(), track_icon_index, resize_to=self.TRACK_SIZE)
         self.track.set(track_name)
         self.track_tip.text = f"{ghost_number} - {track_id}"
 
@@ -303,19 +297,19 @@ class PoltergustMainView:
         """ Sets vehicle part previews """
         # Kart
         kart = KARTS.get(kart_id, ("Unknown Kart", None))
-        self.set_mapped_image(self.kart_canvas, self.VEHICLE_PART_MAPPER, kart[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.set_mapped_image(self.kart_canvas, MK8VehiclePartImageMapper(), kart[1], resize_to=self.VEHICLE_PART_SIZE)
         self.kart.set(kart[0])
         self.kart_tip.text = str(kart_id)
 
         # Wheels
         wheels = WHEELS.get(wheels_id, ("Unknown Wheels", None))
-        self.set_mapped_image(self.wheels_canvas, self.VEHICLE_PART_MAPPER, wheels[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.set_mapped_image(self.wheels_canvas, MK8VehiclePartImageMapper(), wheels[1], resize_to=self.VEHICLE_PART_SIZE)
         self.wheels.set(wheels[0])
         self.wheels_tip.text = str(wheels_id)
 
         # Glider
         glider = GLIDERS.get(glider_id, ("Unknown Glider", None))
-        self.set_mapped_image(self.glider_canvas, self.VEHICLE_PART_MAPPER, glider[1], resize_to=self.VEHICLE_PART_SIZE)
+        self.set_mapped_image(self.glider_canvas, MK8VehiclePartImageMapper(), glider[1], resize_to=self.VEHICLE_PART_SIZE)
         self.glider.set(glider[0])
         self.glider_tip.text = str(glider_id)
 

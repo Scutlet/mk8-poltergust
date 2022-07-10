@@ -24,12 +24,12 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}
 
-    def __init__(self, master: Tk, track_slot_index: int, tempmapper, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
+    def __init__(self, master: Tk, track_slot_index: int, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Track slot selection
         ttk.Label(self, wraplength=135, text="Track Slot").pack()
-        track_slot_frame = MK8NintendoTrackFrame(self, track_slot_index, tempmapper)
+        track_slot_frame = MK8NintendoTrackFrame(self, track_slot_index)
         track_slot_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
 
         ttk.Separator(self, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(8, 4))

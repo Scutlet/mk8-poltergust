@@ -41,7 +41,7 @@ class PoltergustController:
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root, 60, self.view.TRACK_MAPPER, current_mod=next(self.db.get_mods())))
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root, 60, current_mod=next(self.db.get_mods())))
 
         # CT Manager
         self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=self.open_ct_manager)

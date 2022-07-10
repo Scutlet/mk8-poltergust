@@ -80,13 +80,13 @@ class MK8CustomTrackFrame(MK8TrackBaseFrame):
 
 class MK8NintendoTrackFrame(MK8TrackBaseFrame):
     """ TODO """
-    def __init__(self, master: Tk, track_id: int, track_mapper: MK8TrackImageMapper, *args, **kwargs):
+    def __init__(self, master: Tk, track_id: int, *args, **kwargs):
         track = COURSE_IDS.get(track_id, None)
         if track is not None:
             pass
             # TODO: Error handling
         icon_index = track.icon_index
-        track_preview = track_mapper.index_to_image(icon_index, resize_to=self.TRACK_PREVIEW_SIZE)
+        track_preview = MK8TrackImageMapper().index_to_image(icon_index, resize_to=self.TRACK_PREVIEW_SIZE)
 
         track_name = track.name
         track_author = track.cup

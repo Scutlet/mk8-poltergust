@@ -13,17 +13,6 @@ if __name__ == '__main__':
     # Load environment variables
     load_dotenv(".env")
 
-    # Create and display the UI
-    root = Tk()
-    view = PoltergustMainView(root)
-    db = MK8CTStorage()
-    controller = PoltergustController(view, db)
-
-    # Immediately open file if passed in
-    if len(sys.argv) == 2:
-        # Replace \ by / path separators (for Windows)
-        controller.open_ghostfile(sys.argv[1].replace("\\", "/"))
-
     # Logging config
     logging_config = {}
 
@@ -62,7 +51,18 @@ if __name__ == '__main__':
     sys.excepthook = unhandled_exc_hook
 
     # Override Tkinter stderr
+    root = Tk()
     root.report_callback_exception = unhandled_exc_hook
+
+    # Create and display the UI
+    view = PoltergustMainView(root)
+    db = MK8CTStorage()
+    controller = PoltergustController(view, db)
+
+    # Immediately open file if passed in
+    if len(sys.argv) == 2:
+        # Replace \ by / path separators (for Windows)
+        controller.open_ghostfile(sys.argv[1].replace("\\", "/"))
 
     logging.info("Starting Poltergust")
     root.mainloop()
