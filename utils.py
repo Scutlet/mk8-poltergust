@@ -2,7 +2,6 @@ import os
 import sys
 from tkinter import *
 from tkinter import ttk
-from ttkwidgets.autocomplete import AutocompleteCombobox
 
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -54,25 +53,6 @@ class PoltergustBlockingPopup(PoltergustPopup):
         # Give back control to the bottom window
         self.master.attributes('-disabled', 0)
         self.destroy()
-
-class AutocompleteKeyValueCombobox(AutocompleteCombobox):
-    """
-        A key-value based Combobox with search functionality. It displays keys
-        in the dropdown, but its associated values can be fetched instead.
-    """
-    def __init__(self, *args, completedict:dict=None, **kwargs):
-        if completedict is None:
-            raise ValueError("autocomplete dict cannot be None")
-        super().__init__(*args, completevalues=list(completedict.keys()), **kwargs)
-        self.options_dict = completedict
-
-    def get_key(self) -> str:
-        return super().get()
-
-    def get_value(self) -> str:
-        # Cannot override self.get() as the autocompletecombobox
-        #   relies on it to be unchanged
-        return self.options_dict[super().get()]
 
 
 

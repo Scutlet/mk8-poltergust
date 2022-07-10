@@ -5,8 +5,8 @@ from tkinter.font import BOLD, NORMAL as FONT_NORMAL
 
 from downloader import MOD_SITES, MK8CustomTrack
 from gamedata import COURSE_IDS
-from utils import AutocompleteKeyValueCombobox, PoltergustBlockingPopup
-from widgets import IconButton, IntEntry, MK8CustomTrackFrame
+from utils import PoltergustBlockingPopup
+from widgets import IconButton, IntEntry, MK8CustomTrackFrame, MK8NintendoTrackFrame
 
 
 
@@ -17,7 +17,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     """
     window_title = "Poltergust - Change Ghost Track"
     window_width = 300
-    window_height = 200
+    window_height = 250
 
     FONT = ("Courier", 9, FONT_NORMAL)
     FONT_TITLE = ("TkDefaultfont", 14, BOLD)
@@ -28,18 +28,13 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}
 
-    def __init__(self, master: Tk, track_slot_index: int, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
+    def __init__(self, master: Tk, track_slot_index: int, tempmapper, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Track slot selection
         ttk.Label(self, wraplength=135, text="Track Slot").pack()
-        track_slot_box = AutocompleteKeyValueCombobox(
-            self,
-            width=30,
-            completedict=self.track_slot_choices
-        )
-        track_slot_box.current(track_slot_index)
-        track_slot_box.pack()
+        track_slot_frame = MK8NintendoTrackFrame(self, track_slot_index, tempmapper)
+        track_slot_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
 
         ttk.Separator(self, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(8, 4))
 

@@ -6,12 +6,15 @@ import webbrowser
 
 from PIL import Image, ImageTk
 
-from downloader import MK8CustomTrack
+from downloader import GameBananaSite, MK8CustomTrack
+from gamedata import COURSE_IDS
+from imagemapper import MK8TrackImageMapper
 from utils import WrappingLabel, get_resource_path
 
 class MK8TrackBaseFrame(LabelFrame):
     """ TODO """
     BASE_FONT = "TkDefaultFont"
+    TRACK_PREVIEW_SIZE: tuple[int, int] = (96, 54)
 
     def __init__(self, master: Tk, track_name: str, track_author: str, track_preview: Image.Image, url_text: str, url_icon: Image.Image, url_link: str, url_tooltip: str, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -64,7 +67,7 @@ class MK8CustomTrackFrame(MK8TrackBaseFrame):
         track_preview = None
         if track.preview_image is not None:
             try:
-                track_preview = Image.open(track.preview_image).resize(size=(96, 54))
+                track_preview = Image.open(track.preview_image).resize(size=self.TRACK_PREVIEW_SIZE)
             except FileNotFoundError as e:
                 track_preview = track.mod_site.icon.resize(size=(24, 24))
 
@@ -75,6 +78,20 @@ class MK8CustomTrackFrame(MK8TrackBaseFrame):
 
         super().__init__(master, track_name, track_author, track_preview, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
 
+class MK8NintendoTrackFrame(MK8TrackBaseFrame):
+    """ TODO """
+    def __init__(self, master: Tk, track_id: int, track_mapper: MK8TrackImageMapper, *args, **kwargs):
+        icon_index = COURSE_IDS[track_id][1]
+        track_preview = track_mapper.index_to_image(icon_index, resize_to=self.TRACK_PREVIEW_SIZE)
+
+        track_name = COURSE_IDS[track_id][0]
+        track_author = "Nintendo"
+        url_text = str(track_id)
+        url_icon = GameBananaSite.icon # TODO
+        url_link = "https://www.mariowiki.com/Mario_Kart_8#Courses"
+        url_tooltip = f"Super Mario Wiki - {url_link}"
+
+        super().__init__(master, track_name, track_author, track_preview, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
 
 class IntEntry(ttk.Entry):
     """ Tkinter entry that only accepts numbers as its input """
