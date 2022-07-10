@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 
 from downloader import MK8CustomTrack, MOD_SITES
 from utils import PoltergustBlockingPopup, WrappingLabel, get_resource_path
-from widgets import MK8CustomTrackFrame
+from widgets import IconButton, MK8CustomTrackFrame
 
 
 class PoltergustCTManagerView(PoltergustBlockingPopup):
@@ -39,8 +39,7 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         top.pack(padx=5, pady=6, fill=X)
 
         # Add CT Box
-        self._plus_img = PhotoImage(file=get_resource_path('resources/icons/plus-solid.png'))
-        self.add_button = Button(top, text="Add a Mod", image=self._plus_img, compound=LEFT)
+        self.add_button = IconButton(top, text="Add a mod", image_path='resources/icons/plus-solid.png')
         self.add_button.pack(side=LEFT)
 
         # Search Box
