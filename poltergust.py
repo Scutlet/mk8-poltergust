@@ -56,8 +56,7 @@ if __name__ == '__main__':
 
     # Create and display the UI
     view = PoltergustMainView(root)
-    db = MK8CTStorage()
-    controller = PoltergustController(view, db)
+    controller = PoltergustController(view)
 
     # Immediately open file if passed in
     if len(sys.argv) == 2:

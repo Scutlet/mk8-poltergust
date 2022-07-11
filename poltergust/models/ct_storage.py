@@ -4,9 +4,10 @@ import sqlite3
 from typing import Iterable
 
 from poltergust.parsers.downloader import MOD_SITES, MK8CustomTrack
+from poltergust.utils import Singleton
 
 
-class MK8CTStorage:
+class MK8CTStorage(metaclass=Singleton):
     """ Stores Custom Track information on disc """
     CACHE_PATH = "cache"
     DB_NAME = "modinfos.db"
@@ -15,10 +16,6 @@ class MK8CTStorage:
     MOD_PREVIEW_PATH = os.path.join(CACHE_PATH, MOD_PREVIEW_FILENAME)
 
     def __init__(self):
-        self._setup()
-
-    def _setup(self):
-        """ Initial setup """
         # Connect with cache
         os.makedirs(self.CACHE_PATH, exist_ok=True)
         path = os.path.join(self.CACHE_PATH, self.DB_NAME)
@@ -35,7 +32,7 @@ class MK8CTStorage:
         """ Closes the database connection """
         self.connection.close()
 
-    def save_changes(self):
+    def commit(self):
         """ Saves any changes made by add or delete functions """
         self.connection.commit()
 

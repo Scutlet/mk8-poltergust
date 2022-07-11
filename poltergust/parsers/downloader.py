@@ -1,4 +1,5 @@
 import io
+import logging
 import requests
 
 from PIL import Image, ImageOps
@@ -21,9 +22,8 @@ class PoltergustDownloader:
             raise ModDownloadException("Invalid Domain! Mods cannot be downloaded from the given URL. Please check the URL for typos.")
 
         try:
-            print(f"Making request to: {api_endpoint}")
+            logging.info(f"Downloading mod infos from: {api_endpoint}")
             res = requests.get(api_endpoint, timeout=self.TIMEOUT)
-            print("Request done!")
         except requests.ConnectTimeout as e:
             raise ModDownloadException(f"Could not reach {site.name}. The site may be down or you may not have an Internet connection.") from e
 
@@ -60,6 +60,7 @@ class PoltergustDownloader:
 
     def download_preview_image(self, preview_url: str, output_path: str) -> None:
         """ Downloads a preview image from a given URL to a given path on the system """
+        logging.info(f"Downloading preview image from: {preview_url}")
         with requests.get(preview_url, stream=True, timeout=self.TIMEOUT) as res:
             if res.status_code != 200:
                 raise ModDownloadException(f"Could not download {preview_url}: HTTP {res.status_code}. Please check your Internet connection.")

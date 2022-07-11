@@ -4,6 +4,8 @@ from select import select
 from tkinter import *
 from tkinter import messagebox
 from typing import Callable
+from poltergust.controllers.ctlist_controllers import CTListController
+from poltergust.controllers.track_change import TrackChangeController
 from poltergust.models.ct_storage import MK8CTStorage
 from poltergust.parsers.downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
 
@@ -22,38 +24,37 @@ from poltergust.views.main import PoltergustMainView
 class PoltergustController:
     """ Controller for the application. It invokes models/parsers and controls the view/UI state """
 
-    def __init__(self, view: PoltergustMainView, db: MK8CTStorage):
+    def __init__(self, view: PoltergustMainView):
         self.ghostfile: str = None
         self.filename_data: MK8GhostFilenameData = None
         self.ghost_has_header = None
-        self.view = view
-        self.db = db
-        self.downloader = PoltergustDownloader()
+        self._view = view
+        self._db = MK8CTStorage()
 
         # Setup Menu callbacks
-        self.view.menu_file.entryconfig(self.view.BTN_OPEN, command=self.open_ghostfile)
-        self.view.menu_file.entryconfig(self.view.BTN_CLOSE, command=self.close_ghostfile)
-        self.view.menu_file.entryconfig(self.view.BTN_RELOAD_FROM_DISK, command=self.update)
+        self._view.menu_file.entryconfig(self._view.BTN_OPEN, command=self.open_ghostfile)
+        self._view.menu_file.entryconfig(self._view.BTN_CLOSE, command=self.close_ghostfile)
+        self._view.menu_file.entryconfig(self._view.BTN_RELOAD_FROM_DISK, command=self.update)
 
         # Setup Export callbacks
-        self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, command=self.extract_mii)
-        self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
+        self._view.menu_export.entryconfig(self._view.BTN_EXTRACT_MII, command=self.extract_mii)
+        self._view.menu_export.entryconfig(self._view.BTN_EXPORT_AS_STAFF_GHOST, command=self.export_as_staff)
         for slot in range(16):
-            self.view.menu_export_download.entryconfig(self.view.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
+            self._view.menu_export_download.entryconfig(self._view.BTN_DOWNLOADED_GHOST_SLOT_PREFIX+str(slot), command=lambda bound_slot=slot: self.export_as_downloaded(bound_slot))
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=self.change_ct)
+        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, command=self.change_ct)
 
         # CT Manager
-        self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=self.open_ct_manager)
+        self._view.menubar.entryconfig(self._view.BTN_CT_MANAGER, command=self.open_ct_manager)
 
         self.close_ghostfile()
 
     def open_ghostfile(self, filename=None):
         """ Invokes the view to select a ghost file, and loads its data """
         if filename is None:
-            filename = self.view.select_ghost_file()
+            filename = self._view.select_ghost_file()
 
         # Selection is empty if it was aborted
         if not filename:
@@ -73,68 +74,34 @@ class PoltergustController:
         self.ghost_has_header = None
 
         # Disable buttons
-        self.view.menu_file.entryconfig(self.view.BTN_CLOSE, state=DISABLED)
-        self.view.menu_file.entryconfig(self.view.BTN_RELOAD_FROM_DISK, state=DISABLED)
-        self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
-        self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
-        self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, state=DISABLED)
+        self._view.menu_file.entryconfig(self._view.BTN_CLOSE, state=DISABLED)
+        self._view.menu_file.entryconfig(self._view.BTN_RELOAD_FROM_DISK, state=DISABLED)
+        self._view.menu_export.entryconfig(self._view.BTN_EXPORT_AS_STAFF_GHOST, state=DISABLED)
+        self._view.menu_export.entryconfig(self._view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
+        self._view.menu_export.entryconfig(self._view.BTN_EXTRACT_MII, state=DISABLED)
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=DISABLED)
         # self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=DISABLED)
-        self.view.lb_ghostfile.config(text="No ghost data loaded")
+        self._view.lb_ghostfile.config(text="No ghost data loaded")
 
         # Remove Preview
-        self.view.dataframe.grid_remove()
+        self._view.dataframe.grid_remove()
 
-    def add_ct(self, view: Toplevel, on_download_complete_fn: Callable[[MK8CustomTrack], None]|None=None) -> None:
-        """ Opens up a new UI to fetch a new CT """
-        def _on_click_add(e=None) -> None:
-            try:
-                mod = self.download_ct_infos(ct_view.ct_url.get())
-                if mod is not None and on_download_complete_fn is not None:
-                    on_download_complete_fn(mod)
-                    messagebox.showinfo("Download Complete!", f"Mod information was downloaded successfully!\nName: {mod.name}\nAuthor(s): {mod.author}\nSite: {mod.mod_site}", parent=ct_view)
-            except ModDownloadException as e:
-                logging.error(e)
-                messagebox.showerror("Download Error!", str(e), parent=ct_view)
+    def open_ct_changer(self):
+        """ TODO """
 
-        ct_view = PoltergustAddCTView(view)
-        ct_view.fetch_button.config(command=_on_click_add)
-        ct_view.bind('<Return>', _on_click_add)
 
     def change_ct(self):
         """ TODO """
-        change_view = PoltergustChangeTrackView(self.view.root, COURSE_IDS[42], current_mod=next(self.db.get_mods()))
+        current_track_slot = COURSE_IDS[42]
+        current_ct = next(self._db.get_mods())
 
-        def on_change(track: MK8CustomTrack):
-            print(track)
-            change_view.set_mod(track)
-        change_view.change_button.config(command=lambda: self.open_ct_selector(change_view, on_change))
-
-    def open_ct_selector(self, master: Toplevel, on_select_fn):
-        """ TODO """
-        selector_view = TrackListSelectorView(master, self.db.get_mods(), selected_track=None)
-        def on_select():
-            track = selector_view.selected_track
-            selector_view.on_close()
-            on_select_fn(track)
-        selector_view.select_button.config(command=on_select)
+        trackchange_view = PoltergustChangeTrackView(self._view.root, current_track_slot, current_mod=current_ct)
+        trackchange_controller = TrackChangeController(trackchange_view)
 
     def open_ct_manager(self):
         """ TODO """
-        manager_view = PoltergustCTManagerView(self.view.root, self.db.get_mods())
-        manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.track_canvas.add_track(m)))
-
-    def download_ct_infos(self, url: str) -> MK8CustomTrack|None:
-        """ Downloads info for a mod located at a given URL. :raise: ModDownloadException if the download could not be completed """
-        mod = self.downloader.download(url)
-        if mod.preview_image is not None:
-            preview_path = self.db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id}
-            self.downloader.download_preview_image(mod.preview_image, preview_path)
-            mod.preview_image = preview_path
-
-        self.db.add_or_update_mod(mod)
-        self.db.save_changes()
-        return mod
+        ctmanager_view = PoltergustCTManagerView(self._view.root, self._db.get_mods())
+        CTListController(ctmanager_view)
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """
@@ -144,7 +111,7 @@ class PoltergustController:
 
     def extract_mii(self):
         """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
-        filepath = self.view.select_mii_output_folder(f"mii-{self.filename_data.playername}")
+        filepath = self._view.select_mii_output_folder(f"mii-{self.filename_data.playername}")
         if not filepath:
             # Operation cancelled
             return
@@ -164,7 +131,7 @@ class PoltergustController:
         """ Invokes the Mii handler and replaces the Mii from the currently loaded ghost file """
         assert self.ghostfile is not None
 
-        new_mii = self.view.select_mii_file()
+        new_mii = self._view.select_mii_file()
 
         if not new_mii:
             # Operation cancelled
@@ -197,7 +164,7 @@ class PoltergustController:
     def export_as_staff(self) -> None:
         """ Exports the currently loaded ghostfile as a staff ghost """
         assert self.ghostfile is not None
-        output_folder = self.view.select_conversion_staff_output_folder()
+        output_folder = self._view.select_conversion_staff_output_folder()
         if output_folder is None:
             # Operation cancelled
             return
@@ -209,7 +176,7 @@ class PoltergustController:
     def export_as_downloaded(self, ghost_slot: int = 0) -> None:
         """ Exports the currently loaded ghostfile as a downloaded ghost """
         assert self.ghostfile is not None
-        output_folder = self.view.select_conversion_download_output_folder()
+        output_folder = self._view.select_conversion_download_output_folder()
         if not output_folder:
             # Operation cancelled
             return
@@ -224,52 +191,52 @@ class PoltergustController:
         assert self.ghostfile is not None
 
         # Enable buttons if a file is open
-        self.view.menu_file.entryconfig(self.view.BTN_CLOSE, state=NORMAL)
-        self.view.menu_file.entryconfig(self.view.BTN_RELOAD_FROM_DISK, state=NORMAL)
-        self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
-        self.view.menu_export.entryconfig(self.view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=NORMAL)
-        self.view.menu_export.entryconfig(self.view.BTN_EXTRACT_MII, state=NORMAL)
+        self._view.menu_file.entryconfig(self._view.BTN_CLOSE, state=NORMAL)
+        self._view.menu_file.entryconfig(self._view.BTN_RELOAD_FROM_DISK, state=NORMAL)
+        self._view.menu_export.entryconfig(self._view.BTN_EXPORT_AS_STAFF_GHOST, state=NORMAL)
+        self._view.menu_export.entryconfig(self._view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=NORMAL)
+        self._view.menu_export.entryconfig(self._view.BTN_EXTRACT_MII, state=NORMAL)
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=NORMAL)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=NORMAL)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=NORMAL)
+        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, state=NORMAL)
+        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, state=NORMAL)
 
         # Enable all download ghost slots
         for i in range(16):
-            self.view.menu_export_download.entryconfig(self.view.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(i), state=NORMAL)
+            self._view.menu_export_download.entryconfig(self._view.BTN_DOWNLOADED_GHOST_SLOT_PREFIX + str(i), state=NORMAL)
 
         # Name of opened file (truncate it)
         file_str = "Loaded File: " + self.ghostfile.rpartition("/")[2][:40]
         if len(self.ghostfile) > 40:
             file_str += "..."
-        self.view.lb_ghostfile.config(text=file_str)
+        self._view.lb_ghostfile.config(text=file_str)
 
         # Parse file
         self.parse_filename(self.ghostfile)
 
         # Update ghostinfos
-        self.view.game_version.config(text=f"Game version {self.filename_data.game_version.value}")
-        self.view.set_ghost_type(self.filename_data.ghost_type, self.filename_data.ghost_number, self.ghost_has_header)
+        self._view.game_version.config(text=f"Game version {self.filename_data.game_version.value}")
+        self._view.set_ghost_type(self.filename_data.ghost_type, self.filename_data.ghost_number, self.ghost_has_header)
 
         # Update Images
-        self.view.set_flag(self.filename_data.flag_id)
-        self.view.set_character(self.filename_data.character_id, self.filename_data.character_variant_id, self.filename_data.mii_weight_class_id)
-        self.view.set_vehicle_parts(self.filename_data.kart_id, self.filename_data.wheels_id, self.filename_data.glider_id)
+        self._view.set_flag(self.filename_data.flag_id)
+        self._view.set_character(self.filename_data.character_id, self.filename_data.character_variant_id, self.filename_data.mii_weight_class_id)
+        self._view.set_vehicle_parts(self.filename_data.kart_id, self.filename_data.wheels_id, self.filename_data.glider_id)
 
         # Update track preview image
         track_id = self.filename_data.track_id
         if self.filename_data.ghost_type != MK8GhostType.DOWNLOADED_GHOST and self.filename_data.track_id - 16 != self.filename_data.ghost_number:
             # Track ID - 16 matches ghost number, but only for non-download ghosts
             track_id = None
-        self.view.set_track(track_id, self.filename_data.ghost_number)
+        self._view.set_track(track_id, self.filename_data.ghost_number)
 
         # Update text
-        self.view.playername.set(self.filename_data.playername)
-        self.view.total_min.set(self.filename_data.total_minutes)
-        self.view.total_sec.set(f"{self.filename_data.total_seconds:02d}")
-        self.view.total_ms.set(f"{self.filename_data.total_ms:03d}")
+        self._view.playername.set(self.filename_data.playername)
+        self._view.total_min.set(self.filename_data.total_minutes)
+        self._view.total_sec.set(f"{self.filename_data.total_seconds:02d}")
+        self._view.total_ms.set(f"{self.filename_data.total_ms:03d}")
 
         # Set lap splits
-        for i, lap in enumerate(self.view.lap_splits):
+        for i, lap in enumerate(self._view.lap_splits):
             lap_mins = getattr(self.filename_data, f'lap{i+1}_minutes')
             if lap_mins is not None:
                 lap['min'][0].set(lap_mins)
@@ -281,7 +248,7 @@ class PoltergustController:
                 lap['ms'][0].set("999")
 
         # Show Preview
-        self.view.dataframe.grid()
+        self._view.dataframe.grid()
 
 
 

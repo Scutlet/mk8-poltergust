@@ -3,6 +3,7 @@ import os
 import sys
 from tkinter import *
 from tkinter import ttk
+from typing import Callable, Generic, TypeVar
 
 class Singleton(type):
     """ Singleton Metaclass """
@@ -76,11 +77,27 @@ class PoltergustBlockingPopup(PoltergustPopup):
         self.bind("<Escape>", lambda e: self.on_close())
 
     def on_close(self):
-        """ On closing the about window """
+        """ On closing the popup """
         # Give back control to the bottom window
         self.master.attributes('-disabled', 0)
         self.destroy()
 
+T = TypeVar('T')
+
+class Observable(Generic[T]):
+    """ TODO """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._listeners: list[Callable[[], T]] = []
+
+    def add_listener(self, listener: Callable[[], T]) -> None:
+        """ TODO """
+        self._listeners.append(listener)
+
+    def notify_listeners(self, val: T) -> None:
+        """ TODO """
+        for listener in self._listeners:
+            listener(val)
 
 
 # Inject 8 bytes just before Mii data.

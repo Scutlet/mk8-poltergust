@@ -220,7 +220,7 @@ class GameBananaSite(MK8ModSite):
         # Fetch override from credits list (if available)
         authors = []
         for credit in clean_json['Credits().aAuthors()']:
-            if credit[1].lower() in ("original author", "original creator", "created the track", "main author", "main creator"):
+            if credit[1].lower() in ("original author", "original ct author", "original creator", "original ct creator", "created the track", "main author", "main creator"):
                 # There might be multiple main authors, so don't quit yet
                 authors.append(credit[0])
 

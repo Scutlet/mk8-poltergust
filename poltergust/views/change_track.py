@@ -17,7 +17,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     """
     window_title = "Poltergust - Change Ghost Track"
     window_width = 300
-    window_height = 250
+    window_height = 275
 
     FONT = ("Courier", 9, FONT_NORMAL)
     FONT_TITLE = ("TkDefaultfont", 14, BOLD)
@@ -31,6 +31,14 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         # Track slot selection
         self.track_slot = None
         ttk.Label(self, wraplength=135, text="Track Slot").pack()
+
+        # Track Slot Buttons
+        button_frame = Frame(self)
+        button_frame.pack(fill=X)
+        self.change_track_slot_button = IconButton(button_frame, text="Change Track", image_path="resources/icons/pen-solid.png")
+        self.change_track_slot_button.pack(side=LEFT, padx=(4, 0))
+
+        # Track Slot Preview
         self.static_track_frame = Frame(self)
         self.static_track_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
         self.set_track_slot(current_track_slot)
@@ -40,7 +48,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         # Custom track selection
         ttk.Label(self, text="Custom Track", font=self.FONT_TITLE).pack()
 
-        # Buttons
+        # Custom Track Buttons
         button_frame = Frame(self)
         button_frame.pack(fill=X)
 
@@ -56,10 +64,10 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
             change_kwargs["text"] = "Select Track"
             change_kwargs["image_path"] = "resources/icons/plus-solid.png"
 
-        self.change_button = IconButton(button_frame, **change_kwargs)
-        self.change_button.pack(side=LEFT, padx=(4, 0))
+        self.change_ct_button = IconButton(button_frame, **change_kwargs)
+        self.change_ct_button.pack(side=LEFT, padx=(4, 0))
 
-        # CT Preview
+        # Custom Track Preview
         self.mod = None
         self.static_mod_frame = Frame(self)
         self.static_mod_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))

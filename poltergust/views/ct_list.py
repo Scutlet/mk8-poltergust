@@ -3,6 +3,7 @@ import logging
 import math
 from tkinter import *
 from tkinter import ttk
+from typing import Iterable
 
 from PIL import Image, ImageTk, ImageDraw, ImagePath
 
@@ -11,7 +12,7 @@ from poltergust.widgets.widgets import FramableTrack, IconButton, MK8TrackFrame
 
 class ScrollableTrackCanvas(Canvas):
     """ TODO """
-    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, search_widget:ttk.Entry|None=None, scrollable_region: Widget|None=None, **kwargs):
+    def __init__(self, master: Tk, track_list: Iterable[FramableTrack], *args, search_widget:ttk.Entry|None=None, scrollable_region: Widget|None=None, **kwargs):
         super().__init__(master, *args, bd=0, borderwidth=0, highlightthickness=0, **kwargs)
 
         # Link search box
@@ -45,7 +46,7 @@ class ScrollableTrackCanvas(Canvas):
         scrollable_region.bind("<Button-4>", self._set_scroll) # for Linux
         scrollable_region.bind("<Button-5>", self._set_scroll) # for Linux
 
-    def _set_scroll(self, event):
+    def _set_scroll(self, event: Event):
         """ Moves the scrollbar when the user scrolls the mouse wheel """
         start, end = self.vsb.get()
         if start <= 0 and end >= 1:
@@ -58,13 +59,13 @@ class ScrollableTrackCanvas(Canvas):
             amount = 1
         self.yview_scroll(amount, "units")
 
-    def _reset_scrollregion(self, event):
+    def _reset_scrollregion(self, event: Event):
         self.configure(scrollregion=self.bbox("all"))
 
-    def _resize_inner_frame(self, event):
+    def _resize_inner_frame(self, event: Event):
         self.itemconfig("inner", width=event.width)
 
-    def _build_track_list(self, track_list: list[FramableTrack]) -> list[tuple[FramableTrack, MK8TrackFrame]]:
+    def _build_track_list(self, track_list: Iterable[FramableTrack]) -> list[tuple[FramableTrack, MK8TrackFrame]]:
         """ TODO """
         track_widgets = []
         for track in sorted(track_list, key=lambda item: item.sort_field):
@@ -109,7 +110,7 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
     window_width = 310
     window_height = 400
 
-    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, **kwargs):
+    def __init__(self, master: Tk, track_list: Iterable[FramableTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Top frame
@@ -229,11 +230,7 @@ class TrackListSelectorView(PoltergustCTManagerView):
         if self.selected_track != track:
             widget.set_color(self.HOVER_COLOR)
 
-
     def deactivate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
         # Clear highlight color
         if self.selected_track != track:
             widget.set_color(None)
-
-
-

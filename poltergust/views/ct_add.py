@@ -32,3 +32,4 @@ class PoltergustAddCTView(PoltergustBlockingPopup):
 
         self.fetch_button = Button(self, text="Fetch Mod Info")
         self.fetch_button.pack(pady=6)
+        self.bind('<Return>', lambda e: self.fetch_button.invoke())
