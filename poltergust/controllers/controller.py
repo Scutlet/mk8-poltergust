@@ -44,7 +44,7 @@ class PoltergustController:
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, command=self.change_ct)
+        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, command=self.open_ct_changer)
 
         # CT Manager
         self._view.menubar.entryconfig(self._view.BTN_CT_MANAGER, command=self.open_ct_manager)
@@ -87,10 +87,6 @@ class PoltergustController:
         self._view.dataframe.grid_remove()
 
     def open_ct_changer(self):
-        """ TODO """
-
-
-    def change_ct(self):
         """ TODO """
         current_track_slot = COURSE_IDS[42]
         current_ct = next(self._db.get_mods())

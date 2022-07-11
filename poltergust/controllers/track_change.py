@@ -13,7 +13,7 @@ from poltergust.views.ct_list import TrackListSelectorView
 
 class TrackChangeController:
     """ TODO """
-    SELECTABLE_TRACKS_SLOTS = filter(lambda track: track.course_id < 64, COURSE_IDS.values())
+    SELECTABLE_TRACKS_SLOTS = list(filter(lambda track: track.course_id < 64, COURSE_IDS.values()))
 
     def __init__(self, view: PoltergustChangeTrackView):
         super().__init__()

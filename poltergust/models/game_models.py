@@ -35,6 +35,7 @@ class MK8Course(FramableTrack):
     name: str
     icon_index: int
     cup: MK8Cup
+    url: str
 
     _sort_field_name = "name"
 
@@ -54,7 +55,7 @@ class MK8Course(FramableTrack):
         track_author = self.cup
         url_text = str(self.course_id)
         url_icon = GameBananaSite.icon # TODO
-        url_link = "https://www.mariowiki.com/Mario_Kart_8#Courses"
+        url_link = self.url
         url_tooltip = f"Super Mario Wiki - {url_link}"
 
         return MK8TrackFrame(master, track_name, track_author, track_preview, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
