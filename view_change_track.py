@@ -25,13 +25,15 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     # Add mod sites
     mod_site_choices = {site.name: site for site in MOD_SITES}
 
-    def __init__(self, master: Tk, current_track_slot_index: MK8Course, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
+    def __init__(self, master: Tk, current_track_slot: MK8Course, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Track slot selection
+        self.track_slot = None
         ttk.Label(self, wraplength=135, text="Track Slot").pack()
-        track_slot_frame = current_track_slot_index.frame(self)
-        track_slot_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
+        self.static_track_frame = Frame(self)
+        self.static_track_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
+        self.set_track_slot(current_track_slot)
 
         ttk.Separator(self, orient=HORIZONTAL).pack(fill=X, padx=4, pady=(8, 4))
 
@@ -58,8 +60,10 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         self.change_button.pack(side=LEFT, padx=(4, 0))
 
         # CT Preview
-        mod_frame = current_mod.frame(self)
-        mod_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
+        self.mod = None
+        self.static_mod_frame = Frame(self)
+        self.static_mod_frame.pack(fill=X, padx=(4, 4), pady=(4, 4))
+        self.set_mod(current_mod)
 
         # Version frame
         version_frame = Frame(self)
@@ -81,3 +85,21 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         ct_version_minor_entry.pack(side=LEFT)
         ttk.Label(version_frame, text=".").pack(side=LEFT)
         ct_version_patch_entry.pack(side=LEFT)
+
+    def set_track_slot(self, track: MK8Course):
+        """ TODO """
+        if self.track_slot is not None:
+            self.static_track_frame.winfo_children()[0].destroy()
+
+        track.frame(self.static_track_frame).pack(fill=X)
+        self.track_slot = track
+
+    def set_mod(self, mod: MK8CustomTrack):
+        """ TODO """
+        if self.mod is not None:
+            self.static_mod_frame.winfo_children()[0].destroy()
+
+        mod.frame(self.static_mod_frame).pack(fill=X)
+        self.mod = mod
+
+

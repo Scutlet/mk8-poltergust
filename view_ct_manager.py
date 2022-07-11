@@ -144,16 +144,16 @@ class TrackListSelectorView(PoltergustCTManagerView):
     SELECTION_COLOR = "light green"
     HOVER_COLOR = "lightblue"
 
-    def __init__(self, master: Tk, xxx, *args, selected_track: FramableTrack|None=None, **kwargs):
-        xxx = list(xxx)
-        selected_track = xxx[0]
-        super().__init__(master, xxx, *args, **kwargs)
+    def __init__(self, master: Tk, *args, selected_track: FramableTrack|None=None, **kwargs):
+        super().__init__(master, *args, **kwargs)
 
         self.selected_track: FramableTrack|None = None
         self.selected_widget: MK8TrackFrame|None = None
 
-        self.select_button = Button(self, text="Confirm")
+        # Confirm button (disabled until a selection is made)
+        self.select_button = Button(self, text="Confirm Selection", state=DISABLED)
         self.select_button.pack(side=BOTTOM, pady=(4, 4))
+        self.bind('<Return>', lambda e: self.select_button.invoke())
 
         # Selection images
         self._selected_rect_img = self._get_polygon_as_image(MK8TrackFrame.TRACK_PREVIEW_SIZE, [
@@ -200,6 +200,9 @@ class TrackListSelectorView(PoltergustCTManagerView):
         # Already selected
         if self.selected_track == track:
             return
+
+        # Selected a track
+        self.select_button.config(state=NORMAL)
 
         # Clear previous selection highlight
         if self.selected_widget is not None:

@@ -1,5 +1,6 @@
 import logging
 import os
+from select import select
 from tkinter import *
 from tkinter import messagebox
 from typing import Callable
@@ -41,7 +42,7 @@ class PoltergustController:
 
         # Setup Edit callbacks
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, command=self.replace_mii)
-        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=lambda: PoltergustChangeTrackView(self.view.root, COURSE_IDS[42], current_mod=next(self.db.get_mods())))
+        self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, command=self.change_ct)
 
         # CT Manager
         self.view.menubar.entryconfig(self.view.BTN_CT_MANAGER, command=self.open_ct_manager)
@@ -99,10 +100,28 @@ class PoltergustController:
         ct_view.fetch_button.config(command=_on_click_add)
         ct_view.bind('<Return>', _on_click_add)
 
+    def change_ct(self):
+        """ TODO """
+        change_view = PoltergustChangeTrackView(self.view.root, COURSE_IDS[42], current_mod=next(self.db.get_mods()))
+
+        def on_change(track: MK8CustomTrack):
+            print(track)
+            change_view.set_mod(track)
+        change_view.change_button.config(command=lambda: self.open_ct_selector(change_view, on_change))
+
+    def open_ct_selector(self, master: Toplevel, on_select_fn):
+        """ TODO """
+        selector_view = TrackListSelectorView(master, self.db.get_mods(), selected_track=None)
+        def on_select():
+            track = selector_view.selected_track
+            selector_view.on_close()
+            on_select_fn(track)
+        selector_view.select_button.config(command=on_select)
+
     def open_ct_manager(self):
         """ TODO """
-        manager_view = TrackListSelectorView(self.view.root, self.db.get_mods())
-        manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.add_track(m)))
+        manager_view = PoltergustCTManagerView(self.view.root, self.db.get_mods())
+        manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.track_canvas.add_track(m)))
 
     def download_ct_infos(self, url: str) -> MK8CustomTrack|None:
         """ Downloads info for a mod located at a given URL. :raise: ModDownloadException if the download could not be completed """
