@@ -2,8 +2,8 @@ from datetime import datetime
 import os
 import sqlite3
 from typing import Iterable
-from poltergust.parsers.downloader import MOD_SITES, MK8CustomTrack
 
+from poltergust.parsers.downloader import MOD_SITES, MK8CustomTrack
 
 
 class MK8CTStorage:

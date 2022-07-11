@@ -1,5 +1,6 @@
 from poltergust.models.game_models import MK8DLC, MK8Course, MK8Cup
 
+
 DLC_ZELDA = MK8DLC("The Legend of Zelda × Mario Kart 8")
 DLC_ANIMAL_CROSSING = MK8DLC("Animal Crossing × Mario Kart 8")
 DLC_DELUXE = MK8DLC("Mario Kart 8 Deluxe")
