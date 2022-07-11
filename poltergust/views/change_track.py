@@ -3,10 +3,10 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD, NORMAL as FONT_NORMAL
 
-from downloader import MOD_SITES, MK8CustomTrack
-from pg_dataclasses import MK8Course
-from utils import PoltergustBlockingPopup
-from widgets import IconButton, IntEntry
+from poltergust.parsers.downloader import MOD_SITES, MK8CustomTrack
+from poltergust.models.game_models import MK8Course
+from poltergust.utils import PoltergustBlockingPopup
+from poltergust.widgets.widgets import IconButton, IntEntry
 
 
 

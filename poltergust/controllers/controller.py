@@ -4,18 +4,19 @@ from select import select
 from tkinter import *
 from tkinter import messagebox
 from typing import Callable
-from ct_storage import MK8CTStorage
-from downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
+from poltergust.models.ct_storage import MK8CTStorage
+from poltergust.parsers.downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
 
-from gamedata import COURSE_IDS, MK8GhostType
-from filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
-from ghost_converter import MK8GhostConverter
-from ghost_file_parser import MK8GhostDataParser
-from mii_handler import MK8GhostFilenameDataMiiHandler
-from view_change_track import PoltergustChangeTrackView
-from view_ct_add import PoltergustAddCTView
-from view_ct_manager import PoltergustCTManagerView, TrackListSelectorView
-from view_main import PoltergustMainView
+from poltergust.models.gamedata import COURSE_IDS
+from poltergust.models.game_models import MK8GhostType
+from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
+from poltergust.parsers.ghost_converter import MK8GhostConverter
+from poltergust.parsers.ghost_file_parser import MK8GhostDataParser
+from poltergust.parsers.mii_handler import MK8GhostFilenameDataMiiHandler
+from poltergust.views.change_track import PoltergustChangeTrackView
+from poltergust.views.ct_add import PoltergustAddCTView
+from poltergust.views.ct_list import PoltergustCTManagerView, TrackListSelectorView
+from poltergust.views.main import PoltergustMainView
 
 
 class PoltergustController:

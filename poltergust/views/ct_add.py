@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 
-from utils import PoltergustBlockingPopup, WrappingLabel
-from downloader import MOD_SITES
+from poltergust.utils import PoltergustBlockingPopup, WrappingLabel
+from poltergust.parsers.downloader import MOD_SITES
 
 
 class PoltergustAddCTView(PoltergustBlockingPopup):

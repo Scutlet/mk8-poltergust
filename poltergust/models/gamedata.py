@@ -1,13 +1,4 @@
-from enum import Enum
-
-from pg_dataclasses import MK8DLC, MK8Course, MK8Cup
-
-class MK8GhostType(Enum):
-    """ Enumeration of all types of ghosts in Mario Kart 8 """
-    STAFF_GHOST = "sg"
-    PLAYER_GHOST = "gs"
-    DOWNLOADED_GHOST = "dg"
-    MKTV_REPLAY = "rp" # Different file format than a ghost
+from poltergust.models.game_models import MK8DLC, MK8Course, MK8Cup
 
 DLC_ZELDA = MK8DLC("The Legend of Zelda × Mario Kart 8")
 DLC_ANIMAL_CROSSING = MK8DLC("Animal Crossing × Mario Kart 8")

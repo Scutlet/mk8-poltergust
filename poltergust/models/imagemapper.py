@@ -3,7 +3,7 @@ import logging
 
 from PIL import Image
 
-from utils import SingletonABCMeta, get_resource_path
+from poltergust.utils import SingletonABCMeta, get_resource_path
 
 
 class MK8ImageAtlasMapper(ABC, metaclass=SingletonABCMeta):

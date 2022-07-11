@@ -3,7 +3,7 @@ from tkinter import ttk
 
 from PIL import Image, ImageTk
 
-from utils import PoltergustBlockingPopup, get_resource_path
+from poltergust.utils import PoltergustBlockingPopup, get_resource_path
 
 
 class PoltergustAboutView(PoltergustBlockingPopup):

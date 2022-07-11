@@ -8,8 +8,8 @@ from typing import ClassVar
 from PIL import Image, ImageOps
 import requests
 
-from utils import get_resource_path
-from widgets import FramableTrack, MK8TrackFrame
+from poltergust.utils import get_resource_path
+from poltergust.widgets.widgets import FramableTrack, MK8TrackFrame
 
 
 class ModDownloadException(Exception):

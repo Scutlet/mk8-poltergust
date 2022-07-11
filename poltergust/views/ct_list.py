@@ -6,8 +6,8 @@ from tkinter import ttk
 
 from PIL import Image, ImageTk, ImageDraw, ImagePath
 
-from utils import PoltergustBlockingPopup, bind_tree, get_resource_path
-from widgets import FramableTrack, IconButton, MK8TrackFrame
+from poltergust.utils import PoltergustBlockingPopup, bind_tree, get_resource_path
+from poltergust.widgets.widgets import FramableTrack, IconButton, MK8TrackFrame
 
 class ScrollableTrackCanvas(Canvas):
     """ TODO """

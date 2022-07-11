@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from gamedata import MK8GhostType
+from poltergust.models.game_models import MK8GhostType
 
 
 class str_utf16be(str):

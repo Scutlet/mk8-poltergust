@@ -8,7 +8,7 @@ import webbrowser
 
 from PIL import Image, ImageTk
 
-from utils import WrappingLabel, get_resource_path
+from poltergust.utils import WrappingLabel, get_resource_path
 
 class MK8TrackFrame(LabelFrame):
     """ TODO """

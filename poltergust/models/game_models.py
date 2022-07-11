@@ -1,10 +1,16 @@
 from dataclasses import dataclass
+from enum import Enum
 from tkinter import Tk
-from downloader import GameBananaSite
-from imagemapper import MK8TrackImageMapper
+from poltergust.parsers.downloader import GameBananaSite
+from poltergust.models.imagemapper import MK8TrackImageMapper
+from poltergust.widgets.widgets import FramableTrack, MK8TrackFrame
 
-from widgets import FramableTrack, MK8TrackFrame
-
+class MK8GhostType(Enum):
+    """ Enumeration of all types of ghosts in Mario Kart 8 """
+    STAFF_GHOST = "sg"
+    PLAYER_GHOST = "gs"
+    DOWNLOADED_GHOST = "dg"
+    MKTV_REPLAY = "rp" # Different file format than a ghost
 
 @dataclass
 class MK8DLC:

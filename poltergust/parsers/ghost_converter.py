@@ -1,7 +1,7 @@
 import os
 
-from filename_parser import MK8GhostFilenameData, MK8GhostFilenameSerializer
-from gamedata import MK8GhostType
+from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFilenameSerializer
+from poltergust.models.game_models import MK8GhostType
 
 
 class MK8GhostConverter:

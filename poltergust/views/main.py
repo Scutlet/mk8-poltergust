@@ -6,10 +6,11 @@ import webbrowser
 
 from PIL import ImageTk
 
-from gamedata import MK8GhostType, COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
-from imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
-from utils import get_resource_path
-from view_about import PoltergustAboutView
+from poltergust.models.gamedata import COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
+from poltergust.models.game_models import MK8GhostType
+from poltergust.models.imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
+from poltergust.utils import get_resource_path
+from poltergust.views.about import PoltergustAboutView
 
 
 class PoltergustMainView:
