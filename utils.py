@@ -25,6 +25,18 @@ def get_resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+def bind_tree(widget: Widget, event, callback, add: str='', force_rebind=False):
+    """
+        Binds an event to a widget and all its descendants.
+        Skips widgets already bound, unless `force_rebind=True`.
+        See: https://stackoverflow.com/a/11457766
+    """
+    if not widget.bind(event) or force_rebind:
+        widget.bind(event, callback, add)
+
+    for child in widget.children.values():
+        bind_tree(child, event, callback)
+
 class WrappingLabel(ttk.Label):
     ''' A type of Label that automatically adjusts the wrap to the size '''
     def __init__(self, *args, **kwargs):
@@ -59,6 +71,9 @@ class PoltergustBlockingPopup(PoltergustPopup):
         self.transient(master)
         self.focus_set()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        # Close with <esc>
+        self.bind("<Escape>", lambda e: self.on_close())
 
     def on_close(self):
         """ On closing the about window """

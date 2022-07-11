@@ -1,13 +1,17 @@
 import bisect
+import logging
+import math
 from tkinter import *
 from tkinter import ttk
 
-from utils import PoltergustBlockingPopup, get_resource_path
-from widgets import FramableTrack, IconButton
+from PIL import Image, ImageTk, ImageDraw, ImagePath
+
+from utils import PoltergustBlockingPopup, bind_tree, get_resource_path
+from widgets import FramableTrack, IconButton, MK8TrackFrame
 
 class ScrollableTrackCanvas(Canvas):
     """ TODO """
-    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, search_widget:ttk.Entry|None=None, **kwargs):
+    def __init__(self, master: Tk, track_list: list[FramableTrack], *args, search_widget:ttk.Entry|None=None, scrollable_region: Widget|None=None, **kwargs):
         super().__init__(master, *args, bd=0, borderwidth=0, highlightthickness=0, **kwargs)
 
         # Link search box
@@ -36,9 +40,10 @@ class ScrollableTrackCanvas(Canvas):
         self.track_frame.bind("<Configure>", self._reset_scrollregion)
 
         # Make the mouse wheel move the scrollbar
-        master.bind("<MouseWheel>", self._set_scroll) # for Windows/MacOS
-        master.bind("<Button-4>", self._set_scroll) # for Linux
-        master.bind("<Button-5>", self._set_scroll) # for Linux
+        scrollable_region = scrollable_region or master
+        scrollable_region.bind("<MouseWheel>", self._set_scroll) # for Windows/MacOS
+        scrollable_region.bind("<Button-4>", self._set_scroll) # for Linux
+        scrollable_region.bind("<Button-5>", self._set_scroll) # for Linux
 
     def _set_scroll(self, event):
         """ Moves the scrollbar when the user scrolls the mouse wheel """
@@ -59,11 +64,14 @@ class ScrollableTrackCanvas(Canvas):
     def _resize_inner_frame(self, event):
         self.itemconfig("inner", width=event.width)
 
-    def _build_track_list(self, track_list: list[FramableTrack]) -> list[tuple[FramableTrack, Widget]]:
+    def _build_track_list(self, track_list: list[FramableTrack]) -> list[tuple[FramableTrack, MK8TrackFrame]]:
         """ TODO """
         track_widgets = []
         for track in sorted(track_list, key=lambda item: item.sort_field):
-            track_widgets.append((track, track.frame(self.track_frame)))
+            frame = track.frame(self.track_frame)
+            # frame.config(background="#88f25e")
+
+            track_widgets.append((track, frame))
 
         return track_widgets
 
@@ -101,8 +109,6 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
     window_width = 310
     window_height = 400
 
-    BASE_FONT = "TkDefaultFont"
-
     def __init__(self, master: Tk, track_list: list[FramableTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
@@ -124,5 +130,107 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         canvas.create_image(0, 0, image=self._search_img, anchor=NW)
         canvas.pack(side=RIGHT, padx=(0, 4))
 
-        track_canvas = ScrollableTrackCanvas(self, track_list=track_list, search_widget=search_widget)
-        track_canvas.pack(side=RIGHT, fill=BOTH, expand=True)
+        track_list_frame = Frame(self)
+        track_list_frame.pack(fill=BOTH, expand=True)
+
+        self.track_canvas = ScrollableTrackCanvas(track_list_frame, track_list=track_list, search_widget=search_widget, scrollable_region=self)
+        self.track_canvas.pack(side=RIGHT, fill=BOTH, expand=True)
+
+class TrackListSelectorView(PoltergustCTManagerView):
+    """ TODO """
+    window_title = "Poltergust - Select Track"
+
+    # SELECTION_COLOR = "light steel blue"
+    SELECTION_COLOR = "light green"
+    HOVER_COLOR = "lightblue"
+
+    def __init__(self, master: Tk, xxx, *args, selected_track: FramableTrack|None=None, **kwargs):
+        xxx = list(xxx)
+        selected_track = xxx[0]
+        super().__init__(master, xxx, *args, **kwargs)
+
+        self.selected_track: FramableTrack|None = None
+        self.selected_widget: MK8TrackFrame|None = None
+
+        self.select_button = Button(self, text="Confirm")
+        self.select_button.pack(side=BOTTOM, pady=(4, 4))
+
+        # Selection images
+        self._selected_rect_img = self._get_polygon_as_image(MK8TrackFrame.TRACK_PREVIEW_SIZE, [
+                (0, 0), (MK8TrackFrame.TRACK_PREVIEW_SIZE[0], 0), MK8TrackFrame.TRACK_PREVIEW_SIZE, (0, MK8TrackFrame.TRACK_PREVIEW_SIZE[1])
+            ], "light green", alpha=150)
+        self._selected_check_img = self._get_polygon_as_image((48, 48), [
+                # (10, 28), (0, 18), (4, 14), (10, 20), (27, 3), (31, 7) -> (32 x 32)
+                (15, 42), (0, 27), (6, 21), (15, 30), (41, 5), (47, 11)
+            ], fill="green", alpha=175)
+        self._selected_rect_draw = None
+        self._selected_check_draw = None
+
+        self._attach_selectors(selected_track)
+
+    def _attach_selectors(self, selected_track: FramableTrack) -> None:
+        """ TODO """
+        for framable, widget in self.track_canvas.track_widgets:
+            bind_tree(widget, "<Button-1>",
+                lambda e, track=framable, widget=widget: self.on_track_select(e, track, widget)
+            )
+            # Binding to the frame itself is enough
+            widget.bind("<Enter>",
+                lambda e, track=framable, widget=widget: self.activate_hover(e, track, widget)
+            )
+            widget.bind("<Leave>",
+                lambda e, track=framable, widget=widget: self.deactivate_hover(e, track, widget)
+            )
+
+            if framable == selected_track:
+                self.on_track_select(None, selected_track, widget)
+
+    def _get_polygon_as_image(self, size: tuple[int, int], points: list[int], fill="", outline="", alpha=255):
+        """ TODO """
+        if fill:
+            fill = self.winfo_rgb(fill)
+            fill = (math.floor(fill[0]/255), math.floor(fill[1]/255), math.floor(fill[2]/255))
+            fill = fill + (alpha,)
+        image = Image.new('RGBA', size, None)
+        ImageDraw.Draw(image).polygon(points, fill=fill or None, outline=outline or None)
+        return ImageTk.PhotoImage(image)
+
+    def on_track_select(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
+        """ TODO """
+        # Already selected
+        if self.selected_track == track:
+            return
+
+        # Clear previous selection highlight
+        if self.selected_widget is not None:
+            self.selected_widget.set_color(None)
+            self.selected_widget.canvas.delete(self._selected_rect_draw)
+            self.selected_widget.canvas.delete(self._selected_check_draw)
+
+        # Set and highlight selection
+        self.selected_track = track
+        self.selected_widget = widget
+        widget.set_color(self.SELECTION_COLOR)
+
+        # Highlight track preview
+        self._selected_rect_draw = self.selected_widget.canvas.create_image(0, 0, image=self._selected_rect_img, anchor=NW)
+        self._selected_check_draw = self.selected_widget.canvas.create_image(
+            self.selected_widget.TRACK_PREVIEW_SIZE[0]/2, self.selected_widget.TRACK_PREVIEW_SIZE[1]/2,
+            image=self._selected_check_img, anchor=CENTER
+        )
+
+        logging.info(f"Track selection changed to {track.sort_field}")
+
+    def activate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
+        # Set highlight color
+        if self.selected_track != track:
+            widget.set_color(self.HOVER_COLOR)
+
+
+    def deactivate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
+        # Clear highlight color
+        if self.selected_track != track:
+            widget.set_color(None)
+
+
+

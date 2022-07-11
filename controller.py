@@ -13,7 +13,7 @@ from ghost_file_parser import MK8GhostDataParser
 from mii_handler import MK8GhostFilenameDataMiiHandler
 from view_change_track import PoltergustChangeTrackView
 from view_ct_add import PoltergustAddCTView
-from view_ct_manager import PoltergustCTManagerView
+from view_ct_manager import PoltergustCTManagerView, TrackListSelectorView
 from view_main import PoltergustMainView
 
 
@@ -101,7 +101,7 @@ class PoltergustController:
 
     def open_ct_manager(self):
         """ TODO """
-        manager_view = PoltergustCTManagerView(self.view.root, self.db.get_mods())
+        manager_view = TrackListSelectorView(self.view.root, self.db.get_mods())
         manager_view.add_button.config(command=lambda: self.add_ct(manager_view, on_download_complete_fn=lambda m: manager_view.add_track(m)))
 
     def download_ct_infos(self, url: str) -> MK8CustomTrack|None:
