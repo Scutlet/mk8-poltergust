@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.font import BOLD, NORMAL as FONT_NORMAL
 
-from poltergust.parsers.downloader import MOD_SITES, MK8CustomTrack
+from poltergust.parsers.downloader import API_MOD_SITES, MK8CustomTrack
 from poltergust.models.game_models import MK8Course
 from poltergust.utils import PoltergustBlockingPopup
 from poltergust.widgets.widgets import IconButton, IntEntry
@@ -23,7 +23,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     FONT_TITLE = ("TkDefaultfont", 14, BOLD)
 
     # Add mod sites
-    mod_site_choices = {site.name: site for site in MOD_SITES}
+    mod_site_choices = {site.name: site for site in API_MOD_SITES}
 
     def __init__(self, master: Tk, current_track_slot: MK8Course, *args, current_mod: MK8CustomTrack|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)

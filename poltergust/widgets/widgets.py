@@ -10,12 +10,12 @@ from PIL import Image, ImageTk
 
 from poltergust.utils import WrappingLabel, get_resource_path
 
-class MK8TrackFrame(LabelFrame):
+class MK8TrackFrameBase(LabelFrame):
     """ TODO """
     BASE_FONT = "TkDefaultFont"
-    TRACK_PREVIEW_SIZE = (96, 54)
+    TRACK_PREVIEW_SIZE: tuple[int, int] = (64, 64)
 
-    def __init__(self, master: Tk, track_name: str, track_author: str, track_preview: Image.Image, url_text: str, url_icon: Image.Image, url_link: str, url_tooltip: str, *args, **kwargs):
+    def __init__(self, master: Toplevel, track_name: str, track_preview: Image.Image, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.ITALICS_FONT = Font(font=self.BASE_FONT)
@@ -33,8 +33,29 @@ class MK8TrackFrame(LabelFrame):
         self.canvas.pack(side=LEFT, padx=(0, 4), pady=(0, 1))
 
         # Track Name
-        title_lb = WrappingLabel(self, text=track_name)
-        title_lb.pack(side=TOP, fill=X, padx=(0, 2), pady=0)
+        self._title_lb = WrappingLabel(self, text=track_name)
+        self._title_lb.pack(side=TOP, fill=X, padx=(0, 2), pady=0)
+
+
+class MK8TrackFrameSmall(MK8TrackFrameBase):
+    """ TODO"""
+    TRACK_PREVIEW_SIZE = (48, 27)
+
+    def __init__(self, master: Tk, track_name: str, track_preview: Image.Image, *args, **kwargs):
+        super().__init__(master, track_name, track_preview, *args, **kwargs)
+
+        # Center the label
+        self._title_lb.pack_forget()
+        self._title_lb.pack(side=LEFT, fill=X, padx=(0, 2))
+
+
+class MK8TrackFrameBig(MK8TrackFrameBase):
+    """ TODO """
+
+    TRACK_PREVIEW_SIZE = (96, 54)
+
+    def __init__(self, master: Tk, track_name: str, track_preview: Image.Image, track_author: str, url_text: str, url_icon: Image.Image, url_link: str, url_tooltip: str, *args, **kwargs):
+        super().__init__(master, track_name, track_preview, *args, **kwargs)
 
         self._sep = ttk.Separator(self, orient=HORIZONTAL)
         self._sep.pack(fill=X, padx=4, pady=(2, 0))
@@ -57,7 +78,7 @@ class MK8TrackFrame(LabelFrame):
         )
         Hovertip(mod_id_lb, url_tooltip, hover_delay=1000)
 
-        self._widgets: list[Widget] = [self, title_lb, author_lb, mod_id_lb]
+        self._widgets: list[Widget] = [self, self._title_lb, author_lb, mod_id_lb]
         self._default_color = author_lb.cget("background") # System background (SystemButtonFace on Windows/MacOS)
 
     def set_color(self, background: str|None):
@@ -88,9 +109,14 @@ class FramableTrack(ABC):
         return getattr(self, self._sort_field_name)
 
     @abstractmethod
-    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrame:
+    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrameBig:
         """ TODO """
 
+class MiniFramableTrack(FramableTrack, ABC):
+    """ TODO """
+    @abstractmethod
+    def miniframe(self, master: Toplevel, *args, **kwargs) -> MK8TrackFrameSmall:
+        """ TODO """
 
 class IntEntry(ttk.Entry):
     """ Tkinter entry that only accepts numbers as its input """

@@ -5,7 +5,7 @@ import requests
 from PIL import Image, ImageOps
 
 from poltergust.models.mod_models import MK8CustomTrack
-from poltergust.models.mod_sites import MOD_SITES, MK8ModSite, ModDownloadException
+from poltergust.models.mod_sites import API_MOD_SITES, MK8APIModSite, ModDownloadException
 
 
 class PoltergustDownloader:
@@ -42,7 +42,7 @@ class PoltergustDownloader:
         )
         return mod
 
-    def get_mod_site_for_url(self, site_url: str) -> tuple[MK8ModSite, str, str]:
+    def get_mod_site_for_url(self, site_url: str) -> tuple[MK8APIModSite, str, str]:
         """
             Gets a (mod_site, identifier, api_endpoint) triple for a given URL.
             The triple represents a site with a corresponding API endpoint that
@@ -50,7 +50,7 @@ class PoltergustDownloader:
             The identifier represents what is injected in the api_endpoint, and is
             extracted from the site URL.
         """
-        for site in MOD_SITES:
+        for site in API_MOD_SITES:
             if site_url.startswith(site.domain):
                 identifier = site_url[len(site.domain):].replace("#", "/").rsplit("/")[0]
                 api_endpoint = site.get_api_endpoint(identifier)

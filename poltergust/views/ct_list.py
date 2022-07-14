@@ -8,7 +8,7 @@ from typing import Iterable
 from PIL import Image, ImageTk, ImageDraw, ImagePath
 
 from poltergust.utils import PoltergustBlockingPopup, bind_tree, get_resource_path
-from poltergust.widgets.widgets import FramableTrack, IconButton, MK8TrackFrame
+from poltergust.widgets.widgets import FramableTrack, IconButton, MK8TrackFrameBig
 
 class ScrollableTrackCanvas(Canvas):
     """ TODO """
@@ -65,13 +65,11 @@ class ScrollableTrackCanvas(Canvas):
     def _resize_inner_frame(self, event: Event):
         self.itemconfig("inner", width=event.width)
 
-    def _build_track_list(self, track_list: Iterable[FramableTrack]) -> list[tuple[FramableTrack, MK8TrackFrame]]:
+    def _build_track_list(self, track_list: Iterable[FramableTrack]) -> list[tuple[FramableTrack, MK8TrackFrameBig]]:
         """ TODO """
         track_widgets = []
         for track in sorted(track_list, key=lambda item: item.sort_field):
             frame = track.frame(self.track_frame)
-            # frame.config(background="#88f25e")
-
             track_widgets.append((track, frame))
 
         return track_widgets
@@ -149,7 +147,7 @@ class TrackListSelectorView(PoltergustCTManagerView):
         super().__init__(master, *args, **kwargs)
 
         self.selected_track: FramableTrack|None = None
-        self.selected_widget: MK8TrackFrame|None = None
+        self.selected_widget: MK8TrackFrameBig|None = None
 
         # Confirm button (disabled until a selection is made)
         self.select_button = Button(self, text="Confirm Selection", state=DISABLED)
@@ -157,8 +155,8 @@ class TrackListSelectorView(PoltergustCTManagerView):
         self.bind('<Return>', lambda e: self.select_button.invoke())
 
         # Selection images
-        self._selected_rect_img = self._get_polygon_as_image(MK8TrackFrame.TRACK_PREVIEW_SIZE, [
-                (0, 0), (MK8TrackFrame.TRACK_PREVIEW_SIZE[0], 0), MK8TrackFrame.TRACK_PREVIEW_SIZE, (0, MK8TrackFrame.TRACK_PREVIEW_SIZE[1])
+        self._selected_rect_img = self._get_polygon_as_image(MK8TrackFrameBig.TRACK_PREVIEW_SIZE, [
+                (0, 0), (MK8TrackFrameBig.TRACK_PREVIEW_SIZE[0], 0), MK8TrackFrameBig.TRACK_PREVIEW_SIZE, (0, MK8TrackFrameBig.TRACK_PREVIEW_SIZE[1])
             ], "light green", alpha=150)
         self._selected_check_img = self._get_polygon_as_image((48, 48), [
                 # (10, 28), (0, 18), (4, 14), (10, 20), (27, 3), (31, 7) -> (32 x 32)
@@ -196,7 +194,7 @@ class TrackListSelectorView(PoltergustCTManagerView):
         ImageDraw.Draw(image).polygon(points, fill=fill or None, outline=outline or None)
         return ImageTk.PhotoImage(image)
 
-    def on_track_select(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
+    def on_track_select(self, e: Event, track: FramableTrack, widget: MK8TrackFrameBig):
         """ TODO """
         # Already selected
         if self.selected_track == track:
@@ -225,12 +223,12 @@ class TrackListSelectorView(PoltergustCTManagerView):
 
         logging.info(f"Track selection changed to {track.sort_field}")
 
-    def activate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
+    def activate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrameBig):
         # Set highlight color
         if self.selected_track != track:
             widget.set_color(self.HOVER_COLOR)
 
-    def deactivate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrame):
+    def deactivate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrameBig):
         # Clear highlight color
         if self.selected_track != track:
             widget.set_color(None)

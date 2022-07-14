@@ -111,7 +111,7 @@ class PoltergustMainView:
         self.dataframe = ttk.Frame(mainframe)
         self.dataframe.grid(column=0, row=1, sticky=(N, W, E, S))
 
-        # Ghostinfo frame (contains character, name, flag, total time)
+        # Ghostinfo frame (contains staff ghost, game version)
         ghostinfosframe = ttk.Frame(self.dataframe)
         ghostinfosframe.grid(column=0, row=0, columnspan=2, sticky=(N, W, E, S))
 
@@ -124,6 +124,7 @@ class PoltergustMainView:
         # Summary frame (contains character, name, flag, total time)
         summaryframe = ttk.LabelFrame(self.dataframe)
         summaryframe.grid(column=0, row=1, sticky=(N, W, E, S), padx=(0, 3))
+        summaryframe.grid_anchor(anchor=CENTER)
 
         # Character
         self.character_canvas = Canvas(summaryframe, width=self.CHARACTER_SIZE[0], height=self.CHARACTER_SIZE[1], borderwidth=0, highlightthickness=0)
@@ -154,15 +155,8 @@ class PoltergustMainView:
         total_ms_entry.grid(column=4, row=1, sticky=(W,E), padx=(0, 3))
 
         # Trackinfo frame
-        trackframe = ttk.LabelFrame(self.dataframe)
-        trackframe.grid(column=1, row=1, sticky=(N, W, E, S))
-        self.track_canvas = Canvas(trackframe, width=self.TRACK_SIZE[0], height=self.TRACK_SIZE[1], borderwidth=0, highlightthickness=0)
-        self.track_canvas.grid(column=0, row=0, sticky=(N,W,E,S), pady=(7, 10), padx=(4, 4))
-        self.track_tip = Hovertip(self.track_canvas, 'PLACEHOLDER', hover_delay=1000)
-
-        self.track = StringVar()
-        track_entry = ttk.Entry(trackframe, width=25, textvariable=self.track, font=(self.FONT[0], 9, self.FONT[2]), state=self.EDIT_STATE)
-        track_entry.grid(column=1, row=0, sticky=(W,E), padx=(0, 3))
+        self.trackframe = ttk.Frame(self.dataframe, borderwidth=0)
+        self.trackframe.grid(column=1, row=1, sticky=(N, W, E, S), pady=(8, 0))
 
         # Lap Times frame (contains all lap times)
         laptimesframe = ttk.LabelFrame(self.dataframe)
@@ -284,15 +278,19 @@ class PoltergustMainView:
 
     def set_track(self, track_id: int, ghost_number: int) -> None:
         """ Sets the track preview """
+        # Destroy old track infos
+        for widget in self.trackframe.winfo_children():
+            widget.destroy()
+
         track = COURSE_IDS.get(track_id, None)
-        track_name = "Unknown Track"
-        track_icon_index = None
-        if track is not None:
-            track_name = track.name
-            track_icon_index = track.icon_index
-        self.set_mapped_image(self.track_canvas, MK8TrackImageMapper(), track_icon_index, resize_to=self.TRACK_SIZE)
-        self.track.set(track_name)
-        self.track_tip.text = f"{ghost_number} - {track_id}"
+
+        # Track Slot
+        frame = track.miniframe(self.trackframe)
+        frame.pack(fill=X)
+
+        # Actual track
+        frame = track.frame(self.trackframe)
+        frame.pack(fill=X)
 
     def set_vehicle_parts(self, kart_id: int, wheels_id: int, glider_id: int) -> None:
         """ Sets vehicle part previews """

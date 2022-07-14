@@ -88,7 +88,7 @@ class PoltergustController:
 
     def open_ct_changer(self):
         """ TODO """
-        current_track_slot = COURSE_IDS[42]
+        current_track_slot = COURSE_IDS.get(self.filename_data.track_id, None)
         current_ct = next(self._db.get_mods())
 
         trackchange_view = PoltergustChangeTrackView(self._view.root, current_track_slot, current_mod=current_ct)

@@ -3,7 +3,7 @@ import os
 import sqlite3
 from typing import Iterable
 
-from poltergust.parsers.downloader import MOD_SITES, MK8CustomTrack
+from poltergust.parsers.downloader import API_MOD_SITES, MK8CustomTrack
 from poltergust.utils import Singleton
 
 
@@ -43,7 +43,7 @@ class MK8CTStorage(metaclass=Singleton):
     def _get_mod_from_db_infos(self, mod_id, name, author, mod_site_id) -> MK8CustomTrack:
         """ TODO """
         preview_image = self.MOD_PREVIEW_PATH % {'mod_id': mod_id, 'mod_site_id': mod_site_id}
-        return MK8CustomTrack(name, MOD_SITES[mod_site_id], mod_id, author, preview_image)
+        return MK8CustomTrack(name, API_MOD_SITES[mod_site_id], mod_id, author, preview_image)
 
     def add_or_update_mod(self, mod: MK8CustomTrack) -> None:
         """ TODO """
@@ -57,7 +57,7 @@ class MK8CTStorage(metaclass=Singleton):
 
 if __name__ == "__main__":
     x = MK8CTStorage()
-    x.add_or_update_mod(MK8CustomTrack("My cool mod", MOD_SITES[0], 100039))
+    x.add_or_update_mod(MK8CustomTrack("My cool mod", API_MOD_SITES[0], 100039))
     for mod in x.get_mods():
         print(mod)
 

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import ClassVar
-from tkinter import Tk
+from tkinter import Tk, Toplevel
 
 from PIL import Image
 
-from poltergust.models.mod_sites import MK8ModSite
-from poltergust.widgets.widgets import FramableTrack, MK8TrackFrame
+from poltergust.models.mod_sites import MK8APIModSite
+from poltergust.widgets.widgets import FramableTrack, MK8TrackFrameBig, MK8TrackFrameSmall, MiniFramableTrack
 
 
 @dataclass
@@ -21,7 +21,7 @@ class MK8ModVersion:
 class MK8CustomTrack(FramableTrack):
     """ Dataclass for a Mario Kart 8 Custom Track """
     name: str
-    mod_site: MK8ModSite
+    mod_site: MK8APIModSite
     mod_id: int
 
     author: str|None = None
@@ -40,23 +40,42 @@ class MK8CustomTrack(FramableTrack):
             return self.mod_id == other.mod_id and self.mod_site == other.mod_site
         return False
 
-    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrame:
+    def _get_frame_args(self, image_size: tuple[int, int]) -> tuple[str, str, Image.Image]:
+        """ TODO """
         track_name = self.name
         track_author = self.author or "Unknown Author"
 
         track_preview = None
         if self.preview_image is not None:
             try:
-                track_preview = Image.open(self.preview_image).resize(size=self.TRACK_PREVIEW_SIZE)
+                track_preview = Image.open(self.preview_image).resize(size=image_size)
             except FileNotFoundError as e:
                 pass
 
         if track_preview is None:
-            track_preview = self.mod_site.icon.resize(size=(24, 24))
+            size = min(*image_size) / 2
+            track_preview = self.mod_site.icon.resize(size=(size, size))
+
+        return track_name, track_author, track_preview
+
+    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrameBig:
+        track_name = self.name
+        track_author = self.author or "Unknown Author"
+
+        track_preview = None
+        if self.preview_image is not None:
+            try:
+                track_preview = Image.open(self.preview_image).resize(size=MK8TrackFrameBig.TRACK_PREVIEW_SIZE)
+            except FileNotFoundError as e:
+                pass
+
+        if track_preview is None:
+            size = min(*MK8TrackFrameBig.TRACK_PREVIEW_SIZE) // 2
+            track_preview = self.mod_site.icon.resize(size=(size, size))
 
         url_text = str(self.mod_id)
         url_icon = self.mod_site.icon
         url_link = self.mod_site.get_url_for_mod_id(self.mod_id)
         url_tooltip = f"{self.mod_site} - {url_link}"
 
-        return MK8TrackFrame(master, track_name, track_author, track_preview, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
+        return MK8TrackFrameBig(master, track_name, track_preview, track_author, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)

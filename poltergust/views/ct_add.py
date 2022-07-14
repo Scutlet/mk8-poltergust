@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 
 from poltergust.utils import PoltergustBlockingPopup, WrappingLabel
-from poltergust.parsers.downloader import MOD_SITES
+from poltergust.parsers.downloader import API_MOD_SITES
 
 
 class PoltergustAddCTView(PoltergustBlockingPopup):
@@ -13,7 +13,7 @@ class PoltergustAddCTView(PoltergustBlockingPopup):
     window_width = 300
     window_height = 245
 
-    mod_site_choices = {site.name: site for site in MOD_SITES}
+    mod_site_choices = {site.name: site for site in API_MOD_SITES}
 
     def __init__(self, master: Tk, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
