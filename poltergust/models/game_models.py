@@ -72,3 +72,6 @@ class MK8Course(MiniFramableTrack):
         track_name, track_preview = self._get_frame_kwargs(master, MK8TrackFrameSmall.TRACK_PREVIEW_SIZE)
         track_name = f"Replaces {track_name}"
         return MK8TrackFrameSmall(master, track_name, track_preview, *args, **kwargs)
+
+
+UNKNOWN_COURSE = MK8Course(-1, "Unknown Track", -1, MK8Cup("Unknown Cup"), url="https://github.com/Scutlet/mk8-poltergust")

@@ -7,10 +7,12 @@ import webbrowser
 from PIL import ImageTk
 
 from poltergust.models.gamedata import COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
-from poltergust.models.game_models import MK8GhostType
+from poltergust.models.game_models import MK8Course, MK8GhostType
 from poltergust.models.imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
+from poltergust.models.mod_models import MK8CustomTrack
 from poltergust.utils import get_resource_path
 from poltergust.views.about import PoltergustAboutView
+from poltergust.widgets.widgets import FramableTrack
 
 
 class PoltergustMainView:
@@ -157,6 +159,7 @@ class PoltergustMainView:
         # Trackinfo frame
         self.trackframe = ttk.Frame(self.dataframe, borderwidth=0)
         self.trackframe.grid(column=1, row=1, sticky=(N, W, E, S), pady=(8, 0))
+        self.trackframe.grid_anchor(anchor=CENTER)
 
         # Lap Times frame (contains all lap times)
         laptimesframe = ttk.LabelFrame(self.dataframe)
@@ -223,9 +226,6 @@ class PoltergustMainView:
             title="Output directory for MK8 Downloaded Ghost",
         )
 
-
-
-
     def set_ghost_type(self, ghost_type: MK8GhostType, ghost_number: int, ghost_has_header: bool) -> None:
         """ Sets ghost type text """
         if ghost_type == MK8GhostType.STAFF_GHOST:
@@ -276,21 +276,25 @@ class PoltergustMainView:
         self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper(), char[1], resize_to=self.CHARACTER_SIZE)
         self.character_tip.text = f"{char[0]} ({character_id})"
 
-    def set_track(self, track_id: int, ghost_number: int) -> None:
+    def set_track(self, track: MK8Course, mod: MK8CustomTrack|None) -> None:
         """ Sets the track preview """
         # Destroy old track infos
         for widget in self.trackframe.winfo_children():
             widget.destroy()
 
-        track = COURSE_IDS.get(track_id, None)
+        big_frame = None
+        small_frame = None
+        if mod is not None:
+            big_frame = mod.frame(self.trackframe)
+            small_frame = track.miniframe(self.trackframe)
+        else:
+            # Base game track
+            big_frame = track.frame(self.trackframe)
 
-        # Track Slot
-        frame = track.miniframe(self.trackframe)
-        frame.pack(fill=X)
-
-        # Actual track
-        frame = track.frame(self.trackframe)
-        frame.pack(fill=X)
+        # Pack frames
+        big_frame.pack(fill=X, side=BOTTOM)
+        if small_frame is not None:
+            small_frame.pack(fill=X, side=BOTTOM)
 
     def set_vehicle_parts(self, kart_id: int, wheels_id: int, glider_id: int) -> None:
         """ Sets vehicle part previews """

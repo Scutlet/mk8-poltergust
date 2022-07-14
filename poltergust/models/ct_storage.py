@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 import sqlite3
 from typing import Iterable
+from poltergust.models.mod_sites import MK8ModSite
 
 from poltergust.parsers.downloader import API_MOD_SITES, MK8CustomTrack
 from poltergust.utils import Singleton
@@ -44,6 +45,16 @@ class MK8CTStorage(metaclass=Singleton):
         """ TODO """
         preview_image = self.MOD_PREVIEW_PATH % {'mod_id': mod_id, 'mod_site_id': mod_site_id}
         return MK8CustomTrack(name, API_MOD_SITES[mod_site_id], mod_id, author, preview_image)
+
+    def find_mod(self, mod_id: int, mod_site: MK8ModSite) -> MK8CustomTrack|None:
+        """ Finds a mod from the given mod site with the given mod_id, or None if no such mod exists """
+        for mod_id, name, author, mod_site_id in self.connection.execute('SELECT id, name, author, mod_site FROM mods WHERE id = :mod_id AND mod_site = :mod_site_id', {
+                    "mod_id": mod_id,
+                    "mod_site_id": mod_site.id
+                }):
+            return self._get_mod_from_db_infos(mod_id, name, author, mod_site_id)
+        # Mod not found
+        return None
 
     def add_or_update_mod(self, mod: MK8CustomTrack) -> None:
         """ TODO """

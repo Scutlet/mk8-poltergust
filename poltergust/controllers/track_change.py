@@ -65,7 +65,12 @@ class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVe
         self.mod_version.major = self._view.ct_version_major.get()
         self.mod_version.minor = self._view.ct_version_minor.get()
         self.mod_version.patch = self._view.ct_version_patch.get()
-        is_ok = messagebox.askokcancel("Overwrite Warning", f"The currently loaded ghostfile will be overwritten with the following information:\n* Track Slot: {self.track}\n* Custom Track: {self.mod.name}\n* Version {self.mod_version}\n\nThis operation cannot be undone. Is this okay?", parent=self._view)
+
+        extra_str = "* Custom Track: None\n"
+        if self.mod is not None:
+            extra_str = "* Custom Track: {self.mod.name}\n* Version {self.mod_version}\n"
+
+        is_ok = messagebox.askokcancel("Overwrite Warning", f"The currently loaded ghostfile will be overwritten with the following information:\n* Track Slot: {self.track}\n{extra_str}\nThis operation cannot be undone. Is this okay?", parent=self._view)
 
         if is_ok:
             self.notify_listeners((self.track, self.mod, self.mod_version))

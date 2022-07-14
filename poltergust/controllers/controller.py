@@ -1,25 +1,20 @@
 import logging
 import os
-from select import select
 from tkinter import *
 from tkinter import messagebox
-from typing import Callable
 from poltergust.controllers.ctlist_controllers import CTListController
 from poltergust.controllers.track_change import TrackChangeController
 from poltergust.models.ct_storage import MK8CTStorage
 from poltergust.models.mod_models import MK8ModVersion
-from poltergust.parsers.downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
+from poltergust.parsers.downloader import MK8CustomTrack
 
-from poltergust.models.gamedata import COURSE_IDS
-from poltergust.models.game_models import MK8Course, MK8GhostType
-from poltergust.parsers.filecontent_parser import MK8GhostData, MK8GhostDataSerializer
+from poltergust.models.game_models import UNKNOWN_COURSE, MK8Course, MK8GhostType
+from poltergust.parsers.filecontent_parser import MK8GhostData, MK8GhostDataParser, MK8GhostDataSerializer
 from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
 from poltergust.parsers.ghost_converter import MK8GhostConverter
-from poltergust.parsers.ghost_file_parser import MK8GhostDataParser
 from poltergust.parsers.mii_handler import MK8GhostFilenameDataMiiHandler
 from poltergust.views.change_track import PoltergustChangeTrackView
-from poltergust.views.ct_add import PoltergustAddCTView
-from poltergust.views.ct_list import PoltergustCTManagerView, TrackListSelectorView
+from poltergust.views.ct_list import PoltergustCTManagerView
 from poltergust.views.main import PoltergustMainView
 
 
@@ -29,7 +24,7 @@ class PoltergustController:
     def __init__(self, view: PoltergustMainView):
         self.ghostfile: str = None
         self.filename_data: MK8GhostFilenameData = None
-        self.ghost_has_header = None
+        self.ghost_data: MK8GhostData = None
         self._view = view
         self._db = MK8CTStorage()
 
@@ -73,7 +68,7 @@ class PoltergustController:
         # Discard filename_data
         self.ghostfile = None
         self.filename_data = None
-        self.ghost_has_header = None
+        self.ghost_data = None
 
         # Disable buttons
         self._view.menu_file.entryconfig(self._view.BTN_CLOSE, state=DISABLED)
@@ -82,7 +77,7 @@ class PoltergustController:
         self._view.menu_export.entryconfig(self._view.BTN_EXPORT_AS_DOWNLOADED_GHOST, state=DISABLED)
         self._view.menu_export.entryconfig(self._view.BTN_EXTRACT_MII, state=DISABLED)
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=DISABLED)
-        # self.view.menu_edit.entryconfig(self.view.BTN_CHANGE_TRACK, state=DISABLED)
+        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, state=DISABLED)
         self._view.lb_ghostfile.config(text="No ghost data loaded")
 
         # Remove Preview
@@ -90,10 +85,11 @@ class PoltergustController:
 
     def open_ct_changer(self):
         """ TODO """
-        current_track_slot = COURSE_IDS.get(self.filename_data.track_id, None)
-        current_ct = next(self._db.get_mods())
+        current_track_slot = self.ghost_data.track_slot
+        current_ct = self.ghost_data.mod
+        current_mod_version = self.ghost_data.mod_version
 
-        trackchange_view = PoltergustChangeTrackView(self._view.root, current_track_slot, current_mod=current_ct)
+        trackchange_view = PoltergustChangeTrackView(self._view.root, current_track_slot, current_mod=current_ct, mod_version=current_mod_version)
         trackchange_controller = TrackChangeController(trackchange_view)
         trackchange_controller.add_listener(self.on_track_change)
 
@@ -117,7 +113,7 @@ class PoltergustController:
         self.ghostfile = new_file
 
         # Inject ghost contents
-        ghostdata = MK8GhostData(track_slot, mod, mod_version)
+        ghostdata = MK8GhostData(self.ghost_data.has_header, track_slot, mod, mod_version)
         filedata_serializer = MK8GhostDataSerializer()
         filedata_serializer.serialize(new_file, ghostdata)
 
@@ -135,7 +131,10 @@ class PoltergustController:
         """ Invokes a parser to read ghost data from a ghost's filename """
         filename = filepath.rpartition("/")[2].rpartition(".")[0]
         self.filename_data = MK8GhostFilenameParser().parse(filename)
-        self.ghost_has_header = MK8GhostDataParser().check_header(filepath)
+
+    def parse_file_contents(self, filepath: str) -> None:
+        """ TODO """
+        self.ghost_data = MK8GhostDataParser().parse(filepath)
 
     def extract_mii(self):
         """ Invokes the Mii handler and extracts the Mii from the currently loaded ghost file """
@@ -144,7 +143,7 @@ class PoltergustController:
             # Operation cancelled
             return
 
-        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.ghost_has_header)
+        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.ghost_data.has_header)
 
         try:
             handler.extract(filepath)
@@ -165,7 +164,7 @@ class PoltergustController:
             # Operation cancelled
             return
 
-        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.ghost_has_header)
+        handler = MK8GhostFilenameDataMiiHandler(self.ghostfile, self.ghost_data.has_header)
 
         try:
             handler.replace(new_mii)
@@ -197,7 +196,7 @@ class PoltergustController:
             # Operation cancelled
             return
         converter = MK8GhostConverter()
-        output_file = converter.export_as_staff(self.ghostfile, self.filename_data, self.ghost_has_header, output_folder)
+        output_file = converter.export_as_staff(self.ghostfile, self.filename_data, self.ghost_data.has_header, output_folder)
 
         messagebox.showinfo("Staff Ghost Exported", f"Staff Ghost data was exported successfully! It can be found under {output_file}")
 
@@ -210,7 +209,7 @@ class PoltergustController:
             return
 
         converter = MK8GhostConverter()
-        output_file = converter.export_as_downloaded(self.ghostfile, self.filename_data, self.ghost_has_header, output_folder, ghost_slot)
+        output_file = converter.export_as_downloaded(self.ghostfile, self.filename_data, self.ghost_data.has_header, output_folder, ghost_slot)
 
         messagebox.showinfo("Downloaded Ghost Exported", f"Downloaded Ghost data was exported successfully! It can be found under {output_file}")
 
@@ -226,7 +225,6 @@ class PoltergustController:
         self._view.menu_export.entryconfig(self._view.BTN_EXTRACT_MII, state=NORMAL)
         # self.view.menu_edit.entryconfig(self.view.BTN_REPLACE_MII, state=NORMAL)
         self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, state=NORMAL)
-        self._view.menu_edit.entryconfig(self._view.BTN_CHANGE_TRACK, state=NORMAL)
 
         # Enable all download ghost slots
         for i in range(16):
@@ -240,10 +238,11 @@ class PoltergustController:
 
         # Parse file
         self.parse_filename(self.ghostfile)
+        self.parse_file_contents(self.ghostfile)
 
         # Update ghostinfos
         self._view.game_version.config(text=f"Game version {self.filename_data.game_version.value}")
-        self._view.set_ghost_type(self.filename_data.ghost_type, self.filename_data.ghost_number, self.ghost_has_header)
+        self._view.set_ghost_type(self.filename_data.ghost_type, self.filename_data.ghost_number, self.ghost_data.has_header)
 
         # Update Images
         self._view.set_flag(self.filename_data.flag_id)
@@ -254,8 +253,21 @@ class PoltergustController:
         track_id = self.filename_data.track_id
         if self.filename_data.ghost_type != MK8GhostType.DOWNLOADED_GHOST and self.filename_data.track_id - 16 != self.filename_data.ghost_number:
             # Track ID - 16 matches ghost number, but only for non-download ghosts
+            logging.warning(f"Found corrupted filename data! Track ID: {self.filename_data.track_id}, Ghost Type: {self.filename_data.ghost_type}, Ghost Number: {self.filename_data.ghost_number}")
+            messagebox.showwarning("Corrupted filename!", "The trackID in the ghost's filename was corrupted. You can fix this by manually assigning a track to this ghost under 'Edit -> Change Track'.")
             track_id = None
-        self._view.set_track(track_id, self.filename_data.ghost_number)
+
+        if track_id is not None and track_id != self.ghost_data.track_slot.course_id:
+            logging.warning(f"Track ID in filename and in ghost file did not match up! Filename: {self.filename_data.track_id}, Content: {self.ghost_data.track_slot.course_id}")
+            messagebox.showwarning("Corrupted filename or ghost file!", "The trackID in the ghost's filename and file contents did not match up. You can fix this by manually assigning a track to this ghost under 'Edit -> Change Track'.")
+            track_id = None
+
+        track = self.ghost_data.track_slot
+        if track_id is None:
+            track = UNKNOWN_COURSE
+
+        mod = self.ghost_data.mod
+        self._view.set_track(track, mod)
 
         # Update text
         self._view.playername.set(self.filename_data.playername)
