@@ -12,6 +12,7 @@ from poltergust.parsers.downloader import MK8CustomTrack, ModDownloadException, 
 
 from poltergust.models.gamedata import COURSE_IDS
 from poltergust.models.game_models import MK8Course, MK8GhostType
+from poltergust.parsers.filecontent_parser import MK8GhostData, MK8GhostDataSerializer
 from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
 from poltergust.parsers.ghost_converter import MK8GhostConverter
 from poltergust.parsers.ghost_file_parser import MK8GhostDataParser
@@ -116,7 +117,14 @@ class PoltergustController:
         self.ghostfile = new_file
 
         # Inject ghost contents
+        ghostdata = MK8GhostData(track_slot, mod, mod_version)
+        filedata_serializer = MK8GhostDataSerializer()
+        filedata_serializer.serialize(new_file, ghostdata)
 
+        messagebox.showinfo("Track Change successful!", "Track data was successfully replaced.", parent=self._view.root)
+
+        # Update view (reloads from disk)
+        self.update()
 
     def open_ct_manager(self):
         """ TODO """

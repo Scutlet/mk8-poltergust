@@ -98,11 +98,3 @@ class Observable(Generic[T]):
         """ TODO """
         for listener in self._listeners:
             listener(val)
-
-
-# Inject 8 bytes just before Mii data.
-# With Header:
-# 27C-284
-
-# Without 0x48 Header:
-# 234-23c
