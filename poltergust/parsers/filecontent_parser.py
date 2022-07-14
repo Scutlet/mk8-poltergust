@@ -1,5 +1,7 @@
 from abc import ABC
+import binascii
 from dataclasses import dataclass
+import logging
 import os
 from poltergust.models.ct_storage import MK8CTStorage
 
@@ -25,8 +27,9 @@ class MK8GhostData:
 
 class MK8GhostDataOffsetInfos(ABC):
     """ TODO """
-    HEADER_PREFIX = "CTG0"
+    HEADER_PREFIX = "CTG0" # Identifier of the player ghost header
     HEADER_LENGTH = 0x48
+    CRC32_OFFSET = 0x38
 
     COURSE_ID_OFFSET = 0x17c # u4
 
@@ -41,13 +44,13 @@ class MK8GhostDataOffsetInfos(ABC):
         return self.f.read(4) == self.HEADER_PREFIX.encode()
 
     def get_offset(self, offset_without_header: int) -> int:
-        """ TODO """
+        """ Gets the correct offset, based on whether the player ghost header is present """
         if self.has_header:
             return offset_without_header + self.HEADER_LENGTH
         return offset_without_header
 
     def seek(self, offset: int) -> None:
-        """ TODO """
+        """ Shortcut to seek at an offset relative to the player ghost header """
         self.f.seek(self.get_offset(offset), os.SEEK_SET)
 
 class MK8GhostDataParser(MK8GhostDataOffsetInfos):
@@ -95,7 +98,6 @@ class MK8GhostDataParser(MK8GhostDataOffsetInfos):
                 self.seek(self.POLTERGUST_MOD_SITE_OFFSET)
                 mod_site_id = f.read(1)
                 mod_site_id = int.from_bytes(mod_site_id, byteorder='big')
-                print(mod_site_id)
 
                 mod_site = API_MOD_SITES[mod_site_id]
 
@@ -103,7 +105,7 @@ class MK8GhostDataParser(MK8GhostDataOffsetInfos):
                 mod = db.find_mod(mod_id, mod_site)
                 if mod is None:
                     # Not found in database
-                    # TODO; Download data
+                    # TODO; Download data from API
                     pass
 
             return MK8GhostData(self.has_header, track_slot, mod, mod_version)
@@ -156,4 +158,21 @@ class MK8GhostDataSerializer(MK8GhostDataOffsetInfos):
             mod_id = data.mod.mod_id.to_bytes(4, byteorder='big')
             f.write(mod_id)
 
-            # TODO: Fix header
+            if self.has_header:
+                # Need to fix the CRC-32
+                crc = self.calculate_crc()
+
+                logging.info("Recalculating CRC-32 for player ghost header.")
+                self.f.seek(self.CRC32_OFFSET, os.SEEK_SET)
+                self.f.write(crc)
+
+    def calculate_crc(self):
+        """ Calculate the CRC-32 over everything after the header """
+        # Read everything after the header
+        self.seek(0)
+
+        return binascii.crc32(self.f.read()).to_bytes(4, byteorder='big')
+
+
+
+
