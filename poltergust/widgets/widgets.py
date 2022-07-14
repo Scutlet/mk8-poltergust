@@ -134,3 +134,8 @@ class IconButton(Button):
         if image_path:
             self._img = PhotoImage(file=get_resource_path(image_path))
         super().__init__(master, *args, image=self._img, compound=compound, text=f" {text}", **kwargs)
+
+    def set_icon(self, image_path: str) -> None:
+        """ TODO """
+        self._img = PhotoImage(file=get_resource_path(image_path))
+        self.config(image=self._img)

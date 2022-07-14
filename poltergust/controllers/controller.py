@@ -7,10 +7,11 @@ from typing import Callable
 from poltergust.controllers.ctlist_controllers import CTListController
 from poltergust.controllers.track_change import TrackChangeController
 from poltergust.models.ct_storage import MK8CTStorage
+from poltergust.models.mod_models import MK8ModVersion
 from poltergust.parsers.downloader import MK8CustomTrack, ModDownloadException, PoltergustDownloader
 
 from poltergust.models.gamedata import COURSE_IDS
-from poltergust.models.game_models import MK8GhostType
+from poltergust.models.game_models import MK8Course, MK8GhostType
 from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
 from poltergust.parsers.ghost_converter import MK8GhostConverter
 from poltergust.parsers.ghost_file_parser import MK8GhostDataParser
@@ -93,6 +94,29 @@ class PoltergustController:
 
         trackchange_view = PoltergustChangeTrackView(self._view.root, current_track_slot, current_mod=current_ct)
         trackchange_controller = TrackChangeController(trackchange_view)
+        trackchange_controller.add_listener(self.on_track_change)
+
+    def on_track_change(self, track_data: tuple[MK8Course, MK8CustomTrack|None, MK8ModVersion]):
+        """ TODO """
+        (track_slot, mod, mod_version) = track_data
+
+        # Fix filename
+        self.filename_data.track_id = track_slot.course_id
+        if self.filename_data.ghost_type != MK8GhostType.DOWNLOADED_GHOST:
+            self.filename_data.ghost_number = track_slot.course_id - 16
+
+        serializer = MK8GhostFilenameSerializer()
+        new_name = serializer.serialize(self.filename_data)
+
+        # Rename file
+        current_folder = self.ghostfile.rpartition("/")[0]
+        new_file = current_folder + "/" + new_name
+        os.rename(self.ghostfile, new_file)
+
+        self.ghostfile = new_file
+
+        # Inject ghost contents
+
 
     def open_ct_manager(self):
         """ TODO """

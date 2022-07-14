@@ -15,7 +15,7 @@ class MK8ModVersion:
     patch: int = 0
 
     def __str__(self):
-        return f"v{self.major}.{self.minor}.{self.patch}"
+        return f"{self.major}.{self.minor}.{self.patch}"
 
 @dataclass
 class MK8CustomTrack(FramableTrack):
