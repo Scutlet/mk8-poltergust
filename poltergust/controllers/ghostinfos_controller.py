@@ -268,7 +268,7 @@ class PoltergustController:
             track = UNKNOWN_COURSE
 
         mod = self.ghost_data.mod
-        self._view.set_track(track, mod)
+        self._view.set_track(track, mod, self.ghost_data.mod_version)
 
         # Update text
         self._view.playername.set(self.filename_data.playername)

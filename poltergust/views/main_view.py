@@ -9,7 +9,7 @@ from PIL import ImageTk, Image
 from poltergust.models.gamedata import CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
 from poltergust.models.game_models import MK8Course, MK8GhostType
 from poltergust.models.imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper
-from poltergust.models.mod_models import MK8CustomTrack
+from poltergust.models.mod_models import MK8CustomTrack, MK8ModVersion
 from poltergust.utils import get_resource_path
 from poltergust.views.about_view import PoltergustAboutView
 
@@ -151,7 +151,7 @@ class PoltergustMainView:
         # Total Time (Stringvar to allow leading zeroes)
         self.total_min = StringVar()
         total_min_entry = ttk.Entry(summaryframe, width=1, textvariable=self.total_min, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
-        total_min_entry.grid(column=3, row=1, sticky=(W,E), padx=(20, 0))
+        total_min_entry.grid(column=3, row=1, sticky=(W,E), padx=(10, 0))
 
         self.total_sec = StringVar()
         total_sec_entry = ttk.Entry(summaryframe, width=2, textvariable=self.total_sec, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
@@ -293,7 +293,7 @@ class PoltergustMainView:
         self.set_mapped_image(self.character_canvas, MK8CharacterImageMapper(), char[1], resize_to=self.CHARACTER_SIZE)
         self.character_tip.text = f"{char[0]} ({character_id})"
 
-    def set_track(self, track: MK8Course, mod: MK8CustomTrack|None) -> None:
+    def set_track(self, track: MK8Course, mod: MK8CustomTrack|None, mod_version: MK8ModVersion|None) -> None:
         """ Sets the track preview """
         # Destroy old track infos
         for widget in self.trackframe.winfo_children():
@@ -303,6 +303,7 @@ class PoltergustMainView:
         small_frame = None
         if mod is not None:
             big_frame = mod.frame(self.trackframe)
+            big_frame._title_lb.config(text=f"{big_frame._title_lb.cget('text')} [v{mod_version}]")
             small_frame = track.miniframe(self.trackframe)
         else:
             # Base game track
