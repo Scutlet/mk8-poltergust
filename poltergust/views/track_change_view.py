@@ -7,8 +7,7 @@ from poltergust.models.mod_models import MK8ModVersion
 from poltergust.parsers.downloader import API_MOD_SITES, MK8CustomTrack
 from poltergust.models.game_models import MK8Course
 from poltergust.utils import PoltergustBlockingPopup
-from poltergust.widgets.widgets import IconButton, IntEntry
-
+from poltergust.widgets.misc import IconButton, IntEntry
 
 
 class PoltergustChangeTrackView(PoltergustBlockingPopup):

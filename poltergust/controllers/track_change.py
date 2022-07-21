@@ -8,8 +8,8 @@ from poltergust.models.gamedata import COURSE_IDS
 from poltergust.models.mod_models import MK8CustomTrack, MK8ModVersion
 from poltergust.utils import Observable
 
-from poltergust.views.change_track import PoltergustChangeTrackView
-from poltergust.views.ct_list import TrackListSelectorDownloaderView, TrackListSelectorView
+from poltergust.views.track_change_view import PoltergustChangeTrackView
+from poltergust.views.ct_list_view import TrackListSelectorDownloaderView, TrackListSelectorView
 
 
 class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVersion]]):

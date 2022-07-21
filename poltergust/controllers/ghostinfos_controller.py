@@ -13,9 +13,9 @@ from poltergust.parsers.filecontent_parser import MK8GhostData, MK8GhostDataPars
 from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFilenameParser, MK8GhostFilenameSerializer
 from poltergust.parsers.ghost_converter import MK8GhostConverter
 from poltergust.parsers.mii_handler import MK8GhostFilenameDataMiiHandler
-from poltergust.views.change_track import PoltergustChangeTrackView
-from poltergust.views.ct_list import TrackListManagerView
-from poltergust.views.main import PoltergustMainView
+from poltergust.views.track_change_view import PoltergustChangeTrackView
+from poltergust.views.ct_list_view import TrackListManagerView
+from poltergust.views.main_view import PoltergustMainView
 
 
 class PoltergustController:

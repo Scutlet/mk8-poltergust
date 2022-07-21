@@ -4,9 +4,9 @@ from tkinter import messagebox
 
 from dotenv import load_dotenv
 
-from poltergust.controllers.controller import PoltergustController
+from poltergust.controllers.ghostinfos_controller import PoltergustController
 from poltergust.models.ct_storage import MK8CTStorage
-from poltergust.views.main import PoltergustMainView
+from poltergust.views.main_view import PoltergustMainView
 
 
 if __name__ == '__main__':

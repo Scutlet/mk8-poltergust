@@ -6,7 +6,7 @@ from poltergust.models.mod_sites import ModDownloadException
 from poltergust.parsers.downloader import PoltergustDownloader
 from poltergust.utils import Observable
 
-from poltergust.views.ct_add import PoltergustAddCTView
+from poltergust.views.ct_add_view import PoltergustAddCTView
 
 
 class CTDownloaderController(Observable[MK8CustomTrack]):

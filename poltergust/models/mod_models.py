@@ -6,7 +6,7 @@ from PIL import Image
 
 from poltergust.models.mod_sites import MK8APIModSite, MK8ModSite
 from poltergust.utils import get_resource_path
-from poltergust.widgets.widgets import FramableTrack, MK8TrackFrameBig
+from poltergust.widgets.trackframes import FramableTrack, MK8TrackFrameBig
 
 
 @dataclass

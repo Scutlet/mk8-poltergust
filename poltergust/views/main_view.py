@@ -11,8 +11,8 @@ from poltergust.models.game_models import MK8Course, MK8GhostType
 from poltergust.models.imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
 from poltergust.models.mod_models import MK8CustomTrack
 from poltergust.utils import get_resource_path
-from poltergust.views.about import PoltergustAboutView
-from poltergust.widgets.widgets import FramableTrack
+from poltergust.views.about_view import PoltergustAboutView
+from poltergust.widgets.trackframes import FramableTrack
 
 
 class PoltergustMainView:

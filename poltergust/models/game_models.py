@@ -6,7 +6,7 @@ from PIL import Image
 
 from poltergust.models.imagemapper import MK8TrackImageMapper
 from poltergust.models.mod_sites import GameBananaSite, MarioWikiSite
-from poltergust.widgets.widgets import MK8TrackFrameBig, MK8TrackFrameSmall, MiniFramableTrack
+from poltergust.widgets.trackframes import MK8TrackFrameBig, MK8TrackFrameSmall, MiniFramableTrack
 
 
 class MK8GhostType(Enum):

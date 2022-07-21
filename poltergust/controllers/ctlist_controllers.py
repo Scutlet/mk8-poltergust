@@ -1,9 +1,9 @@
 from poltergust.controllers.ct_downloader import CTDownloaderController
 
 from poltergust.utils import Observable
-from poltergust.views.ct_add import PoltergustAddCTView
-from poltergust.views.ct_list import TrackListManagerView, TrackListSelectorDownloaderView, TrackListView, TrackListSelectorView
-from poltergust.widgets.widgets import FramableTrack, MK8TrackFrameBig
+from poltergust.views.ct_add_view import PoltergustAddCTView
+from poltergust.views.ct_list_view import TrackListManagerView, TrackListSelectorDownloaderView, TrackListView, TrackListSelectorView
+from poltergust.widgets.trackframes import FramableTrack, MK8TrackFrameBig
 
 
 class CTListController:
