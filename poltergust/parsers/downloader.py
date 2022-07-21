@@ -12,14 +12,25 @@ class PoltergustDownloader:
     """ Connects to the API endpoint of `MOD_SITES` and fetches a mod's information from them. """
     TIMEOUT = 6.05
 
-    def download(self, site_url: str) -> MK8CustomTrack:
+    def download_from_url(self, site_url: str) -> MK8CustomTrack:
         """
             Fetches mod data from a given site_url, raising a ModDownloadException if
             that is not possible.
         """
         site, identifier, api_endpoint = self.get_mod_site_for_url(site_url)
+
         if api_endpoint is None:
             raise ModDownloadException("Invalid Domain! Mods cannot be downloaded from the given URL. Please check the URL for typos.")
+
+        return self.download(site, identifier, api_endpoint=api_endpoint)
+
+
+    def download(self, site: MK8APIModSite, identifier: str, api_endpoint:str|None=None) -> MK8CustomTrack:
+        """
+            Fetches mod data from a given mod_site, for a mod with a given identifier, using the given API endpoint.
+        """
+        if api_endpoint is None:
+            api_endpoint = site.get_api_endpoint(identifier)
 
         try:
             logging.info(f"Downloading mod infos from: {api_endpoint}")

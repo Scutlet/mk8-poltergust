@@ -9,7 +9,8 @@ from poltergust.models.ct_storage import MK8CTStorage
 from poltergust.models.game_models import MK8Course
 from poltergust.models.gamedata import COURSE_IDS
 from poltergust.models.mod_models import UNKNOWN_CUSTOM_TRACK, MK8CustomTrack, MK8ModVersion
-from poltergust.models.mod_sites import API_MOD_SITES
+from poltergust.models.mod_sites import API_MOD_SITES, ModDownloadException
+from poltergust.parsers.downloader import PoltergustDownloader
 
 
 @dataclass
@@ -56,6 +57,72 @@ class MK8GhostDataOffsetInfos(ABC):
 
 class MK8GhostDataParser(MK8GhostDataOffsetInfos):
     """ Parses information from Mario Kart 8 Ghost Files """
+    def _download_modinfos(self, mod_id: int, mod_site_id: int) -> MK8CustomTrack|None:
+        """ Downloads a the info of a mod from a given site with a given id """
+        try:
+            mod_site = API_MOD_SITES[mod_site_id]
+
+            mod_site.mod_id_url
+
+            downloader = PoltergustDownloader()
+            db = MK8CTStorage()
+
+            mod = downloader.download(mod_site, str(mod_id))
+            if mod.preview_image is not None:
+                # Download image
+                preview_path = db.MOD_PREVIEW_PATH % {'mod_id': mod_id, 'mod_site_id': mod_site_id}
+                downloader.download_preview_image(mod.preview_image, preview_path)
+                mod.preview_image = preview_path
+
+            # Add downloaded info to the db
+            db.add_or_update_mod(mod)
+            db.commit()
+            messagebox.showinfo("Download Complete!", f"Mod information was downloaded successfully!\nName: {mod.name}\nAuthor(s): {mod.author}\nSite: {mod.mod_site}")
+            return mod
+        except ModDownloadException as e:
+            logging.error(e)
+            messagebox.showerror("Download Error!", str(e))
+        return None
+
+    def _get_mod_infos_for_id(self, mod_id: int) -> tuple[MK8CustomTrack, MK8ModVersion]|tuple[None, None]:
+        """ Gets info of a mod for a given id """
+        # Parse mod version (Poltergust injection)
+        self.seek(self.POLTERGUST_MOD_VERSION_OFFSET)
+        mod_version_major = self.f.read(1)
+        mod_version_major = int.from_bytes(mod_version_major, byteorder='big')
+
+        mod_version_minor = self.f.read(1)
+        mod_version_minor = int.from_bytes(mod_version_minor, byteorder='big')
+
+        mod_version_patch = self.f.read(1)
+        mod_version_patch = int.from_bytes(mod_version_patch, byteorder='big')
+
+        mod_version = MK8ModVersion(mod_version_major, mod_version_minor, mod_version_patch)
+
+        # Parse mod site (Poltergust injection)
+        self.seek(self.POLTERGUST_MOD_SITE_OFFSET)
+        mod_site_id = self.f.read(1)
+        mod_site_id = int.from_bytes(mod_site_id, byteorder='big')
+
+        if mod_site_id < 0 or mod_site_id >= len(API_MOD_SITES):
+            # Invalid data
+            messagebox.showerror("Ghost data corrupted!", f"Found unknown mod site {mod_site_id}! This does not break the ghost, and likely means something went wrong internally in Poltergust.")
+            return None
+
+        db = MK8CTStorage()
+        mod = db.find_mod(mod_id, mod_site_id)
+        if mod is None:
+            # Not found in database
+            should_download = messagebox.askyesno("Download Custom Track Info?", "This ghost file is associated with a custom track. Would you like to download this track's information?\n\nNote: An internet connection is required.")
+            if should_download:
+                mod = self._download_modinfos(mod_id, mod_site_id)
+            else:
+                mod = UNKNOWN_CUSTOM_TRACK
+                mod.mod_site = API_MOD_SITES[mod_site_id]
+                mod.mod_id = mod_id
+        return mod, mod_version
+
+
     def parse(self, input_file: str) -> MK8GhostData:
         """ Parses ghost data from the given file """
         with open(input_file, 'rb') as f:
@@ -82,40 +149,7 @@ class MK8GhostDataParser(MK8GhostDataOffsetInfos):
             mod_id = int.from_bytes(mod_id, byteorder='big')
 
             if mod_id != 0:
-                # Parse mod version (Poltergust injection)
-                self.seek(self.POLTERGUST_MOD_VERSION_OFFSET)
-                mod_version_major = f.read(1)
-                mod_version_major = int.from_bytes(mod_version_major, byteorder='big')
-
-                mod_version_minor = f.read(1)
-                mod_version_minor = int.from_bytes(mod_version_minor, byteorder='big')
-
-                mod_version_patch = f.read(1)
-                mod_version_patch = int.from_bytes(mod_version_patch, byteorder='big')
-
-                mod_version = MK8ModVersion(mod_version_major, mod_version_minor, mod_version_patch)
-
-                # Parse mod site (Poltergust injection)
-                self.seek(self.POLTERGUST_MOD_SITE_OFFSET)
-                mod_site_id = f.read(1)
-                mod_site_id = int.from_bytes(mod_site_id, byteorder='big')
-
-                if mod_site_id < 0 or mod_site_id >= len(API_MOD_SITES):
-                    # Invalid data
-                    raise ValueError(f"Unknown mod site {mod_site_id}. Ghost data was corrupted!")
-
-                db = MK8CTStorage()
-                mod = db.find_mod(mod_id, mod_site_id)
-                if mod is None:
-                    # Not found in database
-                    # TODO; Download data from API
-                    should_download = messagebox.askyesno("Download Custom Track Info?", "This ghost file is associated with a custom track. Would you like to download this track's information?\n\nNote: An internet connection is required.")
-                    if should_download:
-                        pass
-                    else:
-                        mod = UNKNOWN_CUSTOM_TRACK
-                        mod.mod_site = API_MOD_SITES[mod_site_id]
-                        mod.mod_id = mod_id
+                mod, mod_version = self._get_mod_infos_for_id(mod_id)
 
             return MK8GhostData(self.has_header, track_slot, mod, mod_version)
 

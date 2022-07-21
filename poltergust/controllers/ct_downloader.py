@@ -36,7 +36,7 @@ class CTDownloaderController(Observable[MK8CustomTrack]):
             Downloads info for a mod located at a given URL.
             :raise: ModDownloadException if the download could not be completed
         """
-        mod = self._downloader.download(url)
+        mod = self._downloader.download_from_url(url)
         if mod.preview_image is not None:
             # Download image
             preview_path = self._db.MOD_PREVIEW_PATH % {'mod_id': mod.mod_id, 'mod_site_id': mod.mod_site.id}
