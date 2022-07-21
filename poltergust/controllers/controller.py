@@ -2,7 +2,7 @@ import logging
 import os
 from tkinter import *
 from tkinter import messagebox
-from poltergust.controllers.ctlist_controllers import CTListController
+from poltergust.controllers.ctlist_controllers import CTListController, CTListDownloaderController
 from poltergust.controllers.track_change import TrackChangeController
 from poltergust.models.ct_storage import MK8CTStorage
 from poltergust.models.mod_models import MK8ModVersion
@@ -14,7 +14,7 @@ from poltergust.parsers.filename_parser import MK8GhostFilenameData, MK8GhostFil
 from poltergust.parsers.ghost_converter import MK8GhostConverter
 from poltergust.parsers.mii_handler import MK8GhostFilenameDataMiiHandler
 from poltergust.views.change_track import PoltergustChangeTrackView
-from poltergust.views.ct_list import PoltergustCTManagerView
+from poltergust.views.ct_list import TrackListManagerView
 from poltergust.views.main import PoltergustMainView
 
 
@@ -124,8 +124,8 @@ class PoltergustController:
 
     def open_ct_manager(self):
         """ TODO """
-        ctmanager_view = PoltergustCTManagerView(self._view.root, self._db.get_mods())
-        CTListController(ctmanager_view)
+        ctmanager_view = TrackListManagerView(self._view.root, self._db.get_mods())
+        CTListDownloaderController(ctmanager_view)
 
     def parse_filename(self, filepath: str):
         """ Invokes a parser to read ghost data from a ghost's filename """

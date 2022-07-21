@@ -5,14 +5,14 @@ from tkinter import *
 from tkinter import ttk
 from typing import Iterable
 
-from PIL import Image, ImageTk, ImageDraw, ImagePath
+from PIL import Image, ImageTk, ImageDraw
 
 from poltergust.utils import PoltergustBlockingPopup, bind_tree, get_resource_path
 from poltergust.widgets.widgets import FramableTrack, IconButton, MK8TrackFrameBig
 
 class ScrollableTrackCanvas(Canvas):
     """ TODO """
-    def __init__(self, master: Tk, track_list: Iterable[FramableTrack], *args, search_widget:ttk.Entry|None=None, scrollable_region: Widget|None=None, **kwargs):
+    def __init__(self, master: Toplevel, track_list: Iterable[FramableTrack], *args, search_widget:ttk.Entry|None=None, scrollable_region: Widget|None=None, **kwargs):
         super().__init__(master, *args, bd=0, borderwidth=0, highlightthickness=0, **kwargs)
 
         # Link search box
@@ -82,7 +82,7 @@ class ScrollableTrackCanvas(Canvas):
             if not search_value or search_value in track.sort_field.lower():
                 widget.pack(fill='both', padx=(2, 5), pady=(0, 5))
 
-    def add_track(self, track: FramableTrack) -> None:
+    def add_track(self, track: FramableTrack) -> MK8TrackFrameBig:
         """ Adds a track to the view """
         # Remove existing track from the list if the id field matches
         indx = None
@@ -99,8 +99,10 @@ class ScrollableTrackCanvas(Canvas):
         bisect.insort(self.track_widgets, (track, mod_widget), key=lambda pair: pair[0].sort_field)
         self.reload_list()
 
+        return mod_widget
 
-class PoltergustCTManagerView(PoltergustBlockingPopup):
+
+class TrackListView(PoltergustBlockingPopup):
     """
         Displays a window of all cached CTs.
     """
@@ -108,24 +110,20 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
     window_width = 310
     window_height = 400
 
-    def __init__(self, master: Tk, track_list: Iterable[FramableTrack], *args, **kwargs):
+    def __init__(self, master: Toplevel, track_list: Iterable[FramableTrack], *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Top frame
-        top = Frame(self)
-        top.pack(padx=5, pady=6, fill=X)
-
-        # Add CT Box
-        self.add_button = IconButton(top, text="Add a mod", image_path='resources/icons/plus-solid.png')
-        self.add_button.pack(side=LEFT)
+        self._top_frame = Frame(self)
+        self._top_frame.pack(padx=5, pady=6, fill=X)
 
         # Search Box
-        search_widget = ttk.Entry(top, width=25)
+        search_widget = ttk.Entry(self._top_frame, width=25)
         search_widget.pack(side=RIGHT)
 
         # Search Icon
         self._search_img = PhotoImage(file=get_resource_path('resources/icons/magnifying-glass-solid.png'))
-        canvas = Canvas(top, width=10, height=10, borderwidth=0, highlightthickness=0)
+        canvas = Canvas(self._top_frame, width=10, height=10, borderwidth=0, highlightthickness=0)
         canvas.create_image(0, 0, image=self._search_img, anchor=NW)
         canvas.pack(side=RIGHT, padx=(0, 4))
 
@@ -135,7 +133,16 @@ class PoltergustCTManagerView(PoltergustBlockingPopup):
         self.track_canvas = ScrollableTrackCanvas(track_list_frame, track_list=track_list, search_widget=search_widget, scrollable_region=self)
         self.track_canvas.pack(side=RIGHT, fill=BOTH, expand=True)
 
-class TrackListSelectorView(PoltergustCTManagerView):
+class TrackListManagerView(TrackListView):
+    """ TODO """
+    def __init__(self, master: Toplevel, track_list: Iterable[FramableTrack], *args, **kwargs):
+        super().__init__(master, track_list, *args, **kwargs)
+
+        # Add CT Box
+        self.add_button = IconButton(self._top_frame, text="Add a mod", image_path='resources/icons/plus-solid.png')
+        self.add_button.pack(side=LEFT)
+
+class TrackListSelectorView(TrackListView):
     """ TODO """
     window_title = "Poltergust - Select Track"
 
@@ -143,7 +150,7 @@ class TrackListSelectorView(PoltergustCTManagerView):
     SELECTION_COLOR = "light green"
     HOVER_COLOR = "lightblue"
 
-    def __init__(self, master: Tk, *args, selected_track: FramableTrack|None=None, **kwargs):
+    def __init__(self, master: Toplevel, *args, selected_track: FramableTrack|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.selected_track: FramableTrack|None = None
@@ -167,19 +174,23 @@ class TrackListSelectorView(PoltergustCTManagerView):
 
         self._attach_selectors(selected_track)
 
+    def attach_selectors_to_widget(self, track: FramableTrack, widget: MK8TrackFrameBig):
+        """ TODO """
+        bind_tree(widget, "<Button-1>",
+            lambda e, track=track, widget=widget: self.on_track_select(e, track, widget)
+        )
+        # Binding to the frame itself is enough
+        widget.bind("<Enter>",
+            lambda e, track=track, widget=widget: self.activate_hover(e, track, widget)
+        )
+        widget.bind("<Leave>",
+            lambda e, track=track, widget=widget: self.deactivate_hover(e, track, widget)
+        )
+
     def _attach_selectors(self, selected_track: FramableTrack) -> None:
         """ TODO """
         for framable, widget in self.track_canvas.track_widgets:
-            bind_tree(widget, "<Button-1>",
-                lambda e, track=framable, widget=widget: self.on_track_select(e, track, widget)
-            )
-            # Binding to the frame itself is enough
-            widget.bind("<Enter>",
-                lambda e, track=framable, widget=widget: self.activate_hover(e, track, widget)
-            )
-            widget.bind("<Leave>",
-                lambda e, track=framable, widget=widget: self.deactivate_hover(e, track, widget)
-            )
+            self.attach_selectors_to_widget(framable, widget)
 
             if framable == selected_track:
                 self.on_track_select(None, selected_track, widget)
@@ -232,3 +243,6 @@ class TrackListSelectorView(PoltergustCTManagerView):
         # Clear highlight color
         if self.selected_track != track:
             widget.set_color(None)
+
+class TrackListSelectorDownloaderView(TrackListManagerView, TrackListSelectorView):
+    """ TODO """

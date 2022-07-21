@@ -1,7 +1,7 @@
 
 
 from tkinter import Toplevel, messagebox
-from poltergust.controllers.ctlist_controllers import CTListSelectorController
+from poltergust.controllers.ctlist_controllers import CTListSelectorController, CTListSelectorDownloaderController
 from poltergust.models.ct_storage import MK8CTStorage
 from poltergust.models.game_models import MK8Course
 from poltergust.models.gamedata import COURSE_IDS
@@ -9,7 +9,7 @@ from poltergust.models.mod_models import MK8CustomTrack, MK8ModVersion
 from poltergust.utils import Observable
 
 from poltergust.views.change_track import PoltergustChangeTrackView
-from poltergust.views.ct_list import TrackListSelectorView
+from poltergust.views.ct_list import TrackListSelectorDownloaderView, TrackListSelectorView
 
 
 class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVersion]]):
@@ -38,8 +38,8 @@ class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVe
 
     def on_change_ct_button_click(self) -> None:
         """ TODO """
-        ctselector_view = TrackListSelectorView(self._view, self._db.get_mods(), selected_track=self.mod)
-        selector_controller = CTListSelectorController(ctselector_view)
+        ctselector_view = TrackListSelectorDownloaderView(self._view, self._db.get_mods(), selected_track=self.mod)
+        selector_controller = CTListSelectorDownloaderController(ctselector_view)
         selector_controller.add_listener(self.on_ct_changed)
 
     def on_clear_ct_button_click(self) -> None:
