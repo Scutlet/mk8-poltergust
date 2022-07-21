@@ -245,6 +245,7 @@ class PoltergustController:
         self._view.set_ghost_type(self.filename_data.ghost_type, self.filename_data.ghost_number, self.ghost_data.has_header)
 
         # Update Images
+        self._view.set_motion_control(self.filename_data.motion_control_flag)
         self._view.set_flag(self.filename_data.flag_id)
         self._view.set_character(self.filename_data.character_id, self.filename_data.character_variant_id, self.filename_data.mii_weight_class_id)
         self._view.set_vehicle_parts(self.filename_data.kart_id, self.filename_data.wheels_id, self.filename_data.glider_id)

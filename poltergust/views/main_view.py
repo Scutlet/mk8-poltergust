@@ -4,15 +4,14 @@ from tkinter import ttk, filedialog
 from tkinter.font import NORMAL as FONT_NORMAL
 import webbrowser
 
-from PIL import ImageTk
+from PIL import ImageTk, Image
 
-from poltergust.models.gamedata import COURSE_IDS, CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
+from poltergust.models.gamedata import CHARACTERS, FLAGS, GLIDERS, KARTS, MII_WEIGHT_CLASSES, WHEELS
 from poltergust.models.game_models import MK8Course, MK8GhostType
-from poltergust.models.imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper, MK8TrackImageMapper
+from poltergust.models.imagemapper import MK8CharacterImageMapper, MK8FlagImageMapper, MK8ImageAtlasMapper, MK8VehiclePartImageMapper
 from poltergust.models.mod_models import MK8CustomTrack
 from poltergust.utils import get_resource_path
 from poltergust.views.about_view import PoltergustAboutView
-from poltergust.widgets.trackframes import FramableTrack
 
 
 class PoltergustMainView:
@@ -45,6 +44,7 @@ class PoltergustMainView:
 
     # Icon sizes
     FLAG_SIZE = (33, 22)
+    MOTION_CONTROL_SIZE = (24, 24)
     CHARACTER_SIZE = (64, 64)
     VEHICLE_PART_SIZE = (75, 48)
     TRACK_SIZE = (80, 45)
@@ -136,25 +136,30 @@ class PoltergustMainView:
         # Name
         self.playername = StringVar()
         playername_entry = ttk.Entry(summaryframe, width=16, textvariable=self.playername, font=self.FONT, state=self.EDIT_STATE)
-        playername_entry.grid(column=1, row=0, columnspan=4, sticky=(W,E), padx=(0, 3))
+        playername_entry.grid(column=1, row=0, columnspan=5, sticky=(W,E), padx=(0, 3))
 
         # Flag
         self.flag_canvas = Canvas(summaryframe, width=self.FLAG_SIZE[0], height=self.FLAG_SIZE[1], borderwidth=0, highlightthickness=0)
         self.flag_canvas.grid(column=1, row=1)
         self.flag_tip = Hovertip(self.flag_canvas, 'PLACEHOLDER', hover_delay=1000)
 
+        # Motion controls
+        self.motion_control_canvas = Canvas(summaryframe, width=self.MOTION_CONTROL_SIZE[0], height=self.MOTION_CONTROL_SIZE[1], borderwidth=0, highlightthickness=0)
+        self.motion_control_canvas.grid(column=2, row=1)
+        self.motion_control_tip = Hovertip(self.motion_control_canvas, 'PLACEHOLDER', hover_delay=1000)
+
         # Total Time (Stringvar to allow leading zeroes)
         self.total_min = StringVar()
         total_min_entry = ttk.Entry(summaryframe, width=1, textvariable=self.total_min, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
-        total_min_entry.grid(column=2, row=1, sticky=(W,E), padx=(20, 0))
+        total_min_entry.grid(column=3, row=1, sticky=(W,E), padx=(20, 0))
 
         self.total_sec = StringVar()
         total_sec_entry = ttk.Entry(summaryframe, width=2, textvariable=self.total_sec, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
-        total_sec_entry.grid(column=3, row=1, sticky=(W,E))
+        total_sec_entry.grid(column=4, row=1, sticky=(W,E))
 
         self.total_ms = StringVar()
         total_ms_entry = ttk.Entry(summaryframe, width=3, textvariable=self.total_ms, font=self.FONT, justify=CENTER, state=self.EDIT_STATE)
-        total_ms_entry.grid(column=4, row=1, sticky=(W,E), padx=(0, 3))
+        total_ms_entry.grid(column=5, row=1, sticky=(W,E), padx=(0, 3))
 
         # Trackinfo frame
         self.trackframe = ttk.Frame(self.dataframe, borderwidth=0)
@@ -258,6 +263,18 @@ class PoltergustMainView:
         # Update flag image
         self.set_mapped_image(self.flag_canvas, MK8FlagImageMapper(), flag[1], resize_to=self.FLAG_SIZE)
         self.flag_tip.text = flag[0] + f" ({flag_id})"
+
+    def set_motion_control(self, motion_control_status: int) -> None:
+        """ Sets the motion control flag """
+        img_source = f"resources/mk8-motion-control-{int(motion_control_status)}.png"
+        img = Image.open(get_resource_path(img_source)).resize(self.MOTION_CONTROL_SIZE)
+        self._motion_control_img = ImageTk.PhotoImage(img)
+        self.motion_control_canvas.delete("all")
+        self.motion_control_canvas.create_image(0, 0, image=self._motion_control_img, anchor=NW)
+
+        tt = "Motion Controls: %(enabled)s (%(raw)s)"
+        enabled = "On" if motion_control_status else "Off"
+        self.motion_control_tip.text = tt % {'enabled': enabled, "raw": motion_control_status}
 
     def set_character(self, character_id: int, character_variant_id: int, mii_weight_class_id: int) -> None:
         """ Sets the character icon """
