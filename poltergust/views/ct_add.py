@@ -15,7 +15,7 @@ class PoltergustAddCTView(PoltergustBlockingPopup):
 
     mod_site_choices = {site.name: site for site in API_MOD_SITES}
 
-    def __init__(self, master: Tk, *args, **kwargs):
+    def __init__(self, master: Toplevel, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Info

@@ -11,7 +11,7 @@ from poltergust.utils import PoltergustBlockingPopup, bind_tree, get_resource_pa
 from poltergust.widgets.widgets import FramableTrack, IconButton, MK8TrackFrameBig
 
 class ScrollableTrackCanvas(Canvas):
-    """ TODO """
+    """ A scrollable canvas that shows a list of FrameableTracks """
     def __init__(self, master: Toplevel, track_list: Iterable[FramableTrack], *args, search_widget:ttk.Entry|None=None, scrollable_region: Widget|None=None, **kwargs):
         super().__init__(master, *args, bd=0, borderwidth=0, highlightthickness=0, **kwargs)
 
@@ -66,7 +66,7 @@ class ScrollableTrackCanvas(Canvas):
         self.itemconfig("inner", width=event.width)
 
     def _build_track_list(self, track_list: Iterable[FramableTrack]) -> list[tuple[FramableTrack, MK8TrackFrameBig]]:
-        """ TODO """
+        """ Constructs the track list by framing the provided FramableTracks """
         track_widgets = []
         for track in sorted(track_list, key=lambda item: item.sort_field):
             frame = track.frame(self.track_frame)
@@ -75,7 +75,7 @@ class ScrollableTrackCanvas(Canvas):
         return track_widgets
 
     def reload_list(self) -> None:
-        """ TODO """
+        """ Reloads the FramableTrack list """
         search_value = self.search_value.get().lower()
         for track, widget in self.track_widgets:
             widget.pack_forget()
@@ -134,7 +134,7 @@ class TrackListView(PoltergustBlockingPopup):
         self.track_canvas.pack(side=RIGHT, fill=BOTH, expand=True)
 
 class TrackListManagerView(TrackListView):
-    """ TODO """
+    """ Displays a window of all cached custom tracks, and allows invoking the downloader. """
     def __init__(self, master: Toplevel, track_list: Iterable[FramableTrack], *args, **kwargs):
         super().__init__(master, track_list, *args, **kwargs)
 
@@ -143,7 +143,7 @@ class TrackListManagerView(TrackListView):
         self.add_button.pack(side=LEFT)
 
 class TrackListSelectorView(TrackListView):
-    """ TODO """
+    """ Allows selecting a track from a list of FramableTracks """
     window_title = "Poltergust - Select Track"
 
     # SELECTION_COLOR = "light steel blue"
@@ -175,7 +175,7 @@ class TrackListSelectorView(TrackListView):
         self._attach_selectors(selected_track)
 
     def attach_selectors_to_widget(self, track: FramableTrack, widget: MK8TrackFrameBig):
-        """ TODO """
+        """ Makes sure a FramableTrack and its corresponding widget can be clicked and hovered """
         bind_tree(widget, "<Button-1>",
             lambda e, track=track, widget=widget: self.on_track_select(e, track, widget)
         )
@@ -188,7 +188,7 @@ class TrackListSelectorView(TrackListView):
         )
 
     def _attach_selectors(self, selected_track: FramableTrack) -> None:
-        """ TODO """
+        """ Attaches the selectors to all the tracks/widgets of the view """
         for framable, widget in self.track_canvas.track_widgets:
             self.attach_selectors_to_widget(framable, widget)
 
@@ -196,7 +196,7 @@ class TrackListSelectorView(TrackListView):
                 self.on_track_select(None, selected_track, widget)
 
     def _get_polygon_as_image(self, size: tuple[int, int], points: list[int], fill="", outline="", alpha=255):
-        """ TODO """
+        """ Builds a polygon from a list of points and outputs it as an image. """
         if fill:
             fill = self.winfo_rgb(fill)
             fill = (math.floor(fill[0]/255), math.floor(fill[1]/255), math.floor(fill[2]/255))
@@ -206,7 +206,7 @@ class TrackListSelectorView(TrackListView):
         return ImageTk.PhotoImage(image)
 
     def on_track_select(self, e: Event, track: FramableTrack, widget: MK8TrackFrameBig):
-        """ TODO """
+        """ Update the view when a different track is selected. """
         # Already selected
         if self.selected_track == track:
             return
@@ -235,14 +235,16 @@ class TrackListSelectorView(TrackListView):
         logging.info(f"Track selection changed to {track.sort_field}")
 
     def activate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrameBig):
+        """ Activate styling when the user hovers over the given track/widget """
         # Set highlight color
         if self.selected_track != track:
             widget.set_color(self.HOVER_COLOR)
 
     def deactivate_hover(self, e: Event, track: FramableTrack, widget: MK8TrackFrameBig):
+        """ Deactivates styling when the user stops hovering over the given track/widget """
         # Clear highlight color
         if self.selected_track != track:
             widget.set_color(None)
 
 class TrackListSelectorDownloaderView(TrackListManagerView, TrackListSelectorView):
-    """ TODO """
+    """ Allows selecting a track from a list of FramableTracks, and includes a button to access the downloader. """

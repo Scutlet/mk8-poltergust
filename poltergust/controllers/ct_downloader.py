@@ -1,8 +1,5 @@
-
-
-from abc import ABC, abstractmethod
 import logging
-from tkinter import Event, Toplevel, messagebox
+from tkinter import Event, messagebox
 from poltergust.models.ct_storage import MK8CTStorage
 from poltergust.models.mod_models import MK8CustomTrack
 from poltergust.models.mod_sites import ModDownloadException
@@ -11,14 +8,9 @@ from poltergust.utils import Observable
 
 from poltergust.views.ct_add import PoltergustAddCTView
 
-class CTDownloadListener(ABC):
-    """ TODO """
-    @abstractmethod
-    def on_download_complete(self, mod: MK8CustomTrack):
-        """ TODO """
 
 class CTDownloaderController(Observable[MK8CustomTrack]):
-    """ TODO """
+    """ Controller responsible for handling the CT info downloader view """
 
     def __init__(self, view: PoltergustAddCTView) -> None:
         super().__init__()
@@ -30,7 +22,7 @@ class CTDownloaderController(Observable[MK8CustomTrack]):
         self._downloader = PoltergustDownloader()
 
     def on_download_button_click(self, e: Event|None=None) -> None:
-        """ TODO """
+        """ Fetches the info from the url input by the user """
         try:
             mod = self.download_ct_infos(self._view.ct_url.get())
             self.notify_listeners(mod)

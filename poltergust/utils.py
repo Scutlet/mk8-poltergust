@@ -5,17 +5,6 @@ from tkinter import *
 from tkinter import ttk
 from typing import Callable, Generic, TypeVar
 
-class Singleton(type):
-    """ Singleton Metaclass """
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-class SingletonABCMeta(ABCMeta, Singleton):
-    """ Singleton Metaclass to use if also using an abstract base class """
-
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -46,14 +35,11 @@ class WrappingLabel(ttk.Label):
 
 class PoltergustPopup(Toplevel):
     """ General Popup class that places the window in the middle of the screen on creation """
-
-class PoltergustBlockingPopup(PoltergustPopup):
-    """ General Popup class that takes control from the main window """
     window_title = None
     window_width = None
     window_height = None
 
-    def __init__(self, master: Tk, *args, **kwargs):
+    def __init__(self, master: Toplevel, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         self.wm_title(self.window_title)
@@ -67,34 +53,62 @@ class PoltergustBlockingPopup(PoltergustPopup):
 
         self.geometry(f"{self.window_width}x{self.window_height}+{x}+{y}")
 
+        # Close with <esc>
+        self.bind("<Escape>", lambda e: self.on_close())
+
+    def on_close(self):
+        """ On closing the popup """
+        self.destroy()
+
+class PoltergustBlockingPopup(PoltergustPopup):
+    """ General Popup class that takes control from the main window """
+    window_title = None
+    window_width = None
+    window_height = None
+
+    def __init__(self, master: Toplevel, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+
         # Disable bottom window
         master.attributes('-disabled', 1)
         self.transient(master)
         self.focus_set()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
-        # Close with <esc>
-        self.bind("<Escape>", lambda e: self.on_close())
-
     def on_close(self):
-        """ On closing the popup """
         # Give back control to the bottom window
         self.master.attributes('-disabled', 0)
-        self.destroy()
+
+        super().on_close()
+
+class Singleton(type):
+    """ Singleton pattern Metaclass """
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class SingletonABCMeta(ABCMeta, Singleton):
+    """ Singleton Metaclass to use if also using an abstract base class """
 
 T = TypeVar('T')
 
 class Observable(Generic[T]):
-    """ TODO """
+    """
+        Observer pattern. Signifies that the class accepts 'listeners' that are notified
+        when a value of type T changes. What this value is left up to the class implementing
+        this pattern.
+    """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self._listeners: list[Callable[[], T]] = []
+        self._listeners: list[Callable[[T], None]] = []
 
-    def add_listener(self, listener: Callable[[], T]) -> None:
-        """ TODO """
+    def add_listener(self, listener: Callable[[T], None]) -> None:
+        """ Adds a listener. """
         self._listeners.append(listener)
 
     def notify_listeners(self, val: T) -> None:
-        """ TODO """
+        """ Notifies all listeners. """
         for listener in self._listeners:
             listener(val)

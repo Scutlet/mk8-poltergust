@@ -84,7 +84,7 @@ class PoltergustController:
         self._view.dataframe.grid_remove()
 
     def open_ct_changer(self):
-        """ TODO """
+        """ Initialises the popup that allows assigning a different track slot or custom track to the loaded ghost """
         current_track_slot = self.ghost_data.track_slot
         current_ct = self.ghost_data.mod
         current_mod_version = self.ghost_data.mod_version
@@ -94,7 +94,7 @@ class PoltergustController:
         trackchange_controller.add_listener(self.on_track_change)
 
     def on_track_change(self, track_data: tuple[MK8Course, MK8CustomTrack|None, MK8ModVersion]):
-        """ TODO """
+        """ Changes the track slot and/or custom track assigned to the loaded ghostfile. """
         (track_slot, mod, mod_version) = track_data
 
         # Fix filename
@@ -123,7 +123,7 @@ class PoltergustController:
         self.update()
 
     def open_ct_manager(self):
-        """ TODO """
+        """ Initialises the custom track manager """
         ctmanager_view = TrackListManagerView(self._view.root, self._db.get_mods())
         CTListDownloaderController(ctmanager_view)
 
@@ -133,7 +133,7 @@ class PoltergustController:
         self.filename_data = MK8GhostFilenameParser().parse(filename)
 
     def parse_file_contents(self, filepath: str) -> None:
-        """ TODO """
+        """ Invokes the ghost data parser and stores its results """
         self.ghost_data = MK8GhostDataParser().parse(filepath)
 
     def extract_mii(self):

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import ClassVar
-from tkinter import Tk, Toplevel
+from tkinter import Toplevel
 
 from PIL import Image
 
@@ -42,7 +42,7 @@ class MK8CustomTrack(FramableTrack):
         return False
 
     def _get_frame_args(self, image_size: tuple[int, int]) -> tuple[str, str, Image.Image]:
-        """ TODO """
+        """ Gets a tuple of the custom track's name, author, and preview image """
         track_name = self.name
         track_author = self.author or "Unknown Author"
 
@@ -59,7 +59,7 @@ class MK8CustomTrack(FramableTrack):
 
         return track_name, track_author, track_preview
 
-    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrameBig:
+    def frame(self, master: Toplevel, *args, **kwargs) -> MK8TrackFrameBig:
         track_name = self.name
         track_author = self.author or "Unknown Author"
 

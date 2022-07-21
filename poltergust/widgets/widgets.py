@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import logging
 from idlelib.tooltip import Hovertip
 from tkinter import *
 from tkinter import ttk
@@ -11,7 +10,7 @@ from PIL import Image, ImageTk
 from poltergust.utils import WrappingLabel, get_resource_path
 
 class MK8TrackFrameBase(LabelFrame):
-    """ TODO """
+    """ A frame containing information of a FramableTrack """
     BASE_FONT = "TkDefaultFont"
     TRACK_PREVIEW_SIZE: tuple[int, int] = (64, 64)
 
@@ -38,10 +37,10 @@ class MK8TrackFrameBase(LabelFrame):
 
 
 class MK8TrackFrameSmall(MK8TrackFrameBase):
-    """ TODO"""
+    """ A small variant of a framed track """
     TRACK_PREVIEW_SIZE = (48, 27)
 
-    def __init__(self, master: Tk, track_name: str, track_preview: Image.Image, *args, **kwargs):
+    def __init__(self, master: Toplevel, track_name: str, track_preview: Image.Image, *args, **kwargs):
         super().__init__(master, track_name, track_preview, *args, **kwargs)
 
         # Center the label
@@ -50,11 +49,11 @@ class MK8TrackFrameSmall(MK8TrackFrameBase):
 
 
 class MK8TrackFrameBig(MK8TrackFrameBase):
-    """ TODO """
+    """ A larger variant of a framed track. Is able to include more information. """
 
     TRACK_PREVIEW_SIZE = (96, 54)
 
-    def __init__(self, master: Tk, track_name: str, track_preview: Image.Image, track_author: str, url_text: str, url_icon: Image.Image, url_link: str, url_tooltip: str, *args, **kwargs):
+    def __init__(self, master: Toplevel, track_name: str, track_preview: Image.Image, track_author: str, url_text: str, url_icon: Image.Image, url_link: str, url_tooltip: str, *args, **kwargs):
         super().__init__(master, track_name, track_preview, *args, **kwargs)
 
         self._sep = ttk.Separator(self, orient=HORIZONTAL)
@@ -82,7 +81,7 @@ class MK8TrackFrameBig(MK8TrackFrameBase):
         self._default_color = author_lb.cget("background") # System background (SystemButtonFace on Windows/MacOS)
 
     def set_color(self, background: str|None):
-        """ TODO """
+        """ Sets the background colour of the frame. """
         style = ttk.Style()
         self._sep.configure(style="TSeparator")
         background = background or self._default_color
@@ -98,29 +97,29 @@ class MK8TrackFrameBig(MK8TrackFrameBase):
 
 
 class FramableTrack(ABC):
-    """ TODO """
+    """ Abstract class to make a track a FramableTrack """
     TRACK_PREVIEW_SIZE: tuple[int, int] = (96, 54)
 
     _sort_field_name: str = None
 
     @property
     def sort_field(self) -> str:
-        """ TODO """
+        """ The name of the class's field that should be used for sorting and searching purposes """
         return getattr(self, self._sort_field_name)
 
     @abstractmethod
-    def frame(self, master: Tk, *args, **kwargs) -> MK8TrackFrameBig:
-        """ TODO """
+    def frame(self, master: Toplevel, *args, **kwargs) -> MK8TrackFrameBig:
+        """ Creates a big frame with information about this track. """
 
 class MiniFramableTrack(FramableTrack, ABC):
-    """ TODO """
+    """ Abstract class to make a track a FramableTrack that also supports a small variant. """
     @abstractmethod
     def miniframe(self, master: Toplevel, *args, **kwargs) -> MK8TrackFrameSmall:
-        """ TODO """
+        """ Creates a small frame with information about this track. """
 
 class IntEntry(ttk.Entry):
     """ Tkinter entry that only accepts numbers as its input """
-    def __init__(self, master: Tk, *args, **kwargs):
+    def __init__(self, master: Toplevel, *args, **kwargs):
         super().__init__(master, *args, validate="key", validatecommand=(master.register(self.validate_input), "%P", '%d'), **kwargs)
 
     def validate_input(self, input: str, acttype: int):
@@ -129,13 +128,13 @@ class IntEntry(ttk.Entry):
 
 class IconButton(Button):
     """ Button with both text and an icon """
-    def __init__(self, master: Tk, *args, image_path: str="", compound:str=LEFT, text:str|float="", **kwargs):
+    def __init__(self, master: Toplevel, *args, image_path: str="", compound:str=LEFT, text:str|float="", **kwargs):
         self._img = None
         if image_path:
             self._img = PhotoImage(file=get_resource_path(image_path))
         super().__init__(master, *args, image=self._img, compound=compound, text=f" {text}", **kwargs)
 
     def set_icon(self, image_path: str) -> None:
-        """ TODO """
+        """ Sets the icon of the button """
         self._img = PhotoImage(file=get_resource_path(image_path))
         self.config(image=self._img)

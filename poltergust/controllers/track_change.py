@@ -13,7 +13,7 @@ from poltergust.views.ct_list import TrackListSelectorDownloaderView, TrackListS
 
 
 class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVersion]]):
-    """ TODO """
+    """ Controller that allows selecting a track slot and (optionally) a custom track. """
     SELECTABLE_TRACKS_SLOTS = list(filter(lambda track: track.course_id < 64, COURSE_IDS.values()))
 
     def __init__(self, view: PoltergustChangeTrackView):
@@ -31,28 +31,28 @@ class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVe
         self._view.save_button.config(command=self.on_save_button_click)
 
     def on_change_track_slot_button_click(self) -> None:
-        """ TODO """
+        """ Initialise a track slot selector """
         ctselector_view = TrackListSelectorView(self._view, self.SELECTABLE_TRACKS_SLOTS, selected_track=self.track)
         selector_controller = CTListSelectorController(ctselector_view)
         selector_controller.add_listener(self.on_track_slot_changed)
 
     def on_change_ct_button_click(self) -> None:
-        """ TODO """
+        """ Initialise a custom track selector """
         ctselector_view = TrackListSelectorDownloaderView(self._view, self._db.get_mods(), selected_track=self.mod)
         selector_controller = CTListSelectorDownloaderController(ctselector_view)
         selector_controller.add_listener(self.on_ct_changed)
 
     def on_clear_ct_button_click(self) -> None:
-        """ TODO """
+        """ Removes the selected custom track """
         self.on_ct_changed(None)
 
     def on_track_slot_changed(self, track: MK8Course) -> None:
-        """ TODO """
+        """ Modifies the selected track slot """
         self.track = track
         self._view.set_track_slot(track)
 
     def on_ct_changed(self, mod: MK8CustomTrack) -> None:
-        """ TODO """
+        """ Modifies the selected custom track (and resets its version) """
         self.mod = mod
         self.mod_version.major = 1
         self.mod_version.minor = 0
@@ -61,7 +61,7 @@ class TrackChangeController(Observable[tuple[MK8Course, MK8CustomTrack, MK8ModVe
         self._view.set_mod(mod)
 
     def on_save_button_click(self) -> None:
-        """ TODO """
+        """ Verifies the track slot and custom track selection, and notifies the listeners of it. """
         self.mod_version.major = self._view.ct_version_major.get()
         self.mod_version.minor = self._view.ct_version_minor.get()
         self.mod_version.patch = self._view.ct_version_patch.get()

@@ -12,7 +12,7 @@ class PoltergustAboutView(PoltergustBlockingPopup):
     window_width = 275
     window_height = 160
 
-    def __init__(self, master: Tk, *args, **kwargs):
+    def __init__(self, master: Toplevel, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         with Image.open(get_resource_path("resources/scutlet.png")) as img:

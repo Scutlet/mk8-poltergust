@@ -26,7 +26,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
     # Add mod sites
     mod_site_choices = {site.name: site for site in API_MOD_SITES}
 
-    def __init__(self, master: Tk, current_track_slot: MK8Course, *args, current_mod: MK8CustomTrack|None=None, mod_version: MK8ModVersion|None=None, **kwargs):
+    def __init__(self, master: Toplevel, current_track_slot: MK8Course, *args, current_mod: MK8CustomTrack|None=None, mod_version: MK8ModVersion|None=None, **kwargs):
         super().__init__(master, *args, **kwargs)
 
         # Track slot selection
@@ -97,7 +97,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         ttk.Separator(self, orient=HORIZONTAL).pack(side=BOTTOM, fill=X, padx=4)
 
     def set_track_slot(self, track: MK8Course) -> None:
-        """ TODO """
+        """ Changes the selected track slot """
         if self.track_slot is not None:
             self.static_track_frame.winfo_children()[0].destroy()
 
@@ -105,7 +105,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         self.track_slot = track
 
     def set_mod(self, mod: MK8CustomTrack) -> None:
-        """ TODO """
+        """ Changes the selected custom track """
         if self.mod is not None:
             self.static_mod_frame.winfo_children()[0].destroy()
 
@@ -124,7 +124,7 @@ class PoltergustChangeTrackView(PoltergustBlockingPopup):
         mod.frame(self.static_mod_frame).pack(fill=X)
 
     def set_mod_version(self, mod_version: MK8ModVersion) -> None:
-        """ TODO """
+        """ Changes the provided custom track version """
         self.ct_version_major.set(mod_version.major)
         self.ct_version_minor.set(mod_version.minor)
         self.ct_version_patch.set(mod_version.patch)

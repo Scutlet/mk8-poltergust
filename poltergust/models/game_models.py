@@ -50,7 +50,7 @@ class MK8Course(MiniFramableTrack):
         return False
 
     def _get_frame_kwargs(self, master: Toplevel, preview_size: tuple[int, int]) -> tuple[str, Image.Image]:
-        """ TODO """
+        """ Gets a tuple of the track slot's name and preview image """
         icon_index = self.icon_index
         track_preview = MK8TrackImageMapper().index_to_image(icon_index, resize_to=preview_size)
 

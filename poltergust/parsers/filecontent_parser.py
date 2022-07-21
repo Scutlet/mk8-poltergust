@@ -27,7 +27,7 @@ class MK8GhostData:
     mod_version: MK8ModVersion|None
 
 class MK8GhostDataOffsetInfos(ABC):
-    """ TODO """
+    """ Offets for information embedded in ghost files """
     HEADER_PREFIX = "CTG0" # Identifier of the player ghost header
     HEADER_LENGTH = 0x48
     CRC32_OFFSET = 0x38

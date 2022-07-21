@@ -9,8 +9,8 @@ from poltergust.utils import Singleton, SingletonABCMeta, get_resource_path
 class ModDownloadException(Exception):
     """ Raised when something goes wrong when downloading a mod. """
 
-class MK8ModSite():
-    """ TODO """
+class MK8ModSite:
+    """ A website that hosts mods """
     id: int
     name: str
     domain: str
@@ -25,7 +25,7 @@ class MK8ModSite():
         return False
 
 class MK8APIModSite(MK8ModSite, ABC):
-    """ TODO """
+    """ A website that allows downloading mods (or a mod's info) through an API """
     id: int
     name: str
     domain: str
@@ -34,7 +34,7 @@ class MK8APIModSite(MK8ModSite, ABC):
     mod_id_url = "%(mod_id)s"
 
     def get_url_for_mod_id(self, mod_id: int) -> str:
-        """ TODO """
+        """ Gets the URL for a mod with a given mod_id """
         return self.mod_id_url % {'mod_id': mod_id}
 
     @abstractmethod

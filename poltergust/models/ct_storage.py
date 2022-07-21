@@ -38,11 +38,11 @@ class MK8CTStorage(metaclass=Singleton):
         self.connection.commit()
 
     def get_mods(self) -> Iterable[MK8CustomTrack]:
-        """ TODO """
+        """ Gets an iterable of mods from the database """
         return map(lambda row: self._get_mod_from_db_infos(row[0], row[1], row[2], row[3]), self.connection.execute('SELECT id, name, author, mod_site FROM mods'))
 
     def _get_mod_from_db_infos(self, mod_id, name, author, mod_site_id) -> MK8CustomTrack:
-        """ TODO """
+        """ Outputs a MK8CustomTrack based on given info from the database """
         preview_image = self.MOD_PREVIEW_PATH % {'mod_id': mod_id, 'mod_site_id': mod_site_id}
         return MK8CustomTrack(name, API_MOD_SITES[mod_site_id], mod_id, author, preview_image)
 
@@ -57,7 +57,7 @@ class MK8CTStorage(metaclass=Singleton):
         return None
 
     def add_or_update_mod(self, mod: MK8CustomTrack) -> None:
-        """ TODO """
+        """ Adds a mod to the database, or updates it if a mod with the given mod_id and mod_site already exists """
         self.connection.execute('''INSERT OR REPLACE INTO mods (id, mod_site, author, name, last_updated_at) VALUES (:mod_id, :mod_site, :author, :name, :last_updated_at)''', {
             "mod_id": mod.mod_id,
             "mod_site": mod.mod_site.id,
