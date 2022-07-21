@@ -1,4 +1,3 @@
-
 ===============================
 Character Icons
 -------------------------------
@@ -33,3 +32,10 @@ Rippers: Random Talking Bush
 Source: https://www.spriters-resource.com/nintendo_switch/mariokart8deluxe/sheet/94777/
 
 Modified by Scutlet to add padding
+
+
+===============================
+General UI Icons
+-------------------------------
+Author: Font Awesome
+Source: https://fontawesome.com/

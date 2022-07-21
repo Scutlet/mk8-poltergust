@@ -1,72 +1,100 @@
+from poltergust.models.game_models import MK8DLC, MK8Course, MK8Cup
+
+
+DLC_ZELDA = MK8DLC("The Legend of Zelda × Mario Kart 8")
+DLC_ANIMAL_CROSSING = MK8DLC("Animal Crossing × Mario Kart 8")
+DLC_DELUXE = MK8DLC("Mario Kart 8 Deluxe")
+DLC_BOOSTER_COURSE_1 = MK8DLC("Booster Course Pass (Wave 1)")
+DLC_BOOSTER_COURSE_2 = MK8DLC("Booster Course Pass (Wave 2)")
+DLC_BOOSTER_COURSE_3 = MK8DLC("Booster Course Pass (Wave 3)")
+DLC_BOOSTER_COURSE_4 = MK8DLC("Booster Course Pass (Wave 4)")
+DLC_BOOSTER_COURSE_5 = MK8DLC("Booster Course Pass (Wave 5)")
+DLC_BOOSTER_COURSE_6 = MK8DLC("Booster Course Pass (Wave 6)")
+
+CUP_MUSHROOM = MK8Cup("Mushroom Cup")
+CUP_FLOWER = MK8Cup("Flower Cup")
+CUP_STAR = MK8Cup("Star Cup")
+CUP_SPECIAL = MK8Cup("Special Cup")
+CUP_SHELL = MK8Cup("Shell Cup")
+CUP_BANANA = MK8Cup("Banana Cup")
+CUP_LEAF = MK8Cup("Leaf Cup")
+CUP_LIGHTNING = MK8Cup("Lightning Cup")
+CUP_EGG = MK8Cup("Egg Cup", dlc=DLC_ZELDA)
+CUP_TRIFORCE = MK8Cup("Triforce Cup", dlc=DLC_ZELDA)
+CUP_CROSSING = MK8Cup("Crossing Cup", dlc=DLC_ANIMAL_CROSSING)
+CUP_BELL = MK8Cup("Bell Cup", dlc=DLC_ANIMAL_CROSSING)
+CUP_BATTLE_COURSES = MK8Cup("Battle Course", dlc=DLC_DELUXE)
+CUP_GOLDEN_DASH = MK8Cup("Golden Dash Cup", dlc=DLC_BOOSTER_COURSE_1)
+CUP_LUCKY_CAT = MK8Cup("Lucky Cat Cup", dlc=DLC_BOOSTER_COURSE_1)
 
 COURSE_IDS = {
-    27: ("Mario Kart Stadium", 0),
-    28: ("Water Park", 1),
-    19: ("Sweet Sweet Canyon", 2),
-    17: ("Thwomp Ruins", 3),
-    16: ("Mario Circuit", 4),
-    18: ("Toad Harbour", 5),
-    20: ("Twisted Mansion", 6),
-    21: ("Shy Guy Falls", 7),
-    26: ("Sunshine Airport", 8),
-    29: ("Dolphin Shoals", 9),
-    25: ("Electrodrome", 10),
-    24: ("Mount Wario", 11),
-    23: ("Cloudtop Cruise", 12),
-    22: ("Bone Dry Dunes", 13),
-    30: ("Bowser's Castle", 14),
-    31: ("Rainbow Road", 15),
-    33: ("Wii Moo Moo Meadows", 16),
-    38: ("GBA Mario Circuit", 17),
-    36: ("DS Cheep Cheep Beach", 18),
-    35: ("N64 Toad's Turnpike", 19),
-    42: ("GCN Dry Dry Desert", 20),
-    41: ("SNES Donut Plains 3", 21),
-    34: ("N64 Royal Raceway", 22),
-    32: ("3DS DK Jungle", 23),
-    46: ("DS Wario Stadium", 24),
-    37: ("GCN Sherbet Land", 25),
-    39: ("3DS Melody Motorway", 26),
-    45: ("N64 Yoshi Valley", 27),
-    44: ("DS Tick-Tock Clock", 28),
-    43: ("3DS Piranha Plant Pipeway", 29),
-    40: ("Wii Grumble Volcano", 30),
-    47: ("N64 Rainbow Road", 31),
-    56: ("GCN Yoshi Circuit", 32),
-    53: ("Excitebike Arena", 33),
-    50: ("Dragon Driftway", 34),
-    49: ("Mute City", 35),
-    57: ("Wii Wario's Gold Mine", 36),
-    58: ("SNES Rainbow Road", 37),
-    55: ("Ice Ice Outpost", 38),
-    51: ("Hyrule Circuit", 39),
-    61: ("GCN Baby Park", 40),
-    62: ("GBA Cheese Land", 41),
-    54: ("Wild Woods", 42),
-    64: ("Animal Crossing (Spring)", 43),
-    52: ("Animal Crossing (Summer)", 43),
-    65: ("Animal Crossing (Autumn)", 43),
-    66: ("Animal Crossing (Winter)", 43),
-    60: ("3DS Neo Bowser City", 44),
-    59: ("GBA Ribbon Road", 45),
-    48: ("Super Bell Subway", 46),
-    63: ("Big Blue", 47),
-    67: ("Battle Stadium", 48), # MK8D (unverified)
-    68: ("Sweet Sweet Kingdom", 49), # MK8D (unverified)
-    69: ("Dragon Palace", 50), # MK8D (unverified)
-    70: ("Lunar Colony", 51), # MK8D (unverified)
-    71: ("3DS Wuhu Town", 52), # MK8D (unverified)
-    72: ("GCN Luigi's Mansion", 53), # MK8D (unverified)
-    73: ("SNES Battle Course 1", 54), # MK8D (unverified)
-    74: ("Urchin Underpass", 55), # MK8D (unverified)
-    75: ("Tour Paris Promenade", 56), # MK8D DLC
-    76: ("3DS Toad Circuit", 57), # MK8D DLC
-    77: ("N64 Choco Mountain", 58), # MK8D DLC
-    78: ("Wii Coconut Mall", 59), # MK8D DLC
-    79: ("Tour Tokyo Blur", 60), # MK8D DLC
-    80: ("DS Shroom Ridge", 61), # MK8D DLC
-    81: ("GBA Sky Garden", 62), # MK8D DLC
-    82: ("Tour Ninja Hideaway", 63), # MK8D DLC
+    16: MK8Course(16, "Mario Circuit", 4, CUP_FLOWER, "https://www.mariowiki.com/Mario_Circuit_(Mario_Kart_8)"),
+    17: MK8Course(17, "Thwomp Ruins", 3, CUP_MUSHROOM, "https://www.mariowiki.com/Thwomp_Ruins"),
+    18: MK8Course(18, "Toad Harbor", 5, CUP_FLOWER, "https://www.mariowiki.com/Toad_Harbor"),
+    19: MK8Course(19, "Sweet Sweet Canyon", 2, CUP_MUSHROOM, "https://www.mariowiki.com/Sweet_Sweet_Canyon"),
+    20: MK8Course(20, "Twisted Mansion", 6, CUP_FLOWER, "https://www.mariowiki.com/Twisted_Mansion"),
+    21: MK8Course(21, "Shy Guy Falls", 7, CUP_FLOWER, "https://www.mariowiki.com/Shy_Guy_Falls"),
+    22: MK8Course(22, "Bone-Dry Dunes", 13, CUP_SPECIAL, "https://www.mariowiki.com/Bone-Dry_Dunes"),
+    23: MK8Course(23, "Cloudtop Cruise", 12, CUP_SPECIAL, "https://www.mariowiki.com/Cloudtop_Cruise"),
+    24: MK8Course(24, "Mount Wario", 11, CUP_STAR, "https://www.mariowiki.com/Mount_Wario"),
+    25: MK8Course(25, "Electrodrome", 10, CUP_STAR, "https://www.mariowiki.com/Electrodrome"),
+    26: MK8Course(26, "Sunshine Airport", 8, CUP_STAR, "https://www.mariowiki.com/Sunshine_Airport"),
+    27: MK8Course(27, "Mario Kart Stadium", 0, CUP_MUSHROOM, "https://www.mariowiki.com/Mario_Kart_Stadium"),
+    28: MK8Course(28, "Water Park", 1, CUP_MUSHROOM, "https://www.mariowiki.com/Water_Park"),
+    29: MK8Course(29, "Dolphin Shoals", 9, CUP_STAR, "https://www.mariowiki.com/Dolphin_Shoals"),
+    30: MK8Course(30, "Bowser's Castle", 14, CUP_SPECIAL, "https://www.mariowiki.com/Bowser%27s_Castle"),
+    31: MK8Course(31, "Rainbow Road", 15, CUP_SPECIAL, "https://www.mariowiki.com/Rainbow_Road"),
+    32: MK8Course(32, "3DS DK Jungle", 23, CUP_BANANA, "https://www.mariowiki.com/3DS_DK_Jungle"),
+    33: MK8Course(33, "Wii Moo Moo Meadows", 16, CUP_SHELL, "https://www.mariowiki.com/Wii_Moo_Moo_Meadows"),
+    34: MK8Course(34, "N64 Royal Raceway", 22, CUP_BANANA, "https://www.mariowiki.com/N64_Royal_Raceway"),
+    35: MK8Course(35, "N64 Toad's Turnpike", 19, CUP_SHELL, "https://www.mariowiki.com/N64_Toad%27s_Turnpike"),
+    36: MK8Course(36, "DS Cheep Cheep Beach", 18, CUP_SHELL, "https://www.mariowiki.com/DS_Cheep_Cheep_Beach"),
+    37: MK8Course(37, "GCN Sherbet Land", 25, CUP_LEAF, "https://www.mariowiki.com/GCN_Sherbet_Land"),
+    38: MK8Course(38, "GBA Mario Circuit", 17, CUP_SHELL, "https://www.mariowiki.com/GBA_Mario_Circuit"),
+    39: MK8Course(39, "3DS Music Park", 26, CUP_LEAF, "https://www.mariowiki.com/3DS_Music_Park"),
+    40: MK8Course(40, "Wii Grumble Volcano", 30, CUP_LIGHTNING, "https://www.mariowiki.com/Wii_Grumble_Volcano"),
+    41: MK8Course(41, "SNES Donut Plains 3", 21, CUP_BANANA, "https://www.mariowiki.com/SNES_Donut_Plains_3"),
+    42: MK8Course(42, "GCN Dry Dry Desert", 20, CUP_BANANA, "https://www.mariowiki.com/GCN_Dry_Dry_Desert"),
+    43: MK8Course(43, "3DS Piranha Plant Slide", 29, CUP_LIGHTNING, "https://www.mariowiki.com/3DS_Piranha_Plant_Slide"),
+    44: MK8Course(44, "DS Tick-Tock Clock", 28, CUP_LIGHTNING, "https://www.mariowiki.com/DS_Tick-Tock_Clock"),
+    45: MK8Course(45, "N64 Yoshi Valley", 27, CUP_LEAF, "https://www.mariowiki.com/N64_Yoshi_Valley"),
+    46: MK8Course(46, "DS Wario Stadium", 24, CUP_LEAF, "https://www.mariowiki.com/DS_Wario_Stadium"),
+    47: MK8Course(47, "N64 Rainbow Road", 31, CUP_LIGHTNING, "https://www.mariowiki.com/N64_Rainbow_Road"),
+    48: MK8Course(48, "Super Bell Subway", 46, CUP_BELL, "https://www.mariowiki.com/Super_Bell_Subway"),
+    49: MK8Course(49, "Mute City", 35, CUP_EGG, "https://www.mariowiki.com/Mute_City"),
+    50: MK8Course(50, "Dragon Driftway", 34, CUP_EGG, "https://www.mariowiki.com/Dragon_Driftway"),
+    51: MK8Course(51, "Hyrule Circuit", 39, CUP_TRIFORCE, "https://www.mariowiki.com/Hyrule_Circuit"),
+    52: MK8Course(52, "Animal Crossing (Summer)", 43, CUP_CROSSING, "https://www.mariowiki.com/Animal_Crossing"),
+    53: MK8Course(53, "Excitebike Arena", 33, CUP_EGG, "https://www.mariowiki.com/Excitebike_Arena"),
+    54: MK8Course(54, "Wild Woods", 42, CUP_CROSSING, "https://www.mariowiki.com/Wild_Woods"),
+    55: MK8Course(55, "Ice Ice Outpost", 38, CUP_TRIFORCE, "https://www.mariowiki.com/Ice_Ice_Outpost"),
+    56: MK8Course(56, "GCN Yoshi Circuit", 32, CUP_EGG, "https://www.mariowiki.com/GCN_Yoshi_Circuit"),
+    57: MK8Course(57, "Wii Wario's Goldmine", 36, CUP_TRIFORCE, "https://www.mariowiki.com/Wii_Wario%27s_Gold_Mine"),
+    58: MK8Course(58, "SNES Rainbow Road", 37, CUP_TRIFORCE, "https://www.mariowiki.com/SNES_Rainbow_Road"),
+    59: MK8Course(59, "GBA Ribbon Road", 45, CUP_BELL, "https://www.mariowiki.com/GBA_Ribbon_Road"),
+    60: MK8Course(60, "3DS Neo Bowser City", 44, CUP_BELL, "https://www.mariowiki.com/3DS_Neo_Bowser_City"),
+    61: MK8Course(61, "GCN Baby Park", 40, CUP_CROSSING, "https://www.mariowiki.com/GCN_Baby_Park"),
+    62: MK8Course(62, "GBA Cheese Land", 41, CUP_CROSSING, "https://www.mariowiki.com/GBA_Cheese_Land"),
+    63: MK8Course(63, "Big Blue", 47, CUP_BELL, "https://www.mariowiki.com/Big_Blue"),
+    64: MK8Course(64, "Animal Crossing (Spring)", 43, CUP_CROSSING, "https://www.mariowiki.com/Animal_Crossing"),
+    65: MK8Course(65, "Animal Crossing (Autumn)", 43, CUP_CROSSING, "https://www.mariowiki.com/Animal_Crossing"),
+    66: MK8Course(66, "Animal Crossing (Winter)", 43, CUP_CROSSING, "https://www.mariowiki.com/Animal_Crossing"),
+    67: MK8Course(67, "Battle Stadium", 48, CUP_BATTLE_COURSES, "https://www.mariowiki.com/Battle_Stadium"),
+    68: MK8Course(68, "Sweet Sweet Kindom", 49, CUP_BATTLE_COURSES, "https://www.mariowiki.com/Sweet_Sweet_Kingdom"),
+    69: MK8Course(69, "Dragon Palace", 50, CUP_BATTLE_COURSES, "https://www.mariowiki.com/Dragon_Palace"),
+    70: MK8Course(70, "Lunar Colony", 51, CUP_BATTLE_COURSES, "https://www.mariowiki.com/Lunar_Colony"),
+    71: MK8Course(71, "3DS Wuhu Town", 52, CUP_BATTLE_COURSES, "https://www.mariowiki.com/3DS_Wuhu_Town"),
+    72: MK8Course(72, "GCN Luigi's Mansion", 53, CUP_BATTLE_COURSES, "https://www.mariowiki.com/GCN_Luigi%27s_Mansion"),
+    73: MK8Course(73, "SNES Battle Course 1", 54, CUP_BATTLE_COURSES, "https://www.mariowiki.com/SNES_Battle_Course_1"),
+    74: MK8Course(74, "Urchin Underpass", 55, CUP_BATTLE_COURSES, "https://www.mariowiki.com/Urchin_Underpass"),
+    75: MK8Course(75, "Tour Paris Promenade", 56, CUP_GOLDEN_DASH, "https://www.mariowiki.com/Tour_Paris_Promenade"),
+    76: MK8Course(76, "3DS Toad Circuit", 57, CUP_GOLDEN_DASH, "https://www.mariowiki.com/3DS_Toad_Circuit"),
+    77: MK8Course(77, "N64 Choco Mountain", 58, CUP_GOLDEN_DASH, "https://www.mariowiki.com/N64_Choco_Mountain"),
+    78: MK8Course(78, "Wii Coconut Mall", 59, CUP_GOLDEN_DASH, "https://www.mariowiki.com/Wii_Coconut_Mall"),
+    79: MK8Course(79, "Tour Tokyo Blur", 60, CUP_LUCKY_CAT, "https://www.mariowiki.com/Tour_Tokyo_Blur"),
+    80: MK8Course(80, "DS Shroom Ridge", 61, CUP_LUCKY_CAT, "https://www.mariowiki.com/DS_Shroom_Ridge"),
+    81: MK8Course(81, "GBA Sky Garden", 62, CUP_LUCKY_CAT, "https://www.mariowiki.com/GBA_Sky_Garden"),
+    82: MK8Course(82, "Tour Ninja Hideway", 63, CUP_LUCKY_CAT, "https://www.mariowiki.com/Ninja_Hideaway"),
 }
 
 AMIIBO_SUITS = [
@@ -118,6 +146,10 @@ AMIIBO_SUITS = [
     ("Hylian Suit Male 2", 64), ("Hylian Suit Female 2", 64),
     ("Hylian Suit Male 3", 64), ("Hylian Suit Female 3", 64),
     ("Hylian Suit Male 4", 64), ("Hylian Suit Female 4", 64),
+    ("Inkling Suit Male 1", 64), ("Inkling Suit Female 1", 64), # MK8D
+    ("Inkling Suit Male 2", 64), ("Inkling Suit Female 2", 64), # MK8D
+    ("Inkling Suit Male 3", 64), ("Inkling Suit Female 3", 64), # MK8D
+    ("Inkling Suit Male 4", 64), ("Inkling Suit Female 4", 64), # MK8D
     ("Kirby Suit Male 1", 64), ("Kirby Suit Female 1", 64),
     ("Kirby Suit Male 2", 64), ("Kirby Suit Female 2", 64),
     ("Kirby Suit Male 3", 64), ("Kirby Suit Female 3", 64),
@@ -146,10 +178,6 @@ AMIIBO_SUITS = [
     ("Sonic Suit Male 2", 64), ("Sonic Suit Female 2", 64),
     ("Sonic Suit Male 3", 64), ("Sonic Suit Female 3", 64),
     ("Sonic Suit Male 4", 64), ("Sonic Suit Female 4", 64),
-    ("Inkling Suit Male 1", 64), ("Inkling Suit Female 1", 64), # MK8D (unverified)
-    ("Inkling Suit Male 2", 64), ("Inkling Suit Female 2", 64), # MK8D (unverified)
-    ("Inkling Suit Male 3", 64), ("Inkling Suit Female 3", 64), # MK8D (unverified)
-    ("Inkling Suit Male 4", 64), ("Inkling Suit Female 4", 64), # MK8D (unverified)
 ]
 
 CHARACTERS = {
