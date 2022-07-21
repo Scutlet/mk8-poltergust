@@ -46,11 +46,11 @@ class MK8CTStorage(metaclass=Singleton):
         preview_image = self.MOD_PREVIEW_PATH % {'mod_id': mod_id, 'mod_site_id': mod_site_id}
         return MK8CustomTrack(name, API_MOD_SITES[mod_site_id], mod_id, author, preview_image)
 
-    def find_mod(self, mod_id: int, mod_site: MK8ModSite) -> MK8CustomTrack|None:
+    def find_mod(self, mod_id: int, mod_site_id: int) -> MK8CustomTrack|None:
         """ Finds a mod from the given mod site with the given mod_id, or None if no such mod exists """
         for mod_id, name, author, mod_site_id in self.connection.execute('SELECT id, name, author, mod_site FROM mods WHERE id = :mod_id AND mod_site = :mod_site_id', {
                     "mod_id": mod_id,
-                    "mod_site_id": mod_site.id
+                    "mod_site_id": mod_site_id
                 }):
             return self._get_mod_from_db_infos(mod_id, name, author, mod_site_id)
         # Mod not found

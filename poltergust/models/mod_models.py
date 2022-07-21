@@ -4,8 +4,9 @@ from tkinter import Tk, Toplevel
 
 from PIL import Image
 
-from poltergust.models.mod_sites import MK8APIModSite
-from poltergust.widgets.widgets import FramableTrack, MK8TrackFrameBig, MK8TrackFrameSmall, MiniFramableTrack
+from poltergust.models.mod_sites import MK8APIModSite, MK8ModSite
+from poltergust.utils import get_resource_path
+from poltergust.widgets.widgets import FramableTrack, MK8TrackFrameBig
 
 
 @dataclass
@@ -79,3 +80,5 @@ class MK8CustomTrack(FramableTrack):
         url_tooltip = f"{self.mod_site} - {url_link}"
 
         return MK8TrackFrameBig(master, track_name, track_preview, track_author, url_text, url_icon, url_link, url_tooltip, *args, **kwargs)
+
+UNKNOWN_CUSTOM_TRACK = MK8CustomTrack("Unknown Custom Track", None, -1, None, get_resource_path("resources/unknown-track.png"))

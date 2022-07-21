@@ -3,11 +3,12 @@ import binascii
 from dataclasses import dataclass
 import logging
 import os
+from tkinter import messagebox
 from poltergust.models.ct_storage import MK8CTStorage
 
 from poltergust.models.game_models import MK8Course
 from poltergust.models.gamedata import COURSE_IDS
-from poltergust.models.mod_models import MK8CustomTrack, MK8ModVersion
+from poltergust.models.mod_models import UNKNOWN_CUSTOM_TRACK, MK8CustomTrack, MK8ModVersion
 from poltergust.models.mod_sites import API_MOD_SITES
 
 
@@ -99,14 +100,22 @@ class MK8GhostDataParser(MK8GhostDataOffsetInfos):
                 mod_site_id = f.read(1)
                 mod_site_id = int.from_bytes(mod_site_id, byteorder='big')
 
-                mod_site = API_MOD_SITES[mod_site_id]
+                if mod_site_id < 0 or mod_site_id >= len(API_MOD_SITES):
+                    # Invalid data
+                    raise ValueError(f"Unknown mod site {mod_site_id}. Ghost data was corrupted!")
 
                 db = MK8CTStorage()
-                mod = db.find_mod(mod_id, mod_site)
+                mod = db.find_mod(mod_id, mod_site_id)
                 if mod is None:
                     # Not found in database
                     # TODO; Download data from API
-                    pass
+                    should_download = messagebox.askyesno("Download Custom Track Info?", "This ghost file is associated with a custom track. Would you like to download this track's information?\n\nNote: An internet connection is required.")
+                    if should_download:
+                        pass
+                    else:
+                        mod = UNKNOWN_CUSTOM_TRACK
+                        mod.mod_site = API_MOD_SITES[mod_site_id]
+                        mod.mod_id = mod_id
 
             return MK8GhostData(self.has_header, track_slot, mod, mod_version)
 

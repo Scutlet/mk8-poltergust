@@ -9,7 +9,7 @@ from poltergust.utils import Singleton, SingletonABCMeta, get_resource_path
 class ModDownloadException(Exception):
     """ Raised when something goes wrong when downloading a mod. """
 
-class MK8ModSite(metaclass=Singleton):
+class MK8ModSite():
     """ TODO """
     id: int
     name: str
@@ -24,7 +24,7 @@ class MK8ModSite(metaclass=Singleton):
             return self.id == other.id
         return False
 
-class MK8APIModSite(MK8ModSite, ABC, metaclass=SingletonABCMeta):
+class MK8APIModSite(MK8ModSite, ABC):
     """ TODO """
     id: int
     name: str
@@ -74,7 +74,7 @@ class MK8APIModSite(MK8ModSite, ABC, metaclass=SingletonABCMeta):
     def get_mod_preview_image(self, clean_json: dict) -> str:
         """ Gets a preview image of the mod of the response. """
 
-class CTWikiSite(MK8APIModSite):
+class CTWikiSite(MK8APIModSite, metaclass=SingletonABCMeta):
     id = 0
     name = "CT Wiki"
     domain = "https://mk8.tockdom.com/wiki/"
@@ -177,7 +177,7 @@ class CTWikiSite(MK8APIModSite):
             # Use special URL to find the url of the image
             return f"{self.domain}Special:FilePath/{image_url[len('File:'):]}"
 
-class GameBananaSite(MK8APIModSite):
+class GameBananaSite(MK8APIModSite, metaclass=SingletonABCMeta):
     id = 1
     name = "GameBanana"
     domain = "https://gamebanana.com/mods/"
@@ -252,6 +252,5 @@ class MarioWikiSite(MK8ModSite):
     name = "Super Mario Wiki"
     domain = "https://www.mariowiki.com/"
     icon = Image.open(get_resource_path("resources/favicons/favicon_mariowiki.png")).resize(size=(16, 16))
-
 
 API_MOD_SITES: tuple[MK8APIModSite] = (CTWikiSite(), GameBananaSite())
