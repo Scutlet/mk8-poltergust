@@ -107,7 +107,7 @@ class MK8GhostDataParser(MK8GhostDataOffsetInfos):
         if mod_site_id < 0 or mod_site_id >= len(API_MOD_SITES):
             # Invalid data
             messagebox.showerror("Ghost data corrupted!", f"Found unknown mod site {mod_site_id}! This does not break the ghost, and likely means something went wrong internally in Poltergust.")
-            return None
+            return None, None
 
         db = MK8CTStorage()
         mod = db.find_mod(mod_id, mod_site_id)
